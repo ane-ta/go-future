@@ -22,20 +22,22 @@ workspace "GoFuture" "Полная модель текущего состоян�
         goFuture = softwareSystem "GoFuture Platform" {
             
             #! Клиентские приложения
-            webPassenger = container "Пассажирское приложение" "iOS/Android/Huawei" "Native"
-            webDriver = container "Водительское приложение" "iOS/Android/Huawei" "Native"
+            webPassenger = container "Пассажирское приложение" "iOS/Android/Huawei" "Native" "Critical"
+            webDriver = container "Водительское приложение" "iOS/Android/Huawei" "Native" "Critical"
             webPortal = container "Корпоративный веб-портал" "Web Application" "Native"
             adminPortal = container "Админ-панель" "Управление выплатами" "Web Application" "Native"
 
+            apiGateway = container "API Gateway" "Маршрутизирует. Авторизует" "???" "ToBe,Critical, Infrastructure"
+
             # Основной монолит и его внутренние домены (из C3)
             monolith = container "GoFuture Monolith" "Django Application" "Python" {
-                booking = component "Booking Domain" "Управление бронированиями" "Django App"
-                driverDom = component "Driver Domain" "Управление водителями" "Django App"
-                pricing = component "Pricing Domain" "Ценообразование" "Django App"
-                payments = component "Payments Domain" "Платежи от пассажиров" "Django App"
+                booking = component "Booking Domain" "Управление бронированиями" "Django App" "Critical"
+                driverDom = component "Driver Domain" "Управление водителями" "Django App" "Critical"
+                pricing = component "Pricing Domain" "Ценообразование" "Django App" "Critical"
+                payments = component "Payments Domain" "Платежи от пассажиров" "Django App" "Critical"
                 payouts = component "Payouts Domain" "Выплаты водителям" "Django App"
-                notif = component "Notification Domain" "Управление уведомлениями" "Django App"
-                geo = component "Geography Domain" "Геопоиск и маршрутизация" "Django App"
+                notif = component "Notification Domain" "Управление уведомлениями" "Django App" "Critical"
+                geo = component "Geography Domain" "Геопоиск и маршрутизация" "Django App" "Critical"
                 analyticsDom = component "Analytics Domain" "Сбор аналитики" "Django App"
                 fraud = component "Fraud Domain" "Обнаружение мошенничества" "Django App"
             }
