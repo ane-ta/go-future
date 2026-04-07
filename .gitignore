@@ -1,3 +1,4 @@
 .structurizr/
 .vorg.db
 workspace.json
+*.md
