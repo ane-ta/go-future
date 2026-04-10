@@ -1,0 +1,19 @@
+        element "Database" { 
+            shape Cylinder 
+            background #1262F7 
+        }
+        element "Cache" { 
+            background #41482A 
+        }
+
+        element "AnalyticsPipe" {
+            background #153527 
+        }
+
+        element "Observability"{
+            background #DE2478
+        }
+
+        element "CiCd" {
+            background #4A4A4A 
+        }

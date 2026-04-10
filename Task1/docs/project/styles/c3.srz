@@ -1,0 +1,6 @@
+# C3
+
+    element "Component" {
+        background #85bbf0
+        color #000000
+    }

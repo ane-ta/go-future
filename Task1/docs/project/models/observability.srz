@@ -1,0 +1,14 @@
+    #! Мониторинг и логи
+    group "Observability" {
+        prometheus = container "Prometheus" "Сбор метрик и мониторинг" "Monitoring system"  "Observability, Metrics"
+        grafana = container "Grafana" "Визуализация метрик. Дашборды"  "Grafana" "Observability, Metrics, Logs"
+        alertManager = container "Alertmanager" "Алертинг"  "Alertmanager"  "Observability, Metrics"
+        loki = container "Loki" "Сбор логов"  "Loki" "Observability, Logs"        
+    }
+
+    loki -> grafana "Предоставляет логи" "Loki Logs" "Logs"
+    prometheus -> grafana "Предоставляет данные" "PromQL" "Metrics"
+    prometheus -> alertManager "Алерты" "Metrics"
+    alertManager -> sre "Приходят алерты" "Email/Slack/Pager" "Metrics"
+    sre -> alertManager "Настраивает алерты" "Metrics"
+    sre -> grafana "Мониторит систему" "Metrics, Logs"

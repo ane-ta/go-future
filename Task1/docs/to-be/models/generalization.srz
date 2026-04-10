@@ -1,0 +1,5 @@
+    group "Prod" {
+        msProd = container "Prod Microservices" "бизнес логика после миграции" "" "Ms"
+        msBroker = container "Broker" "" "" "Ms"
+        msDatabases = container "Databases" "" "" "Ms"
+    }

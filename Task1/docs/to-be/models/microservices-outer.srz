@@ -1,0 +1,29 @@
+#C2 маршрутизация
+    apiGateway -> booking "Маршрутизирует webPassenger" "HTTPS"
+    apiGateway -> driverDom "Маршрутизирует webDriver" "HTTPS"
+    apiGateway -> booking "Маршрутизирует webPortal" "HTTPS"
+    apiGateway -> payouts "Маршрутизирует adminPortal" "HTTPS"
+
+# C2 ASYNC-связи
+    # domains
+    booking -> mq "уведомления и аналитика" "AMQP" "Publish"
+    payouts -> mq "выплаты" "AMQP" "Publish"
+    payments -> mq "отчеты" "AMQP" "Publish"
+    analyticsDom -> mq "события аналитики" "AMQP" "Publish"
+
+    # workers
+    mq -> payoutTasks "Задачи выплат" "AMQP" "Subscribe"
+    mq -> notificationTasks "Задачи уведомлений" "AMQP" "Subscribe"
+    mq -> analyticsTasks "Задачи аналитики" "AMQP" "Subscribe"
+
+
+# C2 Внешние интеграции
+    # domains
+    geo -> yandexMaps "геоданные" "Yandex Maps API" "ExternalApi"
+    payments -> yandexPay "платежи" "Yandex Pay API" "ExternalApi"
+
+    # workers
+    payoutTasks -> bankApi "Банковские выплаты" "REST API" "ExternalApi"
+    notificationTasks -> fcm "Уведомления Android" "REST API" "ExternalApi"
+    notificationTasks -> huaweiPush "Уведомления Huawei" "REST API" "ExternalApi"
+    notificationTasks -> apns "Уведомления iOS" "REST API" "ExternalApi"

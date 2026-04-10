@@ -1,0 +1,49 @@
+# C2 Взаимодействие микросервисов
+    booking -> driverDom "назначает водителя" "синхронно" "LogicApi"
+    booking -> pricing "запрашивает цену" "синхронно" "LogicApi"
+    booking -> payments "инициирует оплату" "синхронно" "LogicApi"
+    booking -> geo "ищет маршрут" "синхронно" "LogicApi"
+    booking -> fraud "проверяет на мошенничество" "синхронно" "LogicApi"
+    booking -> notif "отправляет уведомления" "синхронно" "LogicApi"
+
+    driverDom -> pricing "расчет заработка" "синхронно" "LogicApi"
+    payments -> fraud "проверка транзакций" "синхронно" "LogicApi"
+    payouts -> driverDom "данные водителя" "синхронно" "LogicApi"
+    geo -> analyticsDom "метрики геопоиска" "синхронно" "LogicApi"
+
+
+# C2 SQL запросы микросервисов 
+    booking -> dbSqlBooking "bookings, drivers" "SQL" "ToBe"
+    driverDom -> dbSqlDriver "drivers, payouts" "SQL" "ToBe"
+    pricing -> dbSqlPricing "pricing_rules" "SQL" "ToBe"
+    payments -> dbSqlPayments "payments" "SQL" "ToBe"
+    payouts -> dbSqlPayouts "payouts" "SQL" "ToBe"
+    geo -> dbSqlGeo "drivers, zones" "SQL" "ToBe"
+    analyticsDom -> dbSqlAnalytics "все таблицы" "SQL" "ToBe"
+    fraud -> dbSqlFraud "payments, bookings" "SQL" "ToBe"
+
+    notificationTasks -> dbSqlNotif "данные уведомлений" "ORM"
+    payoutTasks -> dbSqlPayouts "выплаты и балансы" "ORM"
+    analyticsTasks -> dbAnalytics "аналитические данные" "ORM"
+
+# C2 Репликация
+    booking -> mqBg "bookings" "???" "ToBe, ReplicaLink, Publish"
+    mqBg -> fraud "bookings" "???" "ToBe, ReplicaLink, Subscribe"
+    
+    payments -> mqBg "payments" "???" "ToBe, ReplicaLink, Publish"
+    mqBg -> fraud "payments" "???" "ToBe, ReplicaLink, Subscribe"
+
+    driverDom -> mqBg "drivers" "???" "ToBe, ReplicaLink, Publish"
+    mqBg -> booking "drivers" "???" "ToBe, ReplicaLink, Subscribe"
+    mqBg -> geo "drivers" "???" "ToBe, ReplicaLink, Subscribe"
+    
+    payouts -> mqBg "payouts" "???" "ToBe, ReplicaLink, Publish"
+    mqBg -> driverDom "payouts" "???" "ToBe, ReplicaLink"
+
+# C2 Поиск 
+    geo -> dbGeo "поиск водителей" "Elasticsearch API"
+    
+# C2 Кеширование
+    pricing -> cachePricing "кеш ценовых правил" "Redis" "ToBe"
+    notif -> cacheNotif "кеш устройств" "Redis" "ToBe"
+    geo -> cacheGeo "кеш геоданных" "Redis" "ToBe"

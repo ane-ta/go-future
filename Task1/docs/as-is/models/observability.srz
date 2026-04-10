@@ -1,0 +1,22 @@
+    # Мониторинг 
+
+        dbMain -> prometheus "Метрики БД" "PostgreSQL Exporter"
+        mq -> prometheus "Метрики очередей" "RabbitMQ Exporter"
+
+        # C3 monolith
+        booking -> prometheus "метрики бронирований" "Prometheus"
+        payments -> prometheus "метрики платежей" "Prometheus"
+
+        # C3 workers
+        notificationTasks -> prometheus "метрики уведомлений" "Prometheus"
+        payoutTasks -> prometheus "метрики выплат" "Prometheus"
+
+    # Логи
+        # C3 monolith
+        booking -> loki "логи бронирований" "Loki Logs"
+        payments -> loki "логи платежей" "Loki Logs"
+
+        # C3 workers
+        notificationTasks -> loki "Логи уведомлений" "Loki Logs"
+        payoutTasks -> loki "Логи выплат" "Loki Logs"
+        # ? analyticsTasks -> loki "Логи аналитики" "Loki Logs"

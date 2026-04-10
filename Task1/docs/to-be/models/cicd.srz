@@ -1,0 +1,4 @@
+# CI/CD
+    cicdWorker -> msProd "Деплой кодовой базы" "Docker Deploy" "CiCd"
+    cicdWorker -> msBroker "Деплой конфигурации" "Docker Deploy" "CiCd"
+    cicdWorker -> msDatabases "Деплой конфигурации" "Docker Deploy" "CiCd"

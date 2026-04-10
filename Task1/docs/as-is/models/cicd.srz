@@ -1,0 +1,3 @@
+    # CI/CD
+        cicdWorker -> monolith "деплой приложения" "Docker Deploy"
+        cicdWorker -> workers "деплой воркеров" "Docker Deploy"

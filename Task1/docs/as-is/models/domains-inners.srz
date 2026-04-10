@@ -1,0 +1,34 @@
+# Внутренние вызовы монолита
+    # C3
+    booking -> driverDom "назначает водителя" "синхронно"
+    booking -> pricing "запрашивает цену" "синхронно"
+    booking -> payments "инициирует оплату" "синхронно"
+    booking -> geo "ищет маршрут" "синхронно"
+    booking -> fraud "проверяет на мошенничество" "синхронно"
+    booking -> notif "отправляет уведомления" "синхронно"
+
+    driverDom -> pricing "расчет заработка" "синхронно"
+    payments -> fraud "проверка транзакций" "синхронно"
+    payouts -> driverDom "данные водителя" "синхронно"
+    geo -> analyticsDom "метрики геопоиска" "синхронно"
+
+# Прямые SQL запросы доменов 
+    # C3 
+    booking -> dbMain "bookings, drivers" "SQL"
+    driverDom -> dbMain "drivers, payouts" "SQL"
+    pricing -> dbMain "pricing_rules" "SQL"
+    payments -> dbMain "payments" "SQL"
+    payouts -> dbMain "payouts" "SQL"
+    geo -> dbMain "drivers, zones" "SQL"
+    analyticsDom -> dbMain "все таблицы" "SQL"
+    fraud -> dbMain "payments, bookings" "SQL"
+
+# FullTextSearch
+    # C3
+    geo -> dbGeo "поиск водителей" "Elasticsearch API"
+            
+# Кеширование
+    # C3
+    pricing -> cache "кеш ценовых правил" "Redis"
+    notif -> cache "кеш устройств" "Redis"
+    geo -> cache "кеш геоданных" "Redis"

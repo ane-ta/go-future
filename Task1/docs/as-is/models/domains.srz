@@ -1,0 +1,12 @@
+    # Основной монолит и его внутренние домены (из C3)
+    monolith = container "GoFuture Monolith" "Django Application" "Python" "Analytics" {
+        booking = component "Booking Domain" "Управление бронированиями" "Django App" "Critical"
+        driverDom = component "Driver Domain" "Управление водителями" "Django App" "Critical"
+        pricing = component "Pricing Domain" "Ценообразование" "Django App" "Critical"
+        payments = component "Payments Domain" "Платежи от пассажиров" "Django App" "Critical"
+        payouts = component "Payouts Domain" "Выплаты водителям" "Django App"
+        notif = component "Notification Domain" "Управление уведомлениями" "Django App" "Critical"
+        geo = component "Geography Domain" "Геопоиск и маршрутизация" "Django App" "Critical"
+        analyticsDom = component "Analytics Domain" "Сбор аналитики" "Django App" "Analytics"
+        fraud = component "Fraud Domain" "Обнаружение мошенничества" "Django App"
+    }

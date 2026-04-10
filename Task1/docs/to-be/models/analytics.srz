@@ -1,0 +1,4 @@
+# Аналитический пайплайн
+    # C3
+    mq -> analyticsEngine "События аналитики" "AMQP" "Analytics"
+    analyticsTasks -> analyticsEngine "обработка данных" "Spark Jobs" "Analytics"

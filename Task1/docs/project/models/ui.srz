@@ -1,0 +1,11 @@
+    #! Клиентские приложения
+    webPassenger = container "Пассажирское приложение" "iOS/Android/Huawei" "Native" "Critical, UI, Entrance"
+    webDriver = container "Водительское приложение" "iOS/Android/Huawei" "Native" "Critical, UI, Entrance"
+    webPortal = container "Корпоративный веб-портал" "Web Application" "Native, UI, Entrance"
+    adminPortal = container "Админ-панель" "Управление выплатами" "Web Application" "Native, UI, Entrance"
+
+    # Взаимодействие пользователей
+    passenger -> webPassenger "Использует"
+    driver -> webDriver "Использует"
+    corpManager -> webPortal "Использует"
+    accountant -> adminPortal "Использует"

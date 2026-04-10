@@ -1,0 +1,20 @@
+    #! --- АКТОРЫ ---
+    group "Пользователи"{
+        passenger = person "Пассажир" "Заказывает, отслеживает и оплачивает поездки"
+        driver = person "Водитель" "Принимает заказы и получает выплаты"
+        corpManager = person "Корпоративный менеджер" "Управляет счетами и поездками"
+        accountant = person "Бухгалтер" "Контролирует выплаты водителям"
+        #?
+        dev = person "Разработчик" "Разрабатывает новые функции"
+        sre = person "SRE инженер" "Мониторинг и поддержка" "Internal"
+    }
+
+    #! --- ВНЕШНИЕ СИСТЕМЫ ---
+    group "Внешние системы" {
+        yandexPay = softwareSystem "Яндекс Пэй" "Платежный шлюз" "External"
+        yandexMaps = softwareSystem "Яндекс Карты" "Геоданные и маршруты" "External"
+        bankApi = softwareSystem "API Банка" "Банковские выплаты" "External"
+        fcm = softwareSystem "Firebase Cloud Messaging" "Push iOS/Android" "External"
+        apns = softwareSystem "Apple Push Notification" "Push iOS" "External"
+        huaweiPush = softwareSystem "Huawei Push Kit" "Push Huawei" "External"    
+    }

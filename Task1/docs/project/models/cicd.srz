@@ -1,0 +1,11 @@
+    #! CI/CD
+    group "CiCd Group" {
+        jenkins = container "Jenkins" "Сборка и деплой" "CI/CD" "CiCd"
+        artifactRepo = container "Artifact Repository" "Хранение образов" "Docker Registry" "CiCd"
+        cicdWorker = container "CI/CD Workers" "Выполнение задач сборки и тестов" "VM/Containers" "CiCd"
+    }
+
+    jenkins -> artifactRepo "Управление образами" "Docker API"
+    dev -> jenkins "Пушит код"
+    jenkins -> cicdWorker "Запускает задачи" "SSH/API"
+    cicdWorker -> artifactRepo "Пушит образы" "Docker Push"

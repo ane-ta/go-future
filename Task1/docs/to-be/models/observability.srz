@@ -1,0 +1,29 @@
+# Мониторинг 
+    # C2
+    msProd -> prometheus "Метрики" "Prometheus metrics" "Metrics"
+    msBroker -> prometheus "Метрики очередей" "Prometheus metrics" "Metrics"
+    msDatabases -> prometheus "Метрики БД" "Prometheus metrics" "Metrics"
+
+
+        // # C3 monolith
+        // booking -> prometheus "метрики бронирований" "Prometheus" "Metrics"
+        // payments -> prometheus "метрики платежей" "Prometheus" "Metrics"
+
+        // # C3 workers
+        // notificationTasks -> prometheus "метрики уведомлений" "Prometheus" "Metrics"
+        // payoutTasks -> prometheus "метрики выплат" "Prometheus" "Metrics"
+
+# Логи
+    # C2
+    msProd -> loki "Отправляет логи" "Loki Logs" "Logs"
+    msBroker -> loki "Отправляет логи" "Loki Logs" "Logs"
+    msDatabases -> loki "Отправляет логи" "Loki Logs" "Logs"
+
+        // # C3 monolith
+        // booking -> loki "логи бронирований" "Loki Logs" "Logs"
+        // payments -> loki "логи платежей" "Loki Logs" "Logs"
+
+        // # C3 workers
+        // notificationTasks -> loki "Логи уведомлений" "Loki Logs" "Logs"
+        // payoutTasks -> loki "Логи выплат" "Loki Logs" "Logs"
+        // # ? analyticsTasks -> loki "Логи аналитики" "Loki Logs" "Logs"

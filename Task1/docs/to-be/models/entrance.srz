@@ -1,0 +1,13 @@
+# --- ИНФРАСТРУКТУРА ---
+    apiGateway = container "API Gateway" "Единая точка входа, Auth, Rate Limiting" "???" "ToBe, Critical, Infrastructure, Entrance"{
+        legacyAuthAdapter = component "Legacy Auth Adapter" "Принимает старые session_id, выдает JWT" "" "Entrance, Migration"
+        aclService = component "Anti-Corruption Layer" "Трансформирует v1 → v2\nРоутит на монолит или микросервис по feature flag\nПерехватывает прямые вызовы внутри монолита" "???" "Migration" 
+    }
+    idService = container "Identity Service" "Выпускает JWT для микросервисов" "???" "ToBe, Critical, Infrastructure, Entrance"
+
+# Аутентификация Авторизация Маршрутизация
+    apiGateway -> idService "Получает сертификат авторизации"
+    webPassenger -> apiGateway "Создает заказы" "HTTPS/REST API"
+    webDriver -> apiGateway "Обновляет статус" "HTTPS/REST API"
+    webPortal -> apiGateway "Просмотр заказов" "HTTPS/REST API"
+    adminPortal -> apiGateway "Управление выплатами" "HTTPS/REST API"

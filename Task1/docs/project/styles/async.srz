@@ -1,0 +1,18 @@
+#async
+
+    element "Broker" { 
+        shape Pipe 
+        background #62A9F1 
+    }
+    relationship "Publish" {
+        color #ff8c00
+    //     dashed true
+    //     thickness 3
+    //     fontSize 24
+    }
+    relationship "Subscribe" {
+        color #FFE100
+    //     dashed true
+    //     thickness 3
+    //     fontSize 24
+    }

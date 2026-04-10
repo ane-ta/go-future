@@ -1,0 +1,9 @@
+# C1
+    element "External" { 
+        background #999999 
+        color #ffffff 
+    }
+
+    element "Person" {
+        background #A09D00 
+    }
