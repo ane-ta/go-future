@@ -4,10 +4,10 @@
     booking -> payments "инициирует оплату" "синхронно" "LogicApi"
     booking -> geo "ищет маршрут" "синхронно" "LogicApi"
     booking -> fraud "проверяет на мошенничество" "синхронно" "LogicApi"
+    booking -> fraud "проверяет транзакцию" "синхронно" "LogicApi"
     booking -> notif "отправляет уведомления" "синхронно" "LogicApi"
 
     driverDom -> pricing "расчет заработка" "синхронно" "LogicApi"
-    payments -> fraud "проверка транзакций" "синхронно" "LogicApi"
     payouts -> driverDom "данные водителя" "синхронно" "LogicApi"
     geo -> analyticsDom "метрики геопоиска" "синхронно" "LogicApi"
 
