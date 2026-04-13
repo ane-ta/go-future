@@ -1,0 +1,8 @@
+    driverDom -> mqEDA "publish: DriverProposed"
+    driverDom -> mqEDA "publish: DriverAccepted"
+    mqEDA -> orchestr "DriverAccepted"
+    
+    orchestr -> booking "assignDriver()"
+    orchestr -> mqEDA "publish: DriverAssigned"
+    mqEDA -> geo "DriverAssigned"
+    mqEDA -> notif "DriverAssigned"

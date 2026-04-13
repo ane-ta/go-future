@@ -5,8 +5,8 @@
     }
 
     # Миграция
-    apiGateway -> idService "Обменивает session_id на JWT" "Migration"
-    apiGateway -> aclComponent "Валидирует SessionId" "???" "Migration, Generalization"
+    legacyAuthAdapter -> idService "Обменивает session_id на JWT" "Migration"
+    legacyAuthAdapter -> aclComponent "Валидирует SessionId" "???" "Migration, Generalization"
     aclService -> monolith "Перенаправляет legacy связи" "???" "Migration, Generalization" 
     aclService -> legacy "Перенаправляет legacy связи" "???" "Migration, Generalization" 
     aclService -> msProd "Трансформирует legacy связи" "???" "Migration, Generalization"

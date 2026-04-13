@@ -1,4 +1,9 @@
 # Микросервисы ---
+# Пассажирский опыт ---
+    group "Orchestration" {
+        orchestr = container "Orchestration" "Оркестрация" "???" "ToBe, Prod, Service, Critical"
+        dbSqlOrchestr = container "БД Orchestration" "Оркестрация" "PostgreSQL RDS" "ToBe, Prod, Database"
+    }
 
 # Пассажирский опыт ---
     group "Booking" {

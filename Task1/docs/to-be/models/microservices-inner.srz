@@ -1,49 +1,97 @@
-# C2 Взаимодействие микросервисов
-    booking -> driverDom "назначает водителя" "синхронно" "LogicApi"
-    booking -> pricing "запрашивает цену" "синхронно" "LogicApi"
-    booking -> payments "инициирует оплату" "синхронно" "LogicApi"
-    booking -> geo "ищет маршрут" "синхронно" "LogicApi"
-    booking -> fraud "проверяет на мошенничество" "синхронно" "LogicApi"
-    booking -> fraud "проверяет транзакцию" "синхронно" "LogicApi"
-    booking -> notif "отправляет уведомления" "синхронно" "LogicApi"
+# C2 Оркестрация Взаимодействие микросервисов EDA
+    booking -> orchestr "инициирует SAGA" "синхронно" "LogicApi"
 
-    driverDom -> pricing "расчет заработка" "синхронно" "LogicApi"
-    payouts -> driverDom "данные водителя" "синхронно" "LogicApi"
-    geo -> analyticsDom "метрики геопоиска" "синхронно" "LogicApi"
+    orchestr -> geo "ищет маршрут" "синхронно" "LogicApi"
+    orchestr -> pricing "запрашивает цену" "синхронно" "LogicApi"
+
+    orchestr -> fraud "проверяет на мошенничество" "синхронно" "LogicApi"
+    orchestr -> fraud "проверяет транзакцию" "синхронно" "LogicApi"
+    orchestr -> payments "бронирует оплату на счете" "синхронно" "LogicApi"
+
+    orchestr -> mqEDA "BookingCreated" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> driverDom "BookingCreated" "Subscribe" "ToBe, EDA, Subscribe"
+//    mqEDA -> notif "BookingCreated" "" "ToBe, EDA"
+
+    driverDom -> mqEDA "FindDriverRequested" "Publish" "ToBe, EDA, Publish"
+    driverDom -> pricing "расчет заработка" "синхронно" "ToBe, LogicApi"
+
+    driverDom -> mqEDA "DriverProposed" "Publish" "ToBe, EDA, Publish"
+    driverDom -> mqEDA "DriverAccepted\nDriverRejected" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> orchestr "DriverAccepted\nDriverRejected" "Subscribe" "ToBe, EDA, Subscribe"
+    
+    orchestr -> booking "Назначить водителя" "Queue" "ToBe, EDA, Publish"
+    booking -> mqEDA "DriverAssigned" "Publish" "ToBe, EDA, Publish"
+
+//    orchestr -> notif "DriverAssigned" "" "ToBe, EDA"
+    mqEDA -> geo "DriverAssigned" "Subscribe" "ToBe, EDA, Subscribe"
+
+    driverDom -> mqEDA "DriverSearchTimeout" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> orchestr "DriverSearchTimeout" "Subscribe" "ToBe, EDA, Subscribe"
+
+    orchestr -> mqEDA "BookingCancelled" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> driverDom "BookingCancelled" "Subscribe" "ToBe, EDA, Subscribe"
+    
+    driverDom -> mqEDA "RideStarted" "Publish" "ToBe, EDA, Publish"
+    
+    driverDom -> mqEDA "RideCompleted" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> payments "RideCompleted" "Subscribe" "ToBe, EDA, Subscribe"
+    mqEDA -> payouts "RideCompleted" "Subscribe" "ToBe, EDA, Subscribe"
+    
+    pricing -> mqEDA "SurgeFactorUpdated" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> geo "SurgeFactorUpdated" "Subscribe" "ToBe, EDA, Subscribe"
+
+    fraud -> mqEDA "FraudAlert" "Publish" "ToBe, EDA, Publish"
+
+    payments -> mqEDA "PaymentHeld" "Publish" "ToBe, EDA, Publish"
+    payments -> mqEDA "PaymentReleased" "Publish" "ToBe, EDA, Publish"
+    payments -> mqEDA "PaymentCharged" "Publish" "ToBe, EDA, Publish"
+
+    payouts -> mqEDA "PayoutCompleted" "Publish" "ToBe, EDA, Publish"
+
+    driverDom -> mqEDA "LocationUpdated" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> geo "LocationUpdated" "Subscribe" "ToBe, EDA, Subscribe"
+
+    notif -> mqEDA "NotificationSent" "Publish" "ToBe, EDA, Publish"
+
+    geo -> mqEDA "Метрики геопоиска" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> notif "SendNotification" "[Queue]" "ToBe, EDA, Subscribe, Notification"
 
 
 # C2 SQL запросы микросервисов 
-    booking -> dbSqlBooking "bookings, drivers" "SQL" "ToBe"
-    driverDom -> dbSqlDriver "drivers, payouts" "SQL" "ToBe"
-    pricing -> dbSqlPricing "pricing_rules" "SQL" "ToBe"
-    payments -> dbSqlPayments "payments" "SQL" "ToBe"
-    payouts -> dbSqlPayouts "payouts" "SQL" "ToBe"
-    geo -> dbSqlGeo "drivers, zones" "SQL" "ToBe"
-    analyticsDom -> dbSqlAnalytics "все таблицы" "SQL" "ToBe"
-    fraud -> dbSqlFraud "payments, bookings" "SQL" "ToBe"
+    orchestr -> dbSqlOrchestr "Saga state" "SQL" "ToBe, SQL"
 
-    notificationTasks -> dbSqlNotif "данные уведомлений" "ORM"
-    payoutTasks -> dbSqlPayouts "выплаты и балансы" "ORM"
-    analyticsTasks -> dbAnalytics "аналитические данные" "ORM"
+    booking -> dbSqlBooking "bookings, drivers" "SQL" "ToBe, SQL"
+    driverDom -> dbSqlDriver "drivers, payouts" "SQL" "ToBe, SQL"
+    pricing -> dbSqlPricing "pricing_rules" "SQL" "ToBe, SQL"
+    payments -> dbSqlPayments "payments" "SQL" "ToBe, SQL"
+    payouts -> dbSqlPayouts "payouts" "SQL" "ToBe, SQL"
+    geo -> dbSqlGeo "drivers, zones" "SQL" "ToBe, SQL"
+    analyticsDom -> dbSqlAnalytics "все таблицы" "SQL" "ToBe, SQL"
+    fraud -> dbSqlFraud "payments, bookings" "SQL" "ToBe, SQL"
+
+    notificationTasks -> dbSqlNotif "данные уведомлений" "ORM" "ToBe, SQL"
+    payoutTasks -> dbSqlPayouts "выплаты и балансы" "ORM" "ToBe, SQL"
+    analyticsTasks -> dbAnalytics "аналитические данные" "ORM" "ToBe, SQL"
 
 # C2 Репликация
-    booking -> mqBg "bookings" "???" "ToBe, ReplicaLink, Publish"
-    mqBg -> fraud "bookings" "???" "ToBe, ReplicaLink, Subscribe"
+    booking -> mqBg "bookings" "???CDC" "ToBe, ReplicaLink, Publish"
+    mqBg -> fraud "bookings" "???CDC" "ToBe, ReplicaLink, Subscribe"
     
-    payments -> mqBg "payments" "???" "ToBe, ReplicaLink, Publish"
-    mqBg -> fraud "payments" "???" "ToBe, ReplicaLink, Subscribe"
+    payments -> mqBg "payments" "???CDC" "ToBe, ReplicaLink, Publish"
+    mqBg -> fraud "payments" "???CDC" "ToBe, ReplicaLink, Subscribe"
 
-    driverDom -> mqBg "drivers" "???" "ToBe, ReplicaLink, Publish"
-    mqBg -> booking "drivers" "???" "ToBe, ReplicaLink, Subscribe"
-    mqBg -> geo "drivers" "???" "ToBe, ReplicaLink, Subscribe"
+    driverDom -> mqBg "drivers" "???CDC" "ToBe, ReplicaLink, Publish"
+    mqBg -> payouts "данные водителя" "???CDC" "ToBe, ReplicaLink, Subscribe"
+    mqBg -> booking "drivers" "???CDC" "ToBe, ReplicaLink, Subscribe"
+    mqBg -> geo "drivers" "???CDC" "ToBe, ReplicaLink, Subscribe"
     
-    payouts -> mqBg "payouts" "???" "ToBe, ReplicaLink, Publish"
-    mqBg -> driverDom "payouts" "???" "ToBe, ReplicaLink"
+    payouts -> mqBg "payouts" "???CDC" "ToBe, ReplicaLink, Publish"
+    mqBg -> driverDom "payouts" "???CDC" "ToBe, ReplicaLink"
 
 # C2 Поиск 
-    geo -> dbGeo "поиск водителей" "Elasticsearch API"
+    geo -> dbGeo "поиск водителей" "Elasticsearch API" "ToBe, Elastic"
     
 # C2 Кеширование
-    pricing -> cachePricing "кеш ценовых правил" "Redis" "ToBe"
-    notif -> cacheNotif "кеш устройств" "Redis" "ToBe"
-    geo -> cacheGeo "кеш геоданных" "Redis" "ToBe"
+    pricing -> cachePricing "кеш ценовых правил" "Redis" "ToBe, Cache"
+    notif -> cacheNotif "кеш устройств" "Redis" "ToBe, Cache"
+    geo -> cacheGeo "кеш геоданных" "Redis" "ToBe, Cache"

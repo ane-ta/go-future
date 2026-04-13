@@ -1,0 +1,7 @@
+    driverDom -> mqEDA "publish: DriverSearchTimeout"
+    mqEDA -> orchestr "DriverSearchTimeout"
+    
+    orchestr -> payments "releasePayment()"
+    orchestr -> mqEDA "publish: BookingCancelled"
+    mqEDA -> driverDom "BookingCancelled"
+    

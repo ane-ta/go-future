@@ -1,5 +1,6 @@
 workspace extends ws-parent.dsl {
 !const MODELS_PATH3 "./to-be/models"
+!const VIEWS_PATH3 "./to-be/views"
 
     model {
     # СИСТЕМА                        
@@ -12,7 +13,8 @@ workspace extends ws-parent.dsl {
             !include ${MODELS_PATH3}/entrance.srz
 
         # Очереди и асинхронщина
-            mqBg = container "Брокер сообщений репликации" "Очередь задач" "???" "ToBe, Broker"
+            mqEDA = container "Брокер сообщений EDA" "Доменные события" "???" "ToBe, Broker"
+            mqBg = container "Брокер сообщений репликации" "CDC события" "???" "ToBe, Broker"
             mq = container "Брокер сообщений" "Очередь задач" "RabbitMQ" "Broker"
 
         # Микросервисы
@@ -47,7 +49,7 @@ workspace extends ws-parent.dsl {
         // workers -> bankApi "Выполняет выплаты" "REST API"
     }
     views {
-
+        // миграция
         component monolith "Migration" { 
             include "->element.tag==Entrance"
             include "->element.tag==Migration->"
@@ -55,6 +57,7 @@ workspace extends ws-parent.dsl {
             autolayout lr
         }
 
+        // микросервисы и репликация CDC
         container goFuture "ProdServices_Data_Interaction" { 
             include "element.tag==Prod && element.tag==Service"
             include "element.tag==Prod && element.tag==Worker"
@@ -65,15 +68,47 @@ workspace extends ws-parent.dsl {
             include mqBg
             autolayout lr
         }
-
+        // EDA
         container goFuture "ProdServices_Logic_Interaction" { 
             include "element.tag==Prod && element.tag==Service"
             include "element.tag==Prod && element.tag==Worker"
+            include mqEDA
             include "element.tag==External"
             exclude "relationship==*"
+            include "relationship.tag==EDA"
             include "relationship.tag==LogicApi"
             include "relationship.tag==ExternalApi"
 
+            autolayout lr
+        }
+        // Orchestrator
+        dynamic goFuture booking_happy_path "Happy path при создании заказа"{
+
+            properties {
+                    "plantuml.sequenceDiagram" "true"
+                }
+        
+            !include "${VIEWS_PATH3}/Orchestration/booking-created.srz"
+            
+            !include "${VIEWS_PATH3}/Orchestration/driver-found.srz"
+
+            !include "${VIEWS_PATH3}/Orchestration/ride-completed.srz"
+            
+            autolayout lr
+        }
+
+        dynamic goFuture booking_driver_not_found "Водитель не найден при создании заказа"{
+
+            properties {
+                    "plantuml.sequenceDiagram" "true"
+                }
+        
+            !include "${VIEWS_PATH3}/Orchestration/booking-created.srz"
+            
+            !include "${VIEWS_PATH3}/Orchestration/driver-found.srz"
+
+            !include "${VIEWS_PATH3}/Orchestration/ride-completed.srz"
+            
             autolayout lr
         }
 
