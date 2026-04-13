@@ -1,16 +1,20 @@
     passenger -> webPassenger "Создает заказ"
     webPassenger -> apiGateway "POST /order"
-    apiGateway -> booking "Создает заказ"
+    apiGateway -> bffPassenger "Маршрутизирует"
+    
+    bffPassenger -> booking "Создает заказ"
+    
+    booking -> mqEDA "BookingCreated"
     booking -> orchestr "startSaga(booking)"
     
     orchestr -> fraud "checkUserFraud()"
-    
-    orchestr -> pricing "calculatePrice()"
-    
+        
     orchestr -> Payments "holdPayment()"
+
+    orchestr -> booking "startSaga(booking) result"
+    booking -> bffPassenger "Заказ принят, назначаем водителя"
+
+    orchestr -> mqEDA "Queue: FindDriver()"
+    mqEDA -> driverDom "Queue: FindDriver()"
     
-    orchestr -> mqEDA "publish: BookingCreated"
-    mqEDA -> driverDom "BookingCreated"
-//    mqEDA -> notif "BookingCreated"
-    
-    driverDom -> mqEDA "publish: FindDriverRequested"
+    driverDom -> mqEDA "FindDriverRequested"

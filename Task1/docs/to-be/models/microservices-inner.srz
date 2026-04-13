@@ -1,18 +1,25 @@
+# C2 FE to BE
+    bffPassenger -> booking "Маршрутизирует webPassenger" "HTTPS"
+    bffPassenger -> geo "ищет маршрут" "синхронно" "LogicApi"
+    bffPassenger -> pricing "запрашивает цену" "синхронно" "LogicApi"
+
+    bffDriver -> driverDom "Маршрутизирует webDriver" "HTTPS"
+    bffDriver -> pricing "расчет заработка" "синхронно" "ToBe, LogicApi"
+
+    bffCorp -> booking "Маршрутизирует webPortal" "HTTPS"
+
+    bffAccountant -> payouts "Маршрутизирует adminPortal" "HTTPS"
+
 # C2 Оркестрация Взаимодействие микросервисов EDA
     booking -> orchestr "инициирует SAGA" "синхронно" "LogicApi"
 
-    orchestr -> geo "ищет маршрут" "синхронно" "LogicApi"
-    orchestr -> pricing "запрашивает цену" "синхронно" "LogicApi"
-
-    orchestr -> fraud "проверяет на мошенничество" "синхронно" "LogicApi"
-    orchestr -> fraud "проверяет транзакцию" "синхронно" "LogicApi"
+    orchestr -> fraud "проверяет транзакцию на мошенничество" "синхронно" "LogicApi"
     orchestr -> payments "бронирует оплату на счете" "синхронно" "LogicApi"
 
     orchestr -> mqEDA "BookingCreated" "Publish" "ToBe, EDA, Publish"
     mqEDA -> driverDom "BookingCreated" "Subscribe" "ToBe, EDA, Subscribe"
 
     driverDom -> mqEDA "FindDriverRequested" "Publish" "ToBe, EDA, Publish"
-    driverDom -> pricing "расчет заработка" "синхронно" "ToBe, LogicApi"
 
     driverDom -> mqEDA "SendNotification - Новый заказ" "Queue" "ToBe, EDA, Publish, Notification"
 

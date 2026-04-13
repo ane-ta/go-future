@@ -1,17 +1,12 @@
     driverDom -> mqEDA "publish: RideStarted"
-    driverDom -> mqEDA "publish: RideCompleted"
+    driverDom -> mqEDA "RideCompleted"
     
     mqEDA -> orchestr "RideCompleted"
 
     orchestr -> mqEDA "queue: chargePayment"
     mqEDA -> payments "queue: chargePayment"
-    payments -> mqEDA "publish: PaymentCharged"
-    mqEDA -> orchestr "subscribe: PaymentCharged"
+    payments -> mqEDA "PaymentCharged"
+    mqEDA -> orchestr "PaymentCharged"
     
-    orchestr -> mqEDA "queue: completePayout"
-    mqEDA -> payouts "queue: completePayout"
-    payouts -> mqEDA "publish: PayoutCompleted"
-    mqEDA -> orchestr "subscribe: PayoutCompleted"
-
-    orchestr -> mqEDA "publish: BookingCompleted"
+    orchestr -> mqEDA "BookingCompleted"
     

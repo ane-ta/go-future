@@ -1,8 +1,9 @@
 #C2 маршрутизация
-    apiGateway -> booking "Маршрутизирует webPassenger" "HTTPS"
-    apiGateway -> driverDom "Маршрутизирует webDriver" "HTTPS"
-    apiGateway -> booking "Маршрутизирует webPortal" "HTTPS"
-    apiGateway -> payouts "Маршрутизирует adminPortal" "HTTPS"
+# Frontend
+    cRouting -> bffPassenger "Создает заказы" "HTTPS/REST API"
+    cRouting -> bffDriver "Обновляет статус" "HTTPS/REST API"
+    cRouting -> bffCorp "Просмотр заказов" "HTTPS/REST API"
+    cRouting -> bffAccountant "Управление выплатами" "HTTPS/REST API"
 
 # C2 ASYNC-связи
     # domains

@@ -34,19 +34,6 @@ workspace extends ws-parent.dsl {
 
     # Деплой
         !include ${MODELS_PATH3}/cicd.srz
-  
-        # Явные связи для уровня контейнеров (L2)
-        // monolith -> dbGeo "Гео поиск водителей" "Elasticsearch API"
-        // monolith -> cache "Кеширует данные" "Redis Serialization"
-        // monolith -> yandexMaps "Геоданные" "REST"
-        // monolith -> yandexPay "Обработка платежей" 
-        // monolith -> bankApi "Инициирование выплат" 
-        // monolith -> yandexMaps "Запросы геоданных" 
-
-        // workers -> fcm "Отправляет уведомления" "REST API"
-        // workers -> apns "Отправляет уведомления" "REST API"
-        // workers -> huaweiPush "Отправляет уведомления" "REST API"
-        // workers -> bankApi "Выполняет выплаты" "REST API"
     }
     views {
         // миграция
@@ -96,6 +83,14 @@ workspace extends ws-parent.dsl {
             
             autolayout lr
         }
+        dynamic goFuture driver_payout "Выплата водителю"{
+            properties {
+                    "plantuml.sequenceDiagram" "true"
+                }
+        
+            mqEDA -> payouts "subscribe: BookingCompleted"
+            payouts -> mqEDA "publish: PayoutCompleted"
+        }
 
         dynamic goFuture booking_driver_not_found "Водитель не найден при создании заказа"{
 
@@ -105,9 +100,7 @@ workspace extends ws-parent.dsl {
         
             !include "${VIEWS_PATH3}/Orchestration/booking-created.srz"
             
-            !include "${VIEWS_PATH3}/Orchestration/driver-found.srz"
-
-            !include "${VIEWS_PATH3}/Orchestration/ride-completed.srz"
+            !include "${VIEWS_PATH3}/Orchestration/driver-not-found.srz"
             
             autolayout lr
         }

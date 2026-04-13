@@ -16,4 +16,3 @@
     
     cRouting -> legacyAuthAdapter "Авторизует"
     cRouting -> msProd "Маршрутизирует новые связи"
-    cRouting -> aclService "Маршрутизирует старые связи"

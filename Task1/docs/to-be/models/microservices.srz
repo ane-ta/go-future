@@ -1,11 +1,17 @@
-# Микросервисы ---
-# Пассажирский опыт ---
+# Микросервисы FE
+    bffPassenger = container "BFF Приложение пассажира" "" "ToBe, Frontend"
+    bffDriver = container "BFF Приложение водителя" "" "ToBe, Frontend"
+    bffAccountant = container "BFF админ панель" "" "ToBe, Frontend"
+    bffCorp = container "BFF корпоративный портал" "" "ToBe, Frontend"
+
+# Микросервисы BE
+# Пассажирский опыт
     group "Orchestration" {
         orchestr = container "Orchestration" "Оркестрация" "???" "ToBe, Prod, Service, Critical"
         dbSqlOrchestr = container "БД Orchestration" "Оркестрация" "PostgreSQL RDS" "ToBe, Prod, Database"
     }
 
-# Пассажирский опыт ---
+# Пассажирский опыт
     group "Booking" {
         booking = container "Booking Service" "Управление бронированиями" "Django App" "ToBe, Prod, Service, Critical, Booking"
         dbSqlBooking = container "БД Bookings" "Операционные данные заказов" "PostgreSQL RDS" "ToBe, Prod, Database, Booking"
@@ -22,14 +28,14 @@
     }
 
 
-# Водительский опыт ---            
+# Водительский опыт            
     group "Drivers" {
         driverDom = container "Driver Service" "Управление водителями" "Django App" "ToBe, Prod, Service, Critical, Drivers"
         dbSqlDriver = container "БД Drivers" "Данные водителей и смен" "PostgreSQL RDS" "ToBe, Prod, Database, Drivers"
     }
 
 
-# Деньги ---
+# Деньги
     group "Pricing" {
         pricing = container "Pricing Service" "Ценообразование" "Django App" "ToBe, Prod, Service, Critical, Pricing"
         dbSqlPricing = container "БД Pricing" "Тарифные сетки" "PostgreSQL RDS" "ToBe, Prod, Database, Pricing"
@@ -46,7 +52,7 @@
     }
 
 
-# Оповещения ---
+# Оповещения
     group "Notification" {
         notif = container "Notification Service" "Управление уведомлениями" "Django App" "ToBe, Prod, Service, Critical, Notification"
         notificationTasks = container "Notification Service Tasks" "Асинхронные задачи уведомлений" "Celery Task" "ToBe, Prod, Worker, Notification"
@@ -55,7 +61,7 @@
     }
 
 
-# Аналитика ---
+# Аналитика
     group "Analytics" {
         analyticsDom = container "Analytics Service" "Сбор аналитики" "Django App" "ToBe, Prod, Service, AnalyticsS"
         analyticsTasks = container "Analytics Service Tasks" "Асинхронная аналитика" "Celery Task" "ToBe, Prod, Worker, AnalyticsS"
