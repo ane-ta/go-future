@@ -10,30 +10,35 @@
 
     orchestr -> mqEDA "BookingCreated" "Publish" "ToBe, EDA, Publish"
     mqEDA -> driverDom "BookingCreated" "Subscribe" "ToBe, EDA, Subscribe"
-//    mqEDA -> notif "BookingCreated" "" "ToBe, EDA"
 
     driverDom -> mqEDA "FindDriverRequested" "Publish" "ToBe, EDA, Publish"
     driverDom -> pricing "расчет заработка" "синхронно" "ToBe, LogicApi"
+
+    driverDom -> mqEDA "SendNotification - Новый заказ" "Queue" "ToBe, EDA, Publish, Notification"
 
     driverDom -> mqEDA "DriverProposed" "Publish" "ToBe, EDA, Publish"
     driverDom -> mqEDA "DriverAccepted\nDriverRejected" "Publish" "ToBe, EDA, Publish"
     mqEDA -> orchestr "DriverAccepted\nDriverRejected" "Subscribe" "ToBe, EDA, Subscribe"
     
-    orchestr -> booking "Назначить водителя" "Queue" "ToBe, EDA, Publish"
+    orchestr -> mqEDA "Назначить водителя" "Queue" "ToBe, EDA, Publish"
+    mqEDA -> booking "Назначить водителя" "Queue" "ToBe, EDA, Subscribe"
     booking -> mqEDA "DriverAssigned" "Publish" "ToBe, EDA, Publish"
+    booking -> mqEDA "SendNotification - Водитель назначен" "Queue" "ToBe, EDA, Publish, Notification"
 
-//    orchestr -> notif "DriverAssigned" "" "ToBe, EDA"
     mqEDA -> geo "DriverAssigned" "Subscribe" "ToBe, EDA, Subscribe"
 
     driverDom -> mqEDA "DriverSearchTimeout" "Publish" "ToBe, EDA, Publish"
     mqEDA -> orchestr "DriverSearchTimeout" "Subscribe" "ToBe, EDA, Subscribe"
 
-    orchestr -> mqEDA "BookingCancelled" "Publish" "ToBe, EDA, Publish"
+    booking -> mqEDA "BookingCancelled" "Publish" "ToBe, EDA, Publish"
+    booking -> mqEDA "SendNotification - Заказ отменен" "Queue" "ToBe, EDA, Publish, Notification"
     mqEDA -> driverDom "BookingCancelled" "Subscribe" "ToBe, EDA, Subscribe"
     
     driverDom -> mqEDA "RideStarted" "Publish" "ToBe, EDA, Publish"
+    driverDom -> mqEDA "SendNotification - Поездка начата" "Queue" "ToBe, EDA, Publish, Notification"
     
     driverDom -> mqEDA "RideCompleted" "Publish" "ToBe, EDA, Publish"
+    driverDom -> mqEDA "SendNotification - Поездка закончена" "Queue" "ToBe, EDA, Publish, Notification"
     mqEDA -> payments "RideCompleted" "Subscribe" "ToBe, EDA, Subscribe"
     mqEDA -> payouts "RideCompleted" "Subscribe" "ToBe, EDA, Subscribe"
     
@@ -47,6 +52,7 @@
     payments -> mqEDA "PaymentCharged" "Publish" "ToBe, EDA, Publish"
 
     payouts -> mqEDA "PayoutCompleted" "Publish" "ToBe, EDA, Publish"
+    payouts -> mqEDA "SendNotification - Выплата проведена" "Queue" "ToBe, EDA, Publish, Notification"
 
     driverDom -> mqEDA "LocationUpdated" "Publish" "ToBe, EDA, Publish"
     mqEDA -> geo "LocationUpdated" "Subscribe" "ToBe, EDA, Subscribe"
