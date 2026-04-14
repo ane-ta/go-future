@@ -106,5 +106,7 @@
     
 # C2 Кеширование
     pricing -> cachePricing "кеш ценовых правил" "Redis" "ToBe, Cache"
+    pricing -> cachePricing "Surge factor upsert" "Redis" "ToBe, Cache" 
+
     notif -> cacheNotif "кеш устройств" "Redis" "ToBe, Cache"
     geo -> cacheGeo "кеш геоданных" "Redis" "ToBe, Cache"

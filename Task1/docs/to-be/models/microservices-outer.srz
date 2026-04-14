@@ -17,9 +17,12 @@
     mq -> notificationTasks "Задачи уведомлений" "AMQP" "Subscribe"
     mq -> analyticsTasks "Задачи аналитики" "AMQP" "Subscribe"
 
+    mqEDA -> pricing "SurgeFactorUpdated - актуальный коэффициент для конкретного района" "Subscribe" "ToBe, Subscribe"
+    analyticsTasks -> analyticsEngine "обработка данных" "Spark Jobs" "Analytics"
 
 # C2 Внешние интеграции
     # domains
+    
     geo -> yandexMaps "геоданные" "Yandex Maps API" "ExternalApi"
     payments -> yandexPay "платежи" "Yandex Pay API" "ExternalApi"
 

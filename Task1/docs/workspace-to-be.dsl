@@ -1,6 +1,7 @@
 workspace extends ws-parent.dsl {
 !const MODELS_PATH3 "./to-be/models"
 !const VIEWS_PATH3 "./to-be/views"
+!const MS_TECHNOLOGY "Python/Faust Streaming"
 
     model {
     # СИСТЕМА                        
@@ -13,9 +14,12 @@ workspace extends ws-parent.dsl {
             !include ${MODELS_PATH3}/entrance.srz
 
         # Очереди и асинхронщина
-            mqEDA = container "Брокер сообщений EDA" "Доменные события" "???" "ToBe, Broker"
-            mqBg = container "Брокер сообщений репликации" "CDC события" "???" "ToBe, Broker"
+            mqEDA = container "Брокер сообщений EDA" "Доменные события" "Kafka" "ToBe, Broker"
+            mqBg = container "Брокер сообщений репликации" "CDC события" "Kafka" "ToBe, Broker"
             mq = container "Брокер сообщений" "Очередь задач" "RabbitMQ" "Broker"
+
+        # Аналитика
+            !include ${MODELS_PATH3}/analytics.srz
 
         # Микросервисы
             !include ${MODELS_PATH3}/microservices.srz
@@ -26,8 +30,6 @@ workspace extends ws-parent.dsl {
             !include ${MODELS_PATH3}/migration.srz
         }
 
-    # Аналитика
-        !include ${MODELS_PATH3}/analytics.srz
 
     # Наблюдаемость
         !include ${MODELS_PATH3}/observability.srz
@@ -55,6 +57,7 @@ workspace extends ws-parent.dsl {
             include mqBg
             autolayout lr
         }
+
         // EDA
         container goFuture "ProdServices_Logic_Interaction" { 
             include "element.tag==Prod && element.tag==Service"
@@ -68,7 +71,19 @@ workspace extends ws-parent.dsl {
 
             autolayout lr
         }
-        // Orchestrator
+        // Surge
+        dynamic goFuture Surge " Surge" {
+            properties {
+                    "plantuml.sequenceDiagram" "true"
+                }
+            
+            mqEDA -> analyticsEngine "События для динамического ценообразования"
+            analyticsEngine -> mqEDA "SurgeFactorUpdated"
+            mqEDA -> pricing "SurgeFactorUpdated"
+            pricing -> cachePricing "Surge factor upsert"
+        }
+
+        // Orchestrator booking happy path
         dynamic goFuture booking_happy_path "Happy path при создании заказа"{
 
             properties {
@@ -83,6 +98,7 @@ workspace extends ws-parent.dsl {
             
             autolayout lr
         }
+        // Driver payouts after booking
         dynamic goFuture driver_payout "Выплата водителю"{
             properties {
                     "plantuml.sequenceDiagram" "true"
@@ -92,6 +108,7 @@ workspace extends ws-parent.dsl {
             payouts -> mqEDA "publish: PayoutCompleted"
         }
 
+        // Orchestrator booking when driver not found
         dynamic goFuture booking_driver_not_found "Водитель не найден при создании заказа"{
 
             properties {
@@ -104,6 +121,9 @@ workspace extends ws-parent.dsl {
             
             autolayout lr
         }
+        
+        
+        
 
         styles {
 

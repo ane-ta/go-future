@@ -7,46 +7,46 @@
 # Микросервисы BE
 # Пассажирский опыт
     group "Orchestration" {
-        orchestr = container "Orchestration" "Оркестрация" "???" "ToBe, Prod, Service, Critical"
+        orchestr = container "Orchestration" "Оркестрация" "Temporal Python SDK" "ToBe, Prod, Service, Critical"
         dbSqlOrchestr = container "БД Orchestration" "Оркестрация" "PostgreSQL RDS" "ToBe, Prod, Database"
     }
 
 # Пассажирский опыт
     group "Booking" {
-        booking = container "Booking Service" "Управление бронированиями" "Django App" "ToBe, Prod, Service, Critical, Booking"
+        booking = container "Booking Service" "Управление бронированиями" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, Critical, Booking"
         dbSqlBooking = container "БД Bookings" "Операционные данные заказов" "PostgreSQL RDS" "ToBe, Prod, Database, Booking"
     }
     group "Geo" {
-        geo = container "Geography Service" "Геопоиск и маршрутизация" "Django App" "ToBe, Prod, Service, Critical, Geo"
+        geo = container "Geography Service" "Геопоиск и маршрутизация" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, Critical, Geo"
         dbSqlGeo = container "БД Geo" "Geo" "PostgreSQL RDS" "ToBe, Prod, Database, Geo"
         cacheGeo = container "Cache Geo" "кеш геоданных" "Redis" "ToBe, Prod, Database, Cache, Geo"
         dbGeo = container "GEO Drivers search DB" "Поисковый индекс" "Elasticsearch" "Prod, Database, Geo"
     }
     group "Fraud" {
-        fraud = container "Fraud Service" "Обнаружение мошенничества" "Django App" "ToBe, Prod, Service, ToBe, Fraud"
+        fraud = container "Fraud Service" "Обнаружение мошенничества" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, ToBe, Fraud"
         dbSqlFraud = container "БД Fraud" "Fraud" "PostgreSQL RDS" "ToBe, Prod, Database, Fraud"
     }
 
 
 # Водительский опыт            
     group "Drivers" {
-        driverDom = container "Driver Service" "Управление водителями" "Django App" "ToBe, Prod, Service, Critical, Drivers"
+        driverDom = container "Driver Service" "Управление водителями" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, Critical, Drivers"
         dbSqlDriver = container "БД Drivers" "Данные водителей и смен" "PostgreSQL RDS" "ToBe, Prod, Database, Drivers"
     }
 
 
 # Деньги
     group "Pricing" {
-        pricing = container "Pricing Service" "Ценообразование" "Django App" "ToBe, Prod, Service, Critical, Pricing"
+        pricing = container "Pricing Service" "Ценообразование" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, Critical, Pricing"
         dbSqlPricing = container "БД Pricing" "Тарифные сетки" "PostgreSQL RDS" "ToBe, Prod, Database, Pricing"
         cachePricing = container "Cache Pricing" "кеш ценовых правил" "Redis" "ToBe, Prod, Database, Cache, Pricing"
     }
     group "Payments" {
-        payments = container "Payments Service" "Платежи от пассажиров" "Django App" "ToBe, Prod, Service, Critical, Payments"
+        payments = container "Payments Service" "Платежи от пассажиров" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, Critical, Payments"
         dbSqlPayments = container "БД Payments" "Транзакции и логи эквайринга" "PostgreSQL RDS" "ToBe,  Prod, Database, Payments"
     }
     group "Payouts" {
-        payouts = container "Payouts Service" "Выплаты водителям" "Django App" "ToBe, Prod, Service, Payouts"
+        payouts = container "Payouts Service" "Выплаты водителям" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, Payouts"
         payoutTasks = container "Payout Service Tasks" "Асинхронные задачи выплат" "Celery Task" "ToBe, Prod, Worker, Payouts"
         dbSqlPayouts = container "БД Payouts" "Реестры выплат" "PostgreSQL RDS" "ToBe, Prod, Database, Payouts"
     }
@@ -54,7 +54,7 @@
 
 # Оповещения
     group "Notification" {
-        notif = container "Notification Service" "Управление уведомлениями" "Django App" "ToBe, Prod, Service, Critical, Notification"
+        notif = container "Notification Service" "Управление уведомлениями" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, Critical, Notification"
         notificationTasks = container "Notification Service Tasks" "Асинхронные задачи уведомлений" "Celery Task" "ToBe, Prod, Worker, Notification"
         dbSqlNotif = container "БД Notification" "Данные уведомлений" "PostgreSQL RDS" "ToBe, Prod, Database, Notification"
         cacheNotif = container "Cache Notifications" "кеш устройств" "Redis" "ToBe, Prod, Database, Cache, Notification"
@@ -63,7 +63,7 @@
 
 # Аналитика
     group "Analytics" {
-        analyticsDom = container "Analytics Service" "Сбор аналитики" "Django App" "ToBe, Prod, Service, AnalyticsS"
+        analyticsDom = container "Analytics Service" "Сбор аналитики" "${MS_TECHNOLOGY}" "ToBe, Prod, Service, AnalyticsS"
         analyticsTasks = container "Analytics Service Tasks" "Асинхронная аналитика" "Celery Task" "ToBe, Prod, Worker, AnalyticsS"
         dbSqlAnalytics = container "БД Analytics" "???" "PostgreSQL RDS" "ToBe, Prod, Database, AnalyticsS"
     }

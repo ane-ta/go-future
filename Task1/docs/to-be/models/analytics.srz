@@ -1,4 +1,16 @@
-# Аналитический пайплайн
-    # C3
-    mq -> analyticsEngine "События аналитики" "AMQP" "Analytics"
-    analyticsTasks -> analyticsEngine "обработка данных" "Spark Jobs" "Analytics"
+    #! Аналитический стек
+    group "Analytics pipe" {
+        analyticsEngine = container "Analytics Engine" "Обработка аналитических данных" "Spark/PyFlink" "AnalyticsPipe"
+        dbAnalytics = container "Analytics Db" "Хранение аналитических данных" "ClickHouse" "AnalyticsPipe"
+        dataLens = container "DataLens" "Визуализация бизнес метрик" "BI Tool" "AnalyticsPipe"
+    }
+
+    # C2
+    analyticsEngine -> dbAnalytics "Записывает данные" "ETL" "AnalyticsPipe"
+    dbAnalytics -> dataLens "Предоставляет данные" "SQL" "AnalyticsPipe"
+    dataLens -> corpManager "Смотрит отчеты" "" "AnalyticsPipe"
+    
+    mq -> analyticsEngine "События аналитики" "AMQP Subscribe" "Analytics, Subscribe"
+    mqEDA -> analyticsEngine "События аналитики" "Subscribe" "Analytics, Subscribe"
+    
+    analyticsEngine -> mqEDA "SurgeFactorUpdated - актуальный коэффициент для конкретного района" "Publish" "ToBe, Publish, EDA"

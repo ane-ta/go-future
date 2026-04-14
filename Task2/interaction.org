@@ -1,4 +1,5 @@
-Диаграмма - inner interacftions
+Диаграмма - ProdServices Logic Interactions
+
 * Синхронные вызовы (пользователь ждёт)
 
 | Вызов                           | Макс. время | Обоснование                                                                                              |
@@ -37,6 +38,7 @@
 | **`RideStarted`**         | Driver       | Водитель начал поездку                             | Analytics, Notification                           |
 | **`RideCompleted`**       | Driver       | Поездка завершена                                  | Payments (финальное списание), Payouts, Analytics |
 
+| `SurgeFactorCalculated`   | AnalyticsEngine | Каждые N секунд                                 | Pricing                                                 |
 | `SurgeFactorUpdated`      | Pricing      | Каждые N секунд (кешированное значение)            | Analytics, Geo (для поиска водителей с учётом спроса)   |
 | `FraudAlert`              | Fraud        | При обнаружении подозрительной транзакции (редко)  | Analytics, Notification (уведомить службу безопасности) |
 
