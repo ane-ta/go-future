@@ -1,29 +1,27 @@
 # Мониторинг 
+    alloy = container "Агент телеметрии" "Сбор и обработка телеметрии: метрики, логи, трейсы" "Grafana Alloy Agent" "ToBe, Observability"
+
+    group Observability {
+        tempo = container "Хранилище трейсов" "Трейсинг" "Grafana Tempo" "ToBe, Observability"
+    }
+
     # C2
-    msProd -> prometheus "Метрики" "Prometheus metrics" "Metrics"
-    msBroker -> prometheus "Метрики очередей" "Prometheus metrics" "Metrics"
-    msDatabases -> prometheus "Метрики БД" "Prometheus metrics" "Metrics"
+    msProd -> alloy "Метрики" "prometheus_client lib" "Metrics, Observability"
+    msBroker -> alloy "Метрики очередей" "???" "Metrics, Observability"
+    msDatabases -> alloy "Метрики БД" "???" "Metrics, Observability"
 
+    alloy -> prometheus "технические и бизнес метрики" "Metrics, Observability"
 
-        // # C3 monolith
-        // booking -> prometheus "метрики бронирований" "Prometheus" "Metrics"
-        // payments -> prometheus "метрики платежей" "Prometheus" "Metrics"
-
-        // # C3 workers
-        // notificationTasks -> prometheus "метрики уведомлений" "Prometheus" "Metrics"
-        // payoutTasks -> prometheus "метрики выплат" "Prometheus" "Metrics"
-
+    grafana -> dbAnalytics "Бизнесовые метрики"
 # Логи
     # C2
-    msProd -> loki "Отправляет логи" "Loki Logs" "Logs"
-    msBroker -> loki "Отправляет логи" "Loki Logs" "Logs"
-    msDatabases -> loki "Отправляет логи" "Loki Logs" "Logs"
+    msProd -> alloy "структурированные логи" "stdout" "Logs, Observability"
+    msBroker -> alloy "структурированные логи" "stdout" "Logs, Observability"
+    msDatabases -> alloy "структурированные логи" "stdout" "Logs, Observability"
 
-        // # C3 monolith
-        // booking -> loki "логи бронирований" "Loki Logs" "Logs"
-        // payments -> loki "логи платежей" "Loki Logs" "Logs"
-
-        // # C3 workers
-        // notificationTasks -> loki "Логи уведомлений" "Loki Logs" "Logs"
-        // payoutTasks -> loki "Логи выплат" "Loki Logs" "Logs"
-        // # ? analyticsTasks -> loki "Логи аналитики" "Loki Logs" "Logs"
+    alloy -> loki "Logs" "Metrics, Observability"
+    
+# Трейсы
+    msProd -> alloy "Трейсы" "Otel SDK" "Traces, Observability"
+    alloy -> tempo "Трейсы" "OTLP" "Traces, Observability"
+    grafana -> tempo "Трейсы" "TraceQL"

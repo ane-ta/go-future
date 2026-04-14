@@ -28,11 +28,12 @@ workspace extends ws-parent.dsl {
             
         # Миграция на микросервисы
             !include ${MODELS_PATH3}/migration.srz
+
+        # Наблюдаемость
+            !include ${MODELS_PATH3}/observability.srz
         }
 
 
-    # Наблюдаемость
-        !include ${MODELS_PATH3}/observability.srz
 
     # Деплой
         !include ${MODELS_PATH3}/cicd.srz
@@ -70,6 +71,11 @@ workspace extends ws-parent.dsl {
             include "relationship.tag==ExternalApi"
 
             autolayout lr
+        }
+
+        // Observability
+        container goFuture "Obervability" {
+            include "->element.tag==Observability->"
         }
         // Surge
         dynamic goFuture Surge " Surge" {
@@ -121,9 +127,6 @@ workspace extends ws-parent.dsl {
             
             autolayout lr
         }
-        
-        
-        
 
         styles {
 

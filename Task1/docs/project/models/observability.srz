@@ -6,9 +6,9 @@
         loki = container "Loki" "Сбор логов"  "Loki" "Observability, Logs"        
     }
 
-    loki -> grafana "Предоставляет логи" "Loki Logs" "Logs"
-    prometheus -> grafana "Предоставляет данные" "PromQL" "Metrics"
-    prometheus -> alertManager "Алерты" "Metrics"
-    alertManager -> sre "Приходят алерты" "Email/Slack/Pager" "Metrics"
-    sre -> alertManager "Настраивает алерты" "Metrics"
-    sre -> grafana "Мониторит систему" "Metrics, Logs"
+    grafana -> loki "Логи" "LogQL" "Logs, Observability"
+    grafana -> prometheus "Метрики" "PromQL" "Metrics, Observability"
+    prometheus -> alertManager "Алерты" "Metrics, Observability"
+    alertManager -> sre "Приходят алерты" "Email/Slack/Pager" "Metrics, Observability"
+    sre -> alertManager "Настраивает алерты" "Metrics, Observability"
+    sre -> grafana "Мониторит систему" "Metrics, Logs, Observability"
