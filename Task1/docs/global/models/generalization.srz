@@ -1,0 +1,9 @@
+!element goFuture {
+    # Резервирование
+        group "Prod" {
+            msACIDDatabases = container "БД Микросервисов" "Источники правды для микросервисов" "PostgreSQL" "Generalization, Prod, Database"
+        }
+    
+    msProd -> msACIDDatabases "Read Write" "SQL" "Prod"
+}
+

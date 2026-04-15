@@ -1,5 +1,8 @@
     group "Prod" {
-        msProd = container "Prod Microservices" "бизнес логика после миграции" "${MS_TECHNOLOGY}" "Ms"
-        msBroker = container "Broker" "среда для EDA" "Kafka" "Ms"
-        msDatabases = container "Databases" "Хранилища" "PostgreSQL/Redis/Clickhouse" "Ms"
+        msProd = container "Prod Microservices" "бизнес логика после миграции" "${MS_TECHNOLOGY}" "Generalization, Prod, Service"
+        msBroker = container "Broker" "среда для EDA" "Kafka" "Generalization, Broker"
+        msDatabases = container "Databases" "Хранилища" "PostgreSQL/Redis/Clickhouse" "Generalization, Database"
     }
+    msProd -> msBroker "Publish prod events" "Publish" "Publish"
+    msBroker -> msProd "Consume prod events" "Subscribe" "Subscribe"
+
