@@ -20,37 +20,49 @@ workspace extends workspace-to-be.dsl {
 
             // Health Checker (может быть частью Route 53)
             healthChecker = container "Health Checker" {
-                description "Мониторинг доступности регионов"
+                description "Мониторинг доступности регионов. Может быть частью Route 53"
                 technology "AWS Route 53 Health Checks"
                 tags "Infrastructure"
             }
 
-            // Глобальный балансировщик (опционально, если используешь Anycast)
-            // globalBalancer = container "Global Load Balancer" {
-            //     description "Глобальный балансировщик с Anycast"
-            //     technology "AWS Global Accelerator / Cloudflare"
-            //     tags "Infrastructure"
-            // }
+            cloudMonitor = container "Cloud monitor" "метрики"
+            notifGlobal = container "Notification Service" "(SNS / Pub/Sub / etc)"
+
+            healthChecker -> cloudMonitor "region is unhealthy"
+            sre -> cloudMonitor "Alert rules"
+            cloudMonitor -> notifGlobal "Alert: Region is unhealthy"
 
             geoDns -> healthChecker "использует для определения доступности"
-            //geoDns -> globalBalancer "может направлять на глобальный IP"
-            geoDns -> apiGateway "направляет трафик в развертывание"
+            geoDns -> apiGateway "направляет трафик в развертывание"        
         }
         
+        centralSystem = softwareSystem "Central Infrastructure" {
+            cntAlertManager = container "Alert Manager" ""
+        }
+
         healthChecker -> apiGateway "health check: GET /health" "HTTPS"
         apiGateway -> msACIDDatabases "health check: SELECT 1" 
         apiGateway -> msBroker "health check: metadata fetch" 
+        notifGlobal -> cntAlertManager "Alert: Region is unhealthy"
+        cntAlertManager -> sre
 
         globalDeployment = deploymentEnvironment "Global Infrastructure" {
+           
+            globalDG = deploymentGroup "Global"
             singaporeDG = deploymentGroup "Singapore"
             jakartaDG = deploymentGroup "Jakarta"
 
-            deploymentNode "AWS Global" {
-                containerInstance geoDns singaporeDG,jakartaDG
-                containerInstance healthChecker singaporeDG,jakartaDG
-             //   containerInstance globalBalancer singaporeDG,jakartaDG
+            deploymentNode "Глобальная инфраструктура" {
+                containerInstance geoDns globalDG,singaporeDG,jakartaDG
+                containerInstance healthChecker globalDG,singaporeDG,jakartaDG
+                containerInstance cloudMonitor globalDG
+                containerInstance notifGlobal globalDG
             }
 
+            centralDeployment = deploymentNode "Central Region" {
+                containerInstance cntAlertManager globalDG
+            }
+            
 
             singaporeDeployment = deploymentNode "Singapore Region" {
                 deploymentNode "Kubernetes Cluster" {
@@ -84,6 +96,7 @@ workspace extends workspace-to-be.dsl {
         deployment * globalDeployment {
             title "Глобальная инфраструктура (GeoDNS)"
             description "Схема геомаршрутизации и глобального балансирования"
+            
             include *
             autolayout lr
         }
