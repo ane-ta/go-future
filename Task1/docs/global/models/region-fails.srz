@@ -1,0 +1,76 @@
+        globalInfra = softwareSystem "Global Infrastructure" {
+            tags "Infrastructure"
+        
+            geoDns = container "GeoDNS (Route 53)" {
+                description "DNS-маршрутизация на основе геолокации и задержки"
+                technology "AWS Route 53"
+                tags "Infrastructure, GeoRouting"
+            }
+
+            // Health Checker (может быть частью Route 53)
+            healthChecker = container "Health Checker" {
+                description "Мониторинг доступности регионов. Может быть частью Route 53"
+                technology "AWS Route 53 Health Checks"
+                tags "Infrastructure"
+            }
+
+            cloudMonitor = container "Cloud monitor" "метрики"
+            notifGlobal = container "Notification Service" "(SNS / Pub/Sub / etc)"
+
+            user -> GeoDNS
+            geoDns -> healthChecker "использует для определения доступности основного региона"
+            healthChecker -> cloudMonitor "region is unhealthy"
+            sre -> cloudMonitor "Alert rules"
+            cloudMonitor -> notifGlobal "Alert: Region is unhealthy"
+            
+            geoDns -> apiGateway "направляет трафик в развертывание"        
+        }
+        
+        centralSystem = softwareSystem "Central Infrastructure" {
+            cntAlertManager = container "Alert Manager" ""
+            
+            notifGlobal -> cntAlertManager "Alert: Region is unhealthy"
+            cntAlertManager -> sre
+        }
+
+        healthChecker -> apiGateway "health check: GET /health (каждые 30 сек, 3 неудачи = unhealthy)" "HTTPS"
+        apiGateway -> msACIDDatabases "health check: SELECT 1" 
+        apiGateway -> msBroker "health check: metadata fetch"
+
+        user -> apiGateway 
+
+        globalDeployment = deploymentEnvironment "Global Infrastructure" {
+           
+            globalDG = deploymentGroup "Global"
+            singaporeDG = deploymentGroup "Singapore"
+            jakartaDG = deploymentGroup "Jakarta"
+
+            deploymentNode "Глобальная инфраструктура" {
+                containerInstance geoDns globalDG,singaporeDG,jakartaDG
+                containerInstance healthChecker globalDG,singaporeDG
+                containerInstance cloudMonitor globalDG
+                containerInstance notifGlobal globalDG
+            }
+
+            centralDeployment = deploymentNode "Central Region" {
+                containerInstance cntAlertManager globalDG
+            }
+            
+
+            singaporeDeployment = deploymentNode "Main Region" {
+                deploymentNode "Kubernetes Cluster" {
+                    containerInstance apiGateway singaporeDG
+                    containerInstance msProd singaporeDG
+                    containerInstance msBroker singaporeDG
+                    containerInstance msACIDDatabases singaporeDG
+                }
+            }
+            jakartaDeployment  = deploymentNode "Reserve Region" {
+                deploymentNode "Kubernetes Cluster" {
+                    containerInstance apiGateway jakartaDG
+                    containerInstance msProd jakartaDG
+                    containerInstance msBroker jakartaDG
+                    containerInstance msACIDDatabases jakartaDG
+                }
+            }
+        }

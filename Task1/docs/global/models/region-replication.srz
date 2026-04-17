@@ -22,7 +22,7 @@
             // основной регион
             deploymentNode "Active region" {
 
-                deploymentNode "In active mode - Write to Db, Publish to Broker, Listen to Events" {
+                deploymentNode "In active mode" "Write to Db, Publish to Broker, Listen to Events"{
                     containerInstance msProd activeGroup
                 }
 
@@ -30,19 +30,21 @@
 
                 brokerActive = containerInstance msBroker activeGroup
 
-                deploymentNode "Kafka Connect In emit-mode - Use Debezium Connector to listen transaction logs"  {
+                deploymentNode "Kafka Connect In emit-mode" "Use Debezium Connector to listen transaction logs"  {
                     agentActive = infrastructureNode "Debezium Source Connector" "Читает WAL PostgreSQL → публикует в Kafka"
                 }
                 agentActive -> brokerActive "CDC events" "Publish" "Publish"
                 dbActive -> agentActive "Transaction logs (WAL)" "PostgreSQL logical replication"
+            
             }
+
 
             // резервный регион
             deploymentNode "Passive region"  {
 
                 mirror = infrastructureNode "Mirror Maker 2" "Дупликация потока событий" "Duplication"
 
-                dn = deploymentNode "In standby mode - No writing to Db, no events publishing, no events consuming"  {
+                dn = deploymentNode "In standby mode" "No writing to Db, no events publishing, no events consuming"  {
                     ci = containerInstance msProd  {
                         tags Standby
                     }
@@ -52,7 +54,7 @@
 
                 brokerPassive = containerInstance msBroker passiveGroup
 
-                deploymentNode "Kafka Connect In consume-mode - applies data changes"  {
+                deploymentNode "Kafka Connect In consume-mode" "applies data changes"  {
                     agentPassive = infrastructureNode "JDBC Sink Connector" "Читает из Kafka → пишет в PostgreSQL"
                 }
 

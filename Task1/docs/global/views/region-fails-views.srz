@@ -1,29 +1,3 @@
-workspace extends workspace-to-be.dsl {
-!const MODELS_PATH4 "./global/models"
-!const VIEWS_PATH4 "./global/views"
-
-    model {
-        # Обобщенные контейнеры                        
-            !include ${MODELS_PATH4}/generalization.srz
-
-        # Репликация региона                         
-            !include ${MODELS_PATH4}/region-replication.srz
-        
-        # Резервирование региона                         
-            !include ${MODELS_PATH4}/region-fails.srz
-    }
-    views {
-
-        # Реплицирование региона                         
-            !include ${VIEWS_PATH4}/region-replication-views.srz
-
-        # Резервирование региона                         
-            !include ${VIEWS_PATH4}/region-fails-views.srz
-            include *
-            exclude "element.tag==Migration"
-            autoLayout lr
-        }
-
         deployment * globalDeployment {
             title "Глобальная инфраструктура (GeoDNS)"
             description "Схема геомаршрутизации и глобального балансирования"
@@ -54,21 +28,3 @@ workspace extends workspace-to-be.dsl {
             
             autolayout lr
         }
-
-        styles {
-            element "Standby" {
-                background #cccccc
-                color #666666
-            }
-            
-            element "Infrastructure" {
-                background #546B57
-                shape RoundedBox
-            }
-            element "GeoRouting" {
-                background #17561F
-            }
-
-        }
-    }
-}

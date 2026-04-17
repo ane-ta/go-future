@@ -1,0 +1,6 @@
+deployment * depRegion {
+    title "Репликация основного региона"
+    include *
+    exclude "element.tag==Migration"
+    autoLayout lr
+}
