@@ -6,11 +6,11 @@ workspace extends workspace-to-be.dsl {
         # Обобщенные контейнеры                        
             !include ${MODELS_PATH4}/generalization.srz
 
-        # Репликация региона                         
-            !include ${MODELS_PATH4}/region-replication.srz
-        
         # Резервирование региона                         
             !include ${MODELS_PATH4}/region-fails.srz
+
+        # Репликация региона                         
+            !include ${MODELS_PATH4}/region-replication.srz
     }
     views {
 
@@ -19,41 +19,6 @@ workspace extends workspace-to-be.dsl {
 
         # Резервирование региона                         
             !include ${VIEWS_PATH4}/region-fails-views.srz
-            include *
-            exclude "element.tag==Migration"
-            autoLayout lr
-        }
-
-        deployment * globalDeployment {
-            title "Глобальная инфраструктура (GeoDNS)"
-            description "Схема геомаршрутизации и глобального балансирования"
-            
-            include *
-            autolayout lr
-        }
-
-        dynamic globalInfra "GeoRoutingSuccess" "Геомаршрутизация: успех" {
-            
-            user -> geoDns "DNS-запрос: api.gofuture.com"
-            geoDns -> healthChecker "проверяет доступность основного региона"
-            healthChecker -> geoDns "Основной регион доступен"
-            geoDns -> user "IP основного региона"
-            user -> apiGateway "HTTP-запрос в основной регион"
-            
-            autolayout lr
-        }
-
-        dynamic globalInfra "GeoRoutingFailover" "Геомаршрутизация: отказ основного региона" {
-            
-            user -> geoDns "DNS-запрос: api.gofuture.com"
-            geoDns -> healthChecker "проверяет доступность основного региона"
-            healthChecker -> geoDns "Основной регион НЕ ДОСТУПЕН"
-            geoDns -> user "IP резервного региона"
-            user -> apiGateway "HTTP-запрос в резервный регион"
-            apiGateway -> user "Ошибка, пока инженер не переключит микросервисы из standby в active"
-            
-            autolayout lr
-        }
 
         styles {
             element "Standby" {
@@ -68,7 +33,9 @@ workspace extends workspace-to-be.dsl {
             element "GeoRouting" {
                 background #17561F
             }
-
+            element "Safety" {
+                background #B43131
+            }
         }
     }
 }

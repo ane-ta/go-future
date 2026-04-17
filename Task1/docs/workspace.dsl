@@ -1,7 +1,6 @@
-workspace extends workspace-to-be.dsl {
+workspace extends workspace-global.dsl {
 
     model {
-
     }
     views {
     }

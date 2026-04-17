@@ -1,3 +1,13 @@
+        !element goFuture {
+            regionFirewall = container "Regional Firewall" "Фильтрует трафик" "" "Infrastructure, Safety"
+
+            regionFirewall -> apiGateway "Реализует правило «Пускать только от WAF»" "HTTPS" "Safety"
+            
+            apiGateway -> msACIDDatabases "health check: SELECT 1"  "Safety"
+            apiGateway -> msBroker "health check: metadata fetch" "Safety"
+        }
+
+        // Глобальная инфраструктура
         globalInfra = softwareSystem "Global Infrastructure" {
             tags "Infrastructure"
         
@@ -9,23 +19,33 @@
 
             // Health Checker (может быть частью Route 53)
             healthChecker = container "Health Checker" {
-                description "Мониторинг доступности регионов. Может быть частью Route 53"
+                description "Мониторинг доступности регионов. Может быть частью Route 53\nПроверяет каждые 30 сек, 3 неудачи = unhealthy."
                 technology "AWS Route 53 Health Checks"
                 tags "Infrastructure"
             }
 
             cloudMonitor = container "Cloud monitor" "метрики"
             notifGlobal = container "Notification Service" "(SNS / Pub/Sub / etc)"
+            
+            globalWaf = container "WAF & DDoS Protection edge node" "Фильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации)." "" "Safety"
+            interFirewall = container "Transit Firewall" "Гарантирует, что через этот канал идет только поток Kafka/CDC и ничего больше" "" "Safety"
 
             user -> GeoDNS
             geoDns -> healthChecker "использует для определения доступности основного региона"
+            
+            healthChecker -> globalWaf "GET /health" "HTTPS"
+            globalWaf -> goFuture.regionFirewall "Фильтрует трафик" "HTTPS"
+
             healthChecker -> cloudMonitor "region is unhealthy"
             sre -> cloudMonitor "Alert rules"
             cloudMonitor -> notifGlobal "Alert: Region is unhealthy"
             
-            geoDns -> goFuture.apiGateway "направляет трафик в развертывание"        
+            geoDns -> globalWaf "направляет трафик в развертывание"        
+            user -> globalWaf "Запрос"
         }
+
         
+        // Централизованная инфраструктура
         centralSystem = softwareSystem "Central Infrastructure" {
             cntAlertManager = container "Alert Manager" ""
             
@@ -33,12 +53,7 @@
             cntAlertManager -> sre
         }
 
-        globalInfra.healthChecker -> goFuture.apiGateway "health check: GET /health (каждые 30 сек, 3 неудачи = unhealthy)" "HTTPS"
-        goFuture.apiGateway -> goFuture.msACIDDatabases "health check: SELECT 1" 
-        goFuture.apiGateway -> goFuture.msBroker "health check: metadata fetch"
-
-        user -> goFuture.apiGateway 
-
+        // Развертывание региона
         globalDeployment = deploymentEnvironment "Global Infrastructure" {
            
             globalDG = deploymentGroup "Global"
@@ -47,6 +62,10 @@
 
             deploymentNode "Глобальная инфраструктура" {
                 containerInstance globalInfra.geoDns globalDG,singaporeDG,jakartaDG
+
+                containerInstance globalInfra.globalWaf globalDG,singaporeDG
+                containerInstance globalInfra.globalWaf globalDG,jakartaDG
+
                 containerInstance globalInfra.healthChecker globalDG,singaporeDG
                 containerInstance globalInfra.cloudMonitor globalDG
                 containerInstance globalInfra.notifGlobal globalDG
@@ -58,19 +77,33 @@
             
 
             singaporeDeployment = deploymentNode "Main Region" {
-                deploymentNode "Kubernetes Cluster" {
-                    containerInstance goFuture.apiGateway singaporeDG
-                    containerInstance goFuture.msProd singaporeDG
-                    containerInstance goFuture.msBroker singaporeDG
-                    containerInstance goFuture.msACIDDatabases singaporeDG
+                deploymentNode "Main region private network" {
+                    containerInstance goFuture.regionFirewall singaporeDG
+                    deploymentNode "Kubernetes Cluster" {
+                        deploymentNode "In active mode" {
+                            containerInstance goFuture.apiGateway singaporeDG
+                            containerInstance goFuture.msProd singaporeDG
+                        }
+                        containerInstance goFuture.msBroker singaporeDG
+                        containerInstance goFuture.msACIDDatabases singaporeDG
+                    }
                 }
             }
             jakartaDeployment  = deploymentNode "Reserve Region" {
-                deploymentNode "Kubernetes Cluster" {
-                    containerInstance goFuture.apiGateway jakartaDG
-                    containerInstance goFuture.msProd jakartaDG
-                    containerInstance goFuture.msBroker jakartaDG
-                    containerInstance goFuture.msACIDDatabases jakartaDG
+                deploymentNode "Main region private network" {
+                    containerInstance goFuture.regionFirewall jakartaDG
+                    deploymentNode "Kubernetes Cluster" {
+                        deploymentNode "In standby mode" {
+                            containerInstance goFuture.apiGateway jakartaDG {
+                                tags Standby
+                            }
+                            containerInstance goFuture.msProd jakartaDG {
+                                tags Standby
+                            }
+                        }
+                        containerInstance goFuture.msBroker jakartaDG
+                        containerInstance goFuture.msACIDDatabases jakartaDG
+                    }
                 }
             }
         }

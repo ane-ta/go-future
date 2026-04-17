@@ -12,7 +12,9 @@
             globalInfra.geoDns -> globalInfra.healthChecker "проверяет доступность основного региона"
             globalInfra.healthChecker -> globalInfra.geoDns "Основной регион доступен"
             globalInfra.geoDns -> user "IP основного региона"
-            user -> goFuture.apiGateway "HTTP-запрос в основной регион"
+            user -> globalInfra.globalWaf "HTTP-запрос в основной регион"
+            globalInfra.globalWaf -> goFuture.regionFirewall "HTTP-запрос в основной регион"
+            goFuture.regionFirewall -> goFuture.apiGateway "HTTP-запрос в основной регион"
             
             autolayout lr
         }
@@ -23,8 +25,14 @@
             globalInfra.geoDns -> globalInfra.healthChecker "проверяет доступность основного региона"
             globalInfra.healthChecker -> globalInfra.geoDns "Основной регион НЕ ДОСТУПЕН"
             globalInfra.geoDns -> user "IP резервного региона"
-            user -> goFuture.apiGateway "HTTP-запрос в резервный регион"
-            goFuture.apiGateway -> user "Ошибка, пока инженер не переключит микросервисы из standby в active"
+
+            user -> globalInfra.globalWaf "HTTP-запрос в резервный регион"
+            globalInfra.globalWaf -> goFuture.regionFirewall "HTTP-запрос в резервный регион"
+            goFuture.regionFirewall -> goFuture.apiGateway  "HTTP-запрос в резервный регион"
+
+            goFuture.apiGateway -> goFuture.regionFirewall "Ошибка, пока инженер не переключит микросервисы из standby в active"
+            goFuture.regionFirewall -> globalInfra.globalWaf "Ошибка, пока инженер не переключит микросервисы из standby в active"
+            globalInfra.globalWaf -> user "Ошибка, пока инженер не переключит микросервисы из standby в active"
             
             autolayout lr
         }

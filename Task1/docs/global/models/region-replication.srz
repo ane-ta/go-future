@@ -20,47 +20,65 @@
             passiveGroup = deploymentGroup "Passive group"
 
             // основной регион
-            ra = deploymentNode "Active region" {
+            ra = deploymentNode "Active region private network" {
 
-                deploymentNode "In active mode" "Write to Db, Publish to Broker, Listen to Events"{
-                    containerInstance goFuture.msProd activeGroup
+                rak = deploymentNode "K8 cluster" {
+
+                    deploymentNode "In active mode" "Write to Db, Publish to Broker, Listen to Events"{
+                        containerInstance goFuture.msProd activeGroup
+                    }
+
+                    dbActive = containerInstance goFuture.msACIDDatabases activeGroup
+                    brokerActive = containerInstance goFuture.msBroker activeGroup
+
+                    ka = deploymentNode "Kafka Connect In emit-mode" "Use Debezium Connector to listen transaction logs"  {
+                        agentActive = infrastructureNode "Debezium Source Connector" "Читает WAL PostgreSQL → публикует в Kafka"
+                    }
+                    ka.agentActive -> brokerActive "CDC events" "Publish" "Publish"
+                    dbActive -> ka.agentActive "Transaction logs (WAL)" "PostgreSQL logical replication"            
                 }
 
-                dbActive = containerInstance goFuture.msACIDDatabases activeGroup
+                //containerInstance goFuture.regionFirewall activeGroup
+                regionFirewall = infrastructureNode "Regional Firewall" activeGroup, passiveGroup "Safety"
 
-                brokerActive = containerInstance goFuture.msBroker activeGroup
-
-                ka = deploymentNode "Kafka Connect In emit-mode" "Use Debezium Connector to listen transaction logs"  {
-                    agentActive = infrastructureNode "Debezium Source Connector" "Читает WAL PostgreSQL → публикует в Kafka"
-                }
-                ka.agentActive -> brokerActive "CDC events" "Publish" "Publish"
-                dbActive -> ka.agentActive "Transaction logs (WAL)" "PostgreSQL logical replication"            
+                rak.brokerActive -> regionFirewall "CDC, EDA events, consumer offsets to mirror" "Subscribe" "Duplication, Subscribe"
             }
 
+            // резервный регион
+            rp = deploymentNode "Passive region private network"  {
+                
+                rpk = deploymentNode "k8 cluster"  {
+
+                    dn = deploymentNode "In standby mode" "No writing to Db, no events publishing, no events consuming"  {
+                        ci = containerInstance goFuture.msProd  {
+                            tags Standby
+                        }
+                    }
+
+                    dbPassive = containerInstance goFuture.msACIDDatabases passiveGroup
+                    brokerPassive = containerInstance goFuture.msBroker passiveGroup
+                    mirror = infrastructureNode "Mirror Maker 2" "Дупликация потока событий" "Duplication" passiveGroup
+
+                    kp = deploymentNode "Kafka Connect In consume-mode" "applies data changes"  {
+                        agentPassive = infrastructureNode "JDBC Sink Connector" "Читает из Kafka → пишет в PostgreSQL"
+                    }
+                    
+                    mirror -> brokerPassive "CDC, EDA events, consumer offsets" "Publish" "Publish, Duplication"
+                    brokerPassive -> kp.agentPassive "CDC events" "Subscribe" "Subscribe"
+                    kp.agentPassive -> dbPassive  "apply db changes" "SQL" ""
+                }
+
+                //containerInstance goFuture.regionFirewall activeGroup
+                regionFirewall = infrastructureNode "Regional Firewall" passiveGroup, activeGroup "Safety"
+
+                regionFirewall -> rpk.mirror "CDC, EDA events, consumer offsets to mirror" "Subscribe" "Duplication, Subscribe"
+            }
 
             // резервный регион
-            rp = deploymentNode "Passive region"  {
-
-                mirror = infrastructureNode "Mirror Maker 2" "Дупликация потока событий" "Duplication"
-
-                dn = deploymentNode "In standby mode" "No writing to Db, no events publishing, no events consuming"  {
-                    ci = containerInstance goFuture.msProd  {
-                        tags Standby
-                    }
-                }
-
-                dbPassive = containerInstance goFuture.msACIDDatabases passiveGroup
-
-                brokerPassive = containerInstance goFuture.msBroker passiveGroup
-
-                kp = deploymentNode "Kafka Connect In consume-mode" "applies data changes"  {
-                    agentPassive = infrastructureNode "JDBC Sink Connector" "Читает из Kafka → пишет в PostgreSQL"
-                }
-
-                brokerPassive -> kp.agentPassive "CDC events" "Subscribe" "Subscribe"
-                kp.agentPassive -> dbPassive  "apply db changes" "SQL" ""
-
-                depRegion.ra.brokerActive -> mirror "CDC, EDA events, consumer offsets to mirror" "Subscribe" "Duplication, Subscribe"
-                mirror -> brokerPassive "CDC, EDA events, consumer offsets" "Publish" "Publish, Duplication"
+            g = deploymentNode "Global infrastructure"  {
+                f = containerInstance globalInfra.interFirewall activeGroup,passiveGroup
+            
+                depRegion.ra.regionFirewall -> f "CDC, EDA events, consumer offsets to mirror (encrypted)" "mTLS/VPN" "Duplication, Subscribe"
+                f -> depRegion.rp.regionFirewall  "CDC, EDA events, consumer offsets to mirror (encrypted)" "mTLS/VPN" "Duplication, Subscribe"
             }
         }
