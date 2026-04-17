@@ -8,23 +8,23 @@
 
         dynamic globalInfra "GeoRoutingSuccess" "Геомаршрутизация: успех" {
             
-            user -> geoDns "DNS-запрос: api.gofuture.com"
-            geoDns -> healthChecker "проверяет доступность основного региона"
-            healthChecker -> geoDns "Основной регион доступен"
-            geoDns -> user "IP основного региона"
-            user -> apiGateway "HTTP-запрос в основной регион"
+            user -> globalInfra.geoDns "DNS-запрос: api.gofuture.com"
+            globalInfra.geoDns -> globalInfra.healthChecker "проверяет доступность основного региона"
+            globalInfra.healthChecker -> globalInfra.geoDns "Основной регион доступен"
+            globalInfra.geoDns -> user "IP основного региона"
+            user -> goFuture.apiGateway "HTTP-запрос в основной регион"
             
             autolayout lr
         }
 
         dynamic globalInfra "GeoRoutingFailover" "Геомаршрутизация: отказ основного региона" {
             
-            user -> geoDns "DNS-запрос: api.gofuture.com"
-            geoDns -> healthChecker "проверяет доступность основного региона"
-            healthChecker -> geoDns "Основной регион НЕ ДОСТУПЕН"
-            geoDns -> user "IP резервного региона"
-            user -> apiGateway "HTTP-запрос в резервный регион"
-            apiGateway -> user "Ошибка, пока инженер не переключит микросервисы из standby в active"
+            user -> globalInfra.geoDns "DNS-запрос: api.gofuture.com"
+            globalInfra.geoDns -> globalInfra.healthChecker "проверяет доступность основного региона"
+            globalInfra.healthChecker -> globalInfra.geoDns "Основной регион НЕ ДОСТУПЕН"
+            globalInfra.geoDns -> user "IP резервного региона"
+            user -> goFuture.apiGateway "HTTP-запрос в резервный регион"
+            goFuture.apiGateway -> user "Ошибка, пока инженер не переключит микросервисы из standby в active"
             
             autolayout lr
         }

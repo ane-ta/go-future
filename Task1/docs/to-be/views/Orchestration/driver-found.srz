@@ -1,9 +1,9 @@
-    driverDom -> mqEDA "DriverProposed"
-    driverDom -> mqEDA "DriverAccepted"
-    mqEDA -> orchestr "DriverAccepted"
+    goFuture.driverDom -> goFuture.mqEDA "DriverProposed"
+    goFuture.driverDom -> goFuture.mqEDA "DriverAccepted"
+    goFuture.mqEDA -> goFuture.orchestr "DriverAccepted"
     
-    orchestr -> mqEDA "queue: assignDriver()"
-    mqEDA -> booking "queue: assignDriver()"
-    booking -> mqEDA "DriverAssigned"
+    goFuture.orchestr -> goFuture.mqEDA "queue: assignDriver()"
+    goFuture.mqEDA -> goFuture.booking "queue: assignDriver()"
+    goFuture.booking -> goFuture.mqEDA "DriverAssigned"
     
-    mqEDA -> geo "DriverAssigned"
+    goFuture.mqEDA -> goFuture.geo "DriverAssigned"

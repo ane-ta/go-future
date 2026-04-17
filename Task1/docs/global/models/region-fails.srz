@@ -23,21 +23,21 @@
             sre -> cloudMonitor "Alert rules"
             cloudMonitor -> notifGlobal "Alert: Region is unhealthy"
             
-            geoDns -> apiGateway "направляет трафик в развертывание"        
+            geoDns -> goFuture.apiGateway "направляет трафик в развертывание"        
         }
         
         centralSystem = softwareSystem "Central Infrastructure" {
             cntAlertManager = container "Alert Manager" ""
             
-            notifGlobal -> cntAlertManager "Alert: Region is unhealthy"
+            globalInfra.notifGlobal -> cntAlertManager "Alert: Region is unhealthy"
             cntAlertManager -> sre
         }
 
-        healthChecker -> apiGateway "health check: GET /health (каждые 30 сек, 3 неудачи = unhealthy)" "HTTPS"
-        apiGateway -> msACIDDatabases "health check: SELECT 1" 
-        apiGateway -> msBroker "health check: metadata fetch"
+        globalInfra.healthChecker -> goFuture.apiGateway "health check: GET /health (каждые 30 сек, 3 неудачи = unhealthy)" "HTTPS"
+        goFuture.apiGateway -> goFuture.msACIDDatabases "health check: SELECT 1" 
+        goFuture.apiGateway -> goFuture.msBroker "health check: metadata fetch"
 
-        user -> apiGateway 
+        user -> goFuture.apiGateway 
 
         globalDeployment = deploymentEnvironment "Global Infrastructure" {
            
@@ -46,31 +46,31 @@
             jakartaDG = deploymentGroup "Jakarta"
 
             deploymentNode "Глобальная инфраструктура" {
-                containerInstance geoDns globalDG,singaporeDG,jakartaDG
-                containerInstance healthChecker globalDG,singaporeDG
-                containerInstance cloudMonitor globalDG
-                containerInstance notifGlobal globalDG
+                containerInstance globalInfra.geoDns globalDG,singaporeDG,jakartaDG
+                containerInstance globalInfra.healthChecker globalDG,singaporeDG
+                containerInstance globalInfra.cloudMonitor globalDG
+                containerInstance globalInfra.notifGlobal globalDG
             }
 
             centralDeployment = deploymentNode "Central Region" {
-                containerInstance cntAlertManager globalDG
+                containerInstance centralSystem.cntAlertManager globalDG
             }
             
 
             singaporeDeployment = deploymentNode "Main Region" {
                 deploymentNode "Kubernetes Cluster" {
-                    containerInstance apiGateway singaporeDG
-                    containerInstance msProd singaporeDG
-                    containerInstance msBroker singaporeDG
-                    containerInstance msACIDDatabases singaporeDG
+                    containerInstance goFuture.apiGateway singaporeDG
+                    containerInstance goFuture.msProd singaporeDG
+                    containerInstance goFuture.msBroker singaporeDG
+                    containerInstance goFuture.msACIDDatabases singaporeDG
                 }
             }
             jakartaDeployment  = deploymentNode "Reserve Region" {
                 deploymentNode "Kubernetes Cluster" {
-                    containerInstance apiGateway jakartaDG
-                    containerInstance msProd jakartaDG
-                    containerInstance msBroker jakartaDG
-                    containerInstance msACIDDatabases jakartaDG
+                    containerInstance goFuture.apiGateway jakartaDG
+                    containerInstance goFuture.msProd jakartaDG
+                    containerInstance goFuture.msBroker jakartaDG
+                    containerInstance goFuture.msACIDDatabases jakartaDG
                 }
             }
         }

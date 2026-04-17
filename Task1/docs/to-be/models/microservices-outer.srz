@@ -1,9 +1,9 @@
 #C2 маршрутизация
 # Frontend
-    cRouting -> bffPassenger "Создает заказы" "HTTPS/REST API"
-    cRouting -> bffDriver "Обновляет статус" "HTTPS/REST API"
-    cRouting -> bffCorp "Просмотр заказов" "HTTPS/REST API"
-    cRouting -> bffAccountant "Управление выплатами" "HTTPS/REST API"
+    apiGateway.cRouting -> bffPassenger "Создает заказы" "HTTPS/REST API"
+    apiGateway.cRouting -> bffDriver "Обновляет статус" "HTTPS/REST API"
+    apiGateway.cRouting -> bffCorp "Просмотр заказов" "HTTPS/REST API"
+    apiGateway.cRouting -> bffAccountant "Управление выплатами" "HTTPS/REST API"
 
 # C2 ASYNC-связи
     # domains

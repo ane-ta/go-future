@@ -31,16 +31,15 @@ workspace extends ws-parent.dsl {
 
         # Наблюдаемость
             !include ${MODELS_PATH3}/observability.srz
+
+        # Деплой
+            !include ${MODELS_PATH3}/cicd.srz
         }
 
-
-
-    # Деплой
-        !include ${MODELS_PATH3}/cicd.srz
     }
     views {
         // миграция
-        component monolith "Migration" { 
+        component goFuture.monolith "Migration" { 
             include "->element.tag==Entrance"
             include "->element.tag==Migration->"
             include "relationship.tag==Migration"
@@ -55,7 +54,7 @@ workspace extends ws-parent.dsl {
             include "relationship.tag==ReplicaLink"
 
             include "element.tag==Prod && element.tag==Database"
-            include mqBg
+            include goFuture.mqBg
             autolayout lr
         }
 
@@ -63,7 +62,7 @@ workspace extends ws-parent.dsl {
         container goFuture "ProdServices_Logic_Interaction" { 
             include "element.tag==Prod && element.tag==Service"
             include "element.tag==Prod && element.tag==Worker"
-            include mqEDA
+            include goFuture.mqEDA
             include "element.tag==External"
             exclude "relationship==*"
             include "relationship.tag==EDA"
@@ -83,10 +82,10 @@ workspace extends ws-parent.dsl {
                     "plantuml.sequenceDiagram" "true"
                 }
             
-            mqEDA -> analyticsEngine "События для динамического ценообразования"
-            analyticsEngine -> mqEDA "SurgeFactorUpdated"
-            mqEDA -> pricing "SurgeFactorUpdated"
-            pricing -> cachePricing "Surge factor upsert"
+            goFuture.mqEDA -> goFuture.analyticsEngine "События для динамического ценообразования"
+            goFuture.analyticsEngine -> goFuture.mqEDA "SurgeFactorUpdated"
+            goFuture.mqEDA -> goFuture.pricing "SurgeFactorUpdated"
+            goFuture.pricing -> goFuture.cachePricing "Surge factor upsert"
         }
 
         // Orchestrator booking happy path
@@ -110,8 +109,8 @@ workspace extends ws-parent.dsl {
                     "plantuml.sequenceDiagram" "true"
                 }
         
-            mqEDA -> payouts "subscribe: BookingCompleted"
-            payouts -> mqEDA "publish: PayoutCompleted"
+            goFuture.mqEDA -> goFuture.payouts "subscribe: BookingCompleted"
+            goFuture.payouts -> goFuture.mqEDA "publish: PayoutCompleted"
         }
 
         // Orchestrator booking when driver not found

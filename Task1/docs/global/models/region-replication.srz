@@ -6,11 +6,11 @@
                     jdbc = component "CDC input" "CDC коннектор-приемник для PostgreSQL" "Debezium" "Duplication"
                 }
 
-                msACIDDatabases -> debezium "Provide CDC events" "Transaction Log" "Duplication, Publish"
-                debezium -> msBroker "CDC events" "Publish" "Duplication, Publish"
+                msACIDDatabases -> replicaAgent.debezium "Provide CDC events" "Transaction Log" "Duplication, Publish"
+                replicaAgent.debezium -> msBroker "CDC events" "Publish" "Duplication, Publish"
 
-                msBroker -> jdbc "CDC events" "Subscribe" "Subscribe, Duplication"
-                jdbc -> msACIDDatabases "Apply CDC updates" "SQL" "Subscribe, Duplication"
+                msBroker -> replicaAgent.jdbc "CDC events" "Subscribe" "Subscribe, Duplication"
+                replicaAgent.jdbc -> msACIDDatabases "Apply CDC updates" "SQL" "Subscribe, Duplication"
         }
 
         // Развертывание в регионе
@@ -20,48 +20,47 @@
             passiveGroup = deploymentGroup "Passive group"
 
             // основной регион
-            deploymentNode "Active region" {
+            ra = deploymentNode "Active region" {
 
                 deploymentNode "In active mode" "Write to Db, Publish to Broker, Listen to Events"{
-                    containerInstance msProd activeGroup
+                    containerInstance goFuture.msProd activeGroup
                 }
 
-                dbActive = containerInstance msACIDDatabases activeGroup
+                dbActive = containerInstance goFuture.msACIDDatabases activeGroup
 
-                brokerActive = containerInstance msBroker activeGroup
+                brokerActive = containerInstance goFuture.msBroker activeGroup
 
-                deploymentNode "Kafka Connect In emit-mode" "Use Debezium Connector to listen transaction logs"  {
+                ka = deploymentNode "Kafka Connect In emit-mode" "Use Debezium Connector to listen transaction logs"  {
                     agentActive = infrastructureNode "Debezium Source Connector" "Читает WAL PostgreSQL → публикует в Kafka"
                 }
-                agentActive -> brokerActive "CDC events" "Publish" "Publish"
-                dbActive -> agentActive "Transaction logs (WAL)" "PostgreSQL logical replication"
-            
+                ka.agentActive -> brokerActive "CDC events" "Publish" "Publish"
+                dbActive -> ka.agentActive "Transaction logs (WAL)" "PostgreSQL logical replication"            
             }
 
 
             // резервный регион
-            deploymentNode "Passive region"  {
+            rp = deploymentNode "Passive region"  {
 
                 mirror = infrastructureNode "Mirror Maker 2" "Дупликация потока событий" "Duplication"
 
                 dn = deploymentNode "In standby mode" "No writing to Db, no events publishing, no events consuming"  {
-                    ci = containerInstance msProd  {
+                    ci = containerInstance goFuture.msProd  {
                         tags Standby
                     }
                 }
 
-                dbPassive = containerInstance msACIDDatabases passiveGroup
+                dbPassive = containerInstance goFuture.msACIDDatabases passiveGroup
 
-                brokerPassive = containerInstance msBroker passiveGroup
+                brokerPassive = containerInstance goFuture.msBroker passiveGroup
 
-                deploymentNode "Kafka Connect In consume-mode" "applies data changes"  {
+                kp = deploymentNode "Kafka Connect In consume-mode" "applies data changes"  {
                     agentPassive = infrastructureNode "JDBC Sink Connector" "Читает из Kafka → пишет в PostgreSQL"
                 }
 
-                brokerPassive -> agentPassive "CDC events" "Subscribe" "Subscribe"
-                agentPassive -> dbPassive  "apply db changes" "SQL" ""
+                brokerPassive -> kp.agentPassive "CDC events" "Subscribe" "Subscribe"
+                kp.agentPassive -> dbPassive  "apply db changes" "SQL" ""
 
-                brokerActive -> mirror "CDC, EDA events, consumer offsets to mirror" "Subscribe" "Duplication, Subscribe"
+                depRegion.ra.brokerActive -> mirror "CDC, EDA events, consumer offsets to mirror" "Subscribe" "Duplication, Subscribe"
                 mirror -> brokerPassive "CDC, EDA events, consumer offsets" "Publish" "Publish, Duplication"
             }
         }
