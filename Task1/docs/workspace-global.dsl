@@ -32,7 +32,7 @@ workspace extends workspace-to-be.dsl {
             sre -> cloudMonitor "Alert rules"
             cloudMonitor -> notifGlobal "Alert: Region is unhealthy"
 
-            geoDns -> healthChecker "использует для определения доступности"
+            geoDns -> healthChecker "использует для определения доступности основного региона"
             geoDns -> apiGateway "направляет трафик в развертывание"        
         }
         
@@ -40,7 +40,7 @@ workspace extends workspace-to-be.dsl {
             cntAlertManager = container "Alert Manager" ""
         }
 
-        healthChecker -> apiGateway "health check: GET /health" "HTTPS"
+        healthChecker -> apiGateway "health check: GET /health (каждые 30 сек, 3 неудачи = unhealthy)" "HTTPS"
         apiGateway -> msACIDDatabases "health check: SELECT 1" 
         apiGateway -> msBroker "health check: metadata fetch" 
         notifGlobal -> cntAlertManager "Alert: Region is unhealthy"
@@ -54,7 +54,7 @@ workspace extends workspace-to-be.dsl {
 
             deploymentNode "Глобальная инфраструктура" {
                 containerInstance geoDns globalDG,singaporeDG,jakartaDG
-                containerInstance healthChecker globalDG,singaporeDG,jakartaDG
+                containerInstance healthChecker globalDG,singaporeDG
                 containerInstance cloudMonitor globalDG
                 containerInstance notifGlobal globalDG
             }
@@ -64,7 +64,7 @@ workspace extends workspace-to-be.dsl {
             }
             
 
-            singaporeDeployment = deploymentNode "Singapore Region" {
+            singaporeDeployment = deploymentNode "Main Region" {
                 deploymentNode "Kubernetes Cluster" {
                     containerInstance apiGateway singaporeDG
                     containerInstance msProd singaporeDG
@@ -72,7 +72,7 @@ workspace extends workspace-to-be.dsl {
                     containerInstance msACIDDatabases singaporeDG
                 }
             }
-            jakartaDeployment  = deploymentNode "Jakarta Region" {
+            jakartaDeployment  = deploymentNode "Reserve Region" {
                 deploymentNode "Kubernetes Cluster" {
                     containerInstance apiGateway jakartaDG
                     containerInstance msProd jakartaDG
@@ -104,23 +104,22 @@ workspace extends workspace-to-be.dsl {
         dynamic globalInfra "GeoRoutingSuccess" "Геомаршрутизация: успех" {
             
             user -> geoDns "DNS-запрос: api.gofuture.com"
-            geoDns -> healthChecker "проверяет доступность регионов"
-            healthChecker -> geoDns "Джакарта доступна"
-            geoDns -> user "IP Джакарты (15.185.0.1)"
-            user -> apiGateway "HTTP-запрос в Джакарта"
-            apiGateway -> msProd "прокси в микросервисы"
+            geoDns -> healthChecker "проверяет доступность основного региона"
+            healthChecker -> geoDns "Основной регион доступен"
+            geoDns -> user "IP основного региона"
+            user -> apiGateway "HTTP-запрос в основной регион"
             
             autolayout lr
         }
 
-        dynamic globalInfra "GeoRoutingFailover" "Геомаршрутизация: отказ региона" {
+        dynamic globalInfra "GeoRoutingFailover" "Геомаршрутизация: отказ основного региона" {
             
             user -> geoDns "DNS-запрос: api.gofuture.com"
-            geoDns -> healthChecker "проверяет доступность Сингапура"
-            healthChecker -> geoDns "Сингапур НЕ ДОСТУПЕН"
-            geoDns -> user "IP Куала-Лумпур (резервный регион)"
-            user -> apiGateway "HTTP-запрос в Куала-Лумпур"
-            apiGateway -> msProd "прокси в микросервисы"
+            geoDns -> healthChecker "проверяет доступность основного региона"
+            healthChecker -> geoDns "Основной регион НЕ ДОСТУПЕН"
+            geoDns -> user "IP резервного региона"
+            user -> apiGateway "HTTP-запрос в резервный регион"
+            apiGateway -> user "Ошибка, пока инженер не переключит микросервисы из standby в active"
             
             autolayout lr
         }
