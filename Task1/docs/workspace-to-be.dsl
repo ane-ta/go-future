@@ -7,35 +7,35 @@ workspace extends ws-parent.dsl {
     # СИСТЕМА                        
         !element goFuture {
 
-        # Обобщение
-            !include ${MODELS_PATH3}/generalization.srz
+            # Обобщение
+                !include ${MODELS_PATH3}/generalization.srz
 
-        # Точка входа
-            !include ${MODELS_PATH3}/entrance.srz
+            # Точка входа
+                !include ${MODELS_PATH3}/entrance.srz
 
-        # Очереди и асинхронщина
-            mqEDA = container "Брокер сообщений EDA" "Доменные события" "Kafka" "ToBe, Broker"
-            mqBg = container "Брокер сообщений репликации" "CDC события" "Kafka" "ToBe, Broker"
-            mq = container "Брокер сообщений" "Очередь задач" "RabbitMQ" "Broker"
+            # Очереди и асинхронщина
+                mqEDA = container "Брокер сообщений EDA" "Доменные события" "Kafka" "ToBe, Broker"
+                mqBg = container "Брокер сообщений репликации" "CDC события" "Kafka" "ToBe, Broker"
+                mq = container "Брокер сообщений" "Очередь задач" "RabbitMQ" "Broker"
 
-        # Аналитика
-            !include ${MODELS_PATH3}/analytics.srz
 
-        # Микросервисы
-            !include ${MODELS_PATH3}/microservices.srz
-            !include ${MODELS_PATH3}/microservices-inner.srz
-            !include ${MODELS_PATH3}/microservices-outer.srz
-            
-        # Миграция на микросервисы
-            !include ${MODELS_PATH3}/migration.srz
+            # Микросервисы
+                !include ${MODELS_PATH3}/microservices.srz
+                !include ${MODELS_PATH3}/microservices-inner.srz
+                !include ${MODELS_PATH3}/microservices-outer.srz
+                
+            # Аналитика
+                !include ${MODELS_PATH3}/analytics.srz
 
-        # Наблюдаемость
-            !include ${MODELS_PATH3}/observability.srz
+            # Миграция на микросервисы
+                !include ${MODELS_PATH3}/migration.srz
 
-        # Деплой
-            !include ${MODELS_PATH3}/cicd.srz
+            # Наблюдаемость
+                !include ${MODELS_PATH3}/observability.srz
+
+            # Деплой
+                !include ${MODELS_PATH3}/cicd.srz
         }
-
     }
     views {
         // миграция
@@ -82,8 +82,8 @@ workspace extends ws-parent.dsl {
                     "plantuml.sequenceDiagram" "true"
                 }
             
-            goFuture.mqEDA -> goFuture.analyticsEngine "События для динамического ценообразования"
-            goFuture.analyticsEngine -> goFuture.mqEDA "SurgeFactorUpdated"
+            // goFuture.mqEDA -> goFuture.analyticsEngine "События для динамического ценообразования"
+            // goFuture.analyticsEngine -> goFuture.mqEDA "SurgeFactorUpdated"
             goFuture.mqEDA -> goFuture.pricing "SurgeFactorUpdated"
             goFuture.pricing -> goFuture.cachePricing "Surge factor upsert"
         }
@@ -127,6 +127,13 @@ workspace extends ws-parent.dsl {
             autolayout lr
         }
 
+        // аналитика
+        container goFuture "Analytics" { 
+            title "Аналитика"
+            include "->element.tag==AnalyticsPipe->"
+            include "element.tag==Analytics"
+            autolayout lr
+        }
         styles {
 
         }

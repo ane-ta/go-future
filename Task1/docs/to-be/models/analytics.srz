@@ -1,16 +1,40 @@
-    #! Аналитический стек
+    !element analyticsEngine {
+        reportEngine = component "Пайплайн отчетов"
+        mlEngine = component "Пайплайн признаков для ML"
+    }
+    # C2  
+    mq -> analyticsEngine.reportEngine "События аналитики" "AMQP Subscribe" "Analytics, Subscribe"
+    
+    //analyticsEngine -> mqEDA "SurgeFactorUpdated - актуальный коэффициент для конкретного района" "Publish" "ToBe, Publish, EDA"
+    validateContract = container "Data Contract / Schema Validation" "Проверяет соответствие схеме (Schema Registry), наличие обязательных полей." "Confluent Schema Registry" "DataQuality"
+    
     group "Analytics pipe" {
-        analyticsEngine = container "Analytics Engine" "Обработка аналитических данных" "Spark/PyFlink" "AnalyticsPipe"
-        dbAnalytics = container "Analytics Db" "Хранение аналитических данных" "ClickHouse" "AnalyticsPipe"
-        dataLens = container "DataLens" "Визуализация бизнес метрик" "BI Tool" "AnalyticsPipe"
+        validateLogic = container "Data Quality / Business Rules Validation" "Проверяет смысл данных, на которых будет учиться ML." "Great Expectations / Python" "AnalyticsPipe, DataQuality" {
+            validateBI = component "Валидация на техническую целостность"
+            validateML = component "Валидация на смысловую пригодность (Data Quality)"
+        }
+
+        mlPlatform = container "ML Platform" "Обучение и Serving моделей (Pricing, Fraud, Demand)" "Kubeflow / MLflow" "ML, AnalyticsPipe" 
     }
 
-    # C2
-    analyticsEngine -> dbAnalytics "Записывает данные" "ETL" "AnalyticsPipe"
-    dbAnalytics -> dataLens "Предоставляет данные" "SQL" "AnalyticsPipe"
-    dataLens -> corpManager "Смотрит отчеты" "" "AnalyticsPipe"
-    
-    mq -> analyticsEngine "События аналитики" "AMQP Subscribe" "Analytics, Subscribe"
-    mqEDA -> analyticsEngine "События аналитики" "Subscribe" "Analytics, Subscribe"
-    
-    analyticsEngine -> mqEDA "SurgeFactorUpdated - актуальный коэффициент для конкретного района" "Publish" "ToBe, Publish, EDA"
+    !element dbAnalytics {
+        reportDb = component "DWH (Data Warehouse)" "для BI и отчетов"
+        featureDb = component "Feature Store" "для ML-признаков"
+    }
+
+    //Пайплайн ML
+    mqEDA -> analyticsEngine.mlEngine "Поток событий для аналитики" "Subscribe" "Subscribe"
+    analyticsEngine.mlEngine -> validateContract "Metadata/Schema fetch"
+    analyticsEngine.mlEngine -> validateLogic.validateML "Транслирует обработанные и вычисленные данные"
+    validateLogic.validateML -> dbAnalytics.featureDb "Записывает высококачественные данные" "ETL"
+    dbAnalytics.featureDb -> mlPlatform "Выборка исторических данных и признаков" "SQL"
+
+    //Пайплайн Аналитики
+    mqEDA -> analyticsEngine.reportEngine "Транслирует корректные данные"
+    analyticsEngine.reportEngine -> validateContract "Metadata/Schema fetch" "gRPC / HTTP"
+    analyticsEngine.reportEngine -> validateLogic.validateBI "Транслирует обработанные и вычисленные данные"
+    validateLogic.validateBI -> dbAnalytics.reportDb "Записывает высококачественные данные" "ETL"
+
+    mqEDA -> mlPlatform "Поток событий для предсказания в реальном времени" "Subscribe" "Subscribe"
+    mlPlatform -> mqEDA "Результаты расчета в реальном времени\nSurgeFactor / FraudAlert" "Publish" "Publish, ML"
+    mlPlatform -> dbAnalytics "Метрики точности моделей"

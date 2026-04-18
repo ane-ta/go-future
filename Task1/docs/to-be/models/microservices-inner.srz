@@ -84,7 +84,7 @@
 
     notificationTasks -> dbSqlNotif "данные уведомлений" "ORM" "ToBe, SQL"
     payoutTasks -> dbSqlPayouts "выплаты и балансы" "ORM" "ToBe, SQL"
-    analyticsTasks -> dbAnalytics "аналитические данные" "ORM" "ToBe, SQL"
+    analyticsTasks -> dbSqlAnalytics "аналитические данные" "ORM" "ToBe, SQL"
 
 # C2 Репликация
     booking -> mqBg "bookings" "???CDC" "ToBe, ReplicaLink, Publish"
