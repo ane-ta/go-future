@@ -1,0 +1,248 @@
+@startuml
+title <size:24>Глобальная инфраструктура (Routing + Security)</size>\n<size:24>Схема геомаршрутизации и глобального балансирования</size>
+
+set separator none
+left to right direction
+skinparam ranksep 20
+skinparam nodesep 5
+hide stereotype
+
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element
+  .Element-RWxlbWVudA== {
+    BackgroundColor: #000000;
+    LineColor: #000000;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Broker
+  .Element-RWxlbWVudCxCcm9rZXI= {
+    BackgroundColor: #4b7bec;
+    LineColor: #3456a5;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Infrastructure
+  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ== {
+    BackgroundColor: #555555;
+    LineColor: #3b3b3b;
+    LineStyle: 0;
+    LineThickness: 2;
+    RoundCorner: 20;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Infrastructure,GeoRouting
+  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxHZW9Sb3V0aW5n {
+    BackgroundColor: #2c3e50;
+    LineColor: #1e2b38;
+    LineStyle: 0;
+    LineThickness: 2;
+    RoundCorner: 20;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Infrastructure,Safety
+  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxTYWZldHk= {
+    BackgroundColor: #c0392b;
+    LineColor: #86271e;
+    LineStyle: 0;
+    LineThickness: 2;
+    RoundCorner: 20;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Infrastructure,Standby
+  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxTdGFuZGJ5 {
+    BackgroundColor: #e0e0e0;
+    LineColor: #9c9c9c;
+    LineStyle: 0;
+    LineThickness: 2;
+    RoundCorner: 20;
+    FontColor: #888888;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Prod
+  .Element-RWxlbWVudCxQcm9k {
+    BackgroundColor: #1168bd;
+    LineColor: #0b4884;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Prod,Database
+  .Element-RWxlbWVudCxQcm9kLERhdGFiYXNl {
+    BackgroundColor: #1c62b9;
+    LineColor: #134481;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Prod,Standby
+  .Element-RWxlbWVudCxQcm9kLFN0YW5kYnk= {
+    BackgroundColor: #e0e0e0;
+    LineColor: #9c9c9c;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #888888;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Safety
+  .Element-RWxlbWVudCxTYWZldHk= {
+    BackgroundColor: #c0392b;
+    LineColor: #86271e;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #444444;
+    FontColor: #444444;
+    FontSize: 24;
+  }
+  // Relationship,Publish
+  .Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g= {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #e67e22;
+    FontColor: #e67e22;
+    FontSize: 24;
+  }
+  // Relationship,Subscribe
+  .Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ== {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #f1c40f;
+    FontColor: #f1c40f;
+    FontSize: 24;
+  }
+  // Element
+  .DeploymentNode-RWxlbWVudA== {
+    BackgroundColor: #000000;
+    LineColor: #000000;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+</style>
+
+rectangle "Глобальная инфраструктура\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.Глобальнаяинфраструктура {
+  rectangle "==GeoDNS (Route 53)\n<size:16>[Container: AWS Route 53]</size>\n\nDNS-маршрутизация на основе геолокации и задержки" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxHZW9Sb3V0aW5n>> as GlobalInfrastructure.Глобальнаяинфраструктура.GeoDNSRoute53_1
+  rectangle "==WAF & DDoS Protection edge node\n<size:16>[Container]</size>\n\nФильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации)." <<Element-RWxlbWVudCxTYWZldHk=>> as GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_1
+  rectangle "==WAF & DDoS Protection edge node\n<size:16>[Container]</size>\n\nФильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации)." <<Element-RWxlbWVudCxTYWZldHk=>> as GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_2
+  rectangle "==Health Checker\n<size:16>[Container: AWS Route 53 Health Checks]</size>\n\nМониторинг доступности регионов. Может быть частью Route 53\nПроверяет каждые 30 сек, 3 неудачи = unhealthy." <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ==>> as GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1
+  rectangle "==Cloud monitor\n<size:16>[Container]</size>\n\nметрики" <<Element-RWxlbWVudA==>> as GlobalInfrastructure.Глобальнаяинфраструктура.Cloudmonitor_1
+  rectangle "==Notification Service\n<size:16>[Container]</size>\n\n(SNS / Pub/Sub / etc)" <<Element-RWxlbWVudA==>> as GlobalInfrastructure.Глобальнаяинфраструктура.NotificationService_1
+}
+
+rectangle "Central Region\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.CentralRegion {
+  rectangle "==Alert Manager\n<size:16>[Container]</size>" <<Element-RWxlbWVudA==>> as GlobalInfrastructure.CentralRegion.AlertManager_1
+}
+
+rectangle "Main Region\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.MainRegion {
+  rectangle "Main region private network\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.MainRegion.Mainregionprivatenetwork {
+    rectangle "==Regional Firewall\n<size:16>[Container]</size>\n\nФильтрует трафик" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxTYWZldHk=>> as GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.RegionalFirewall_1
+    rectangle "Kubernetes Cluster\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster {
+      rectangle "In active mode\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode {
+        rectangle "==API Gateway\n<size:16>[Container: ???]</size>\n\nЕдиная точка входа, Auth, Rate Limiting" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ==>> as GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1
+        rectangle "==Prod Microservices\n<size:16>[Container: Python/Faust Streaming]</size>\n\nбизнес логика после миграции" <<Element-RWxlbWVudCxQcm9k>> as GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1
+      }
+
+      queue "==Broker\n<size:16>[Container: Kafka]</size>\n\nсреда для EDA" <<Element-RWxlbWVudCxCcm9rZXI=>> as GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1
+      database "==БД Микросервисов\n<size:16>[Container: PostgreSQL]</size>\n\nИсточники правды для микросервисов" <<Element-RWxlbWVudCxQcm9kLERhdGFiYXNl>> as GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1
+    }
+
+  }
+
+}
+
+rectangle "Reserve Region\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.ReserveRegion {
+  rectangle "Main region private network\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork {
+    rectangle "==Regional Firewall\n<size:16>[Container]</size>\n\nФильтрует трафик" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxTYWZldHk=>> as GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.RegionalFirewall_1
+    rectangle "Kubernetes Cluster\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster {
+      rectangle "In standby mode\n<size:16>[Deployment Node]</size>" <<DeploymentNode-RWxlbWVudA==>> as GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode {
+        rectangle "==API Gateway\n<size:16>[Container: ???]</size>\n\nЕдиная точка входа, Auth, Rate Limiting" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxTdGFuZGJ5>> as GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1
+        rectangle "==Prod Microservices\n<size:16>[Container: Python/Faust Streaming]</size>\n\nбизнес логика после миграции" <<Element-RWxlbWVudCxQcm9kLFN0YW5kYnk=>> as GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1
+      }
+
+      queue "==Broker\n<size:16>[Container: Kafka]</size>\n\nсреда для EDA" <<Element-RWxlbWVudCxCcm9rZXI=>> as GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1
+      database "==БД Микросервисов\n<size:16>[Container: PostgreSQL]</size>\n\nИсточники правды для микросервисов" <<Element-RWxlbWVudCxQcm9kLERhdGFiYXNl>> as GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1
+    }
+
+  }
+
+}
+
+GlobalInfrastructure.Глобальнаяинфраструктура.GeoDNSRoute53_1 --> GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_1 <<Relationship-UmVsYXRpb25zaGlw>> : "направляет трафик в развертывание"
+GlobalInfrastructure.Глобальнаяинфраструктура.GeoDNSRoute53_1 --> GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_2 <<Relationship-UmVsYXRpb25zaGlw>> : "направляет трафик в развертывание"
+GlobalInfrastructure.Глобальнаяинфраструктура.GeoDNSRoute53_1 --> GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1 <<Relationship-UmVsYXRpb25zaGlw>> : "использует для определения доступности основного региона"
+GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1 --> GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_1 <<Relationship-UmVsYXRpb25zaGlw>> : "GET /health\n<size:16>[HTTPS]</size>"
+GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1 --> GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_2 <<Relationship-UmVsYXRpb25zaGlw>> : "GET /health\n<size:16>[HTTPS]</size>"
+GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1 --> GlobalInfrastructure.Глобальнаяинфраструктура.Cloudmonitor_1 <<Relationship-UmVsYXRpb25zaGlw>> : "region is unhealthy"
+GlobalInfrastructure.Глобальнаяинфраструктура.Cloudmonitor_1 --> GlobalInfrastructure.Глобальнаяинфраструктура.NotificationService_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Alert: Region is unhealthy"
+GlobalInfrastructure.Глобальнаяинфраструктура.NotificationService_1 --> GlobalInfrastructure.CentralRegion.AlertManager_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Alert: Region is unhealthy"
+GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_1 --> GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.RegionalFirewall_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Фильтрует трафик\n<size:16>[HTTPS]</size>"
+GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.RegionalFirewall_1 --> GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Реализует правило «Пускать только от WAF»\n<size:16>[HTTPS]</size>"
+GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1 --> GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Маршрутизирует новые связи"
+GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1 --> GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1 <<Relationship-UmVsYXRpb25zaGlw>> : "health check: metadata fetch\n<size:16>[Safety]</size>"
+GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1 --> GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1 <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "Consume prod events\n<size:16>[Subscribe]</size>"
+GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1 --> GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1 <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "Publish prod events\n<size:16>[Publish]</size>"
+GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1 --> GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1 <<Relationship-UmVsYXRpb25zaGlw>> : "health check: SELECT 1\n<size:16>[Safety]</size>"
+GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1 --> GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Read Write\n<size:16>[SQL]</size>"
+GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_2 --> GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.RegionalFirewall_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Фильтрует трафик\n<size:16>[HTTPS]</size>"
+GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.RegionalFirewall_1 --> GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Реализует правило «Пускать только от WAF»\n<size:16>[HTTPS]</size>"
+GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1 --> GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Маршрутизирует новые связи"
+GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1 --> GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1 <<Relationship-UmVsYXRpb25zaGlw>> : "health check: metadata fetch\n<size:16>[Safety]</size>"
+GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1 --> GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1 <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "Consume prod events\n<size:16>[Subscribe]</size>"
+GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1 --> GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1 <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "Publish prod events\n<size:16>[Publish]</size>"
+GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1 --> GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1 <<Relationship-UmVsYXRpb25zaGlw>> : "health check: SELECT 1\n<size:16>[Safety]</size>"
+GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1 --> GlobalInfrastructure.ReserveRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1 <<Relationship-UmVsYXRpb25zaGlw>> : "Read Write\n<size:16>[SQL]</size>"
+
+@enduml

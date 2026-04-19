@@ -6,7 +6,8 @@ workspace extends workspace-saas.dsl {
         styles {
             # БАЗОВЫЕ ЭЛЕМЕНТЫ
             element "Element" {
-                color #ffffff
+                background #000000
+                color #fffffe
             }
             element "Person" {
                 background #08427b
@@ -88,7 +89,7 @@ workspace extends workspace-saas.dsl {
                 //# Приглушенный золотой
             }
             relationship "LogicApi" {
-                color #7f8c8d 
+                color #ADBEBF 
                 //# Серый для логики
             }
         }

@@ -1,0 +1,306 @@
+@startuml
+title <size:24>EDA взаимодействие микросервисов</size>
+
+set separator none
+left to right direction
+skinparam ranksep 20
+skinparam nodesep 5
+hide stereotype
+
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element,Broker
+  .Element-RWxlbWVudCxCcm9rZXI= {
+    BackgroundColor: #4b7bec;
+    LineColor: #3456a5;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,External
+  .Element-RWxlbWVudCxFeHRlcm5hbA== {
+    BackgroundColor: #999999;
+    LineColor: #6b6b6b;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Prod
+  .Element-RWxlbWVudCxQcm9k {
+    BackgroundColor: #1168bd;
+    LineColor: #0b4884;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #444444;
+    FontColor: #444444;
+    FontSize: 24;
+  }
+  // Relationship,LogicApi
+  .Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #adbebf;
+    FontColor: #adbebf;
+    FontSize: 24;
+  }
+  // Relationship,Publish
+  .Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g= {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #e67e22;
+    FontColor: #e67e22;
+    FontSize: 24;
+  }
+  // Relationship,Subscribe
+  .Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ== {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #f1c40f;
+    FontColor: #f1c40f;
+    FontSize: 24;
+  }
+  // GoFuture Platform
+  .Boundary-R29GdXR1cmUgUGxhdGZvcm0= {
+    BackgroundColor: #ffffff;
+    LineColor: #000000;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #fffffe;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Analytics
+  .Group-QW5hbHl0aWNz {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Booking
+  .Group-Qm9va2luZw== {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Drivers
+  .Group-RHJpdmVycw== {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Fraud
+  .Group-RnJhdWQ= {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Geo
+  .Group-R2Vv {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Notification
+  .Group-Tm90aWZpY2F0aW9u {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Orchestration
+  .Group-T3JjaGVzdHJhdGlvbg== {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Payments
+  .Group-UGF5bWVudHM= {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Payouts
+  .Group-UGF5b3V0cw== {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Pricing
+  .Group-UHJpY2luZw== {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 2-2;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+</style>
+
+rectangle "==Яндекс Пэй\n<size:16>[Software System]</size>\n\nПлатежный шлюз" <<Element-RWxlbWVudCxFeHRlcm5hbA==>> as ЯндексПэй
+rectangle "==Яндекс Карты\n<size:16>[Software System]</size>\n\nГеоданные и маршруты" <<Element-RWxlbWVudCxFeHRlcm5hbA==>> as ЯндексКарты
+rectangle "==API Банка\n<size:16>[Software System]</size>\n\nБанковские выплаты" <<Element-RWxlbWVudCxFeHRlcm5hbA==>> as APIБанка
+rectangle "==Firebase Cloud Messaging\n<size:16>[Software System]</size>\n\nPush iOS/Android" <<Element-RWxlbWVudCxFeHRlcm5hbA==>> as FirebaseCloudMessaging
+rectangle "==Apple Push Notification\n<size:16>[Software System]</size>\n\nPush iOS" <<Element-RWxlbWVudCxFeHRlcm5hbA==>> as ApplePushNotification
+rectangle "==Huawei Push Kit\n<size:16>[Software System]</size>\n\nPush Huawei" <<Element-RWxlbWVudCxFeHRlcm5hbA==>> as HuaweiPushKit
+
+rectangle "GoFuture Platform\n<size:16>[Software System]</size>" <<Boundary-R29GdXR1cmUgUGxhdGZvcm0=>> {
+  rectangle "Analytics" <<Group-QW5hbHl0aWNz>> as groupQW5hbHl0aWNz {
+    rectangle "==Analytics Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nСбор аналитики" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.AnalyticsService
+    rectangle "==Analytics Service Tasks\n<size:16>[Container: Celery Task]</size>\n\nАсинхронная аналитика" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.AnalyticsServiceTasks
+  }
+
+  rectangle "Booking" <<Group-Qm9va2luZw==>> as groupQm9va2luZw== {
+    rectangle "==Booking Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nУправление бронированиями" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.BookingService
+  }
+
+  rectangle "Drivers" <<Group-RHJpdmVycw==>> as groupRHJpdmVycw== {
+    rectangle "==Driver Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nУправление водителями" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.DriverService
+  }
+
+  rectangle "Fraud" <<Group-RnJhdWQ=>> as groupRnJhdWQ= {
+    rectangle "==Fraud Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nОбнаружение мошенничества" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.FraudService
+  }
+
+  rectangle "Geo" <<Group-R2Vv>> as groupR2Vv {
+    rectangle "==Geography Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nГеопоиск и маршрутизация" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.GeographyService
+  }
+
+  rectangle "Notification" <<Group-Tm90aWZpY2F0aW9u>> as groupTm90aWZpY2F0aW9u {
+    rectangle "==Notification Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nУправление уведомлениями" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.NotificationService
+    rectangle "==Notification Service Tasks\n<size:16>[Container: Celery Task]</size>\n\nАсинхронные задачи уведомлений" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.NotificationServiceTasks
+  }
+
+  rectangle "Orchestration" <<Group-T3JjaGVzdHJhdGlvbg==>> as groupT3JjaGVzdHJhdGlvbg== {
+    rectangle "==Orchestration\n<size:16>[Container: Temporal Python SDK]</size>\n\nОркестрация" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.Orchestration
+  }
+
+  rectangle "Payments" <<Group-UGF5bWVudHM=>> as groupUGF5bWVudHM= {
+    rectangle "==Payments Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nПлатежи от пассажиров" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.PaymentsService
+  }
+
+  rectangle "Payouts" <<Group-UGF5b3V0cw==>> as groupUGF5b3V0cw== {
+    rectangle "==Payouts Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nВыплаты водителям" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.PayoutsService
+    rectangle "==Payout Service Tasks\n<size:16>[Container: Celery Task]</size>\n\nАсинхронные задачи выплат" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.PayoutServiceTasks
+  }
+
+  rectangle "Pricing" <<Group-UHJpY2luZw==>> as groupUHJpY2luZw== {
+    rectangle "==Pricing Service\n<size:16>[Container: Python/Faust Streaming]</size>\n\nЦенообразование" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.PricingService
+  }
+
+  queue "==Брокер сообщений EDA\n<size:16>[Container: Kafka]</size>\n\nДоменные события, CDC события, события аналитики" <<Element-RWxlbWVudCxCcm9rZXI=>> as GoFuturePlatform.БрокерсообщенийEDA
+}
+
+GoFuturePlatform.BookingService --> GoFuturePlatform.Orchestration <<Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp>> : "инициирует SAGA\n<size:16>[синхронно]</size>"
+GoFuturePlatform.Orchestration --> GoFuturePlatform.FraudService <<Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp>> : "проверяет транзакцию на мошенничество\n<size:16>[синхронно]</size>"
+GoFuturePlatform.Orchestration --> GoFuturePlatform.PaymentsService <<Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp>> : "бронирует оплату на счете\n<size:16>[синхронно]</size>"
+GoFuturePlatform.Orchestration --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "BookingCreated\n<size:16>[Publish]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.DriverService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "BookingCreated\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "FindDriverRequested\n<size:16>[Publish]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "SendNotification - Новый заказ\n<size:16>[Queue]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "DriverProposed\n<size:16>[Publish]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "DriverAccepted\nDriverRejected\n<size:16>[Publish]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.Orchestration <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "DriverAccepted\nDriverRejected\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.Orchestration --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "Назначить водителя\n<size:16>[Queue]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.BookingService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "Назначить водителя\n<size:16>[Queue]</size>"
+GoFuturePlatform.BookingService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "DriverAssigned\n<size:16>[Publish]</size>"
+GoFuturePlatform.BookingService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "SendNotification - Водитель назначен\n<size:16>[Queue]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.GeographyService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "DriverAssigned\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "DriverSearchTimeout\n<size:16>[Publish]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.Orchestration <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "DriverSearchTimeout\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.BookingService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "BookingCancelled\n<size:16>[Publish]</size>"
+GoFuturePlatform.BookingService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "SendNotification - Заказ отменен\n<size:16>[Queue]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.DriverService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "BookingCancelled\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "RideStarted\n<size:16>[Publish]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "SendNotification - Поездка начата\n<size:16>[Queue]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "RideCompleted\n<size:16>[Publish]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "SendNotification - Поездка закончена\n<size:16>[Queue]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.PaymentsService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "RideCompleted\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.PayoutsService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "RideCompleted\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.PricingService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "SurgeFactorUpdated\n<size:16>[Publish]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.GeographyService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "SurgeFactorUpdated\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.FraudService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "FraudAlert\n<size:16>[Publish]</size>"
+GoFuturePlatform.PaymentsService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "PaymentHeld\n<size:16>[Publish]</size>"
+GoFuturePlatform.PaymentsService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "PaymentReleased\n<size:16>[Publish]</size>"
+GoFuturePlatform.PaymentsService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "PaymentCharged\n<size:16>[Publish]</size>"
+GoFuturePlatform.PayoutsService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "PayoutCompleted\n<size:16>[Publish]</size>"
+GoFuturePlatform.PayoutsService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "SendNotification - Выплата проведена\n<size:16>[Queue]</size>"
+GoFuturePlatform.DriverService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "LocationUpdated\n<size:16>[Publish]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.GeographyService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "LocationUpdated\n<size:16>[Subscribe]</size>"
+GoFuturePlatform.NotificationService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "NotificationSent\n<size:16>[Publish]</size>"
+GoFuturePlatform.GeographyService --> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "Метрики геопоиска\n<size:16>[Publish]</size>"
+GoFuturePlatform.БрокерсообщенийEDA --> GoFuturePlatform.NotificationService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "SendNotification\n<size:16>[[Queue]]</size>"
+GoFuturePlatform.GeographyService --> ЯндексКарты <<Relationship-UmVsYXRpb25zaGlw>> : "геоданные\n<size:16>[Yandex Maps API]</size>"
+GoFuturePlatform.PaymentsService --> ЯндексПэй <<Relationship-UmVsYXRpb25zaGlw>> : "платежи\n<size:16>[Yandex Pay API]</size>"
+GoFuturePlatform.PayoutServiceTasks --> APIБанка <<Relationship-UmVsYXRpb25zaGlw>> : "Банковские выплаты\n<size:16>[REST API]</size>"
+GoFuturePlatform.NotificationServiceTasks --> FirebaseCloudMessaging <<Relationship-UmVsYXRpb25zaGlw>> : "Уведомления Android\n<size:16>[REST API]</size>"
+GoFuturePlatform.NotificationServiceTasks --> HuaweiPushKit <<Relationship-UmVsYXRpb25zaGlw>> : "Уведомления Huawei\n<size:16>[REST API]</size>"
+GoFuturePlatform.NotificationServiceTasks --> ApplePushNotification <<Relationship-UmVsYXRpb25zaGlw>> : "Уведомления iOS\n<size:16>[REST API]</size>"
+
+@enduml
