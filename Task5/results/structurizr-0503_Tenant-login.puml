@@ -2,7 +2,6 @@
 title <size:24>Обработка запроса для партнера</size>
 
 set separator none
-top to bottom direction
 
 <style>
   root {
@@ -11,10 +10,7 @@ top to bottom direction
   }
 </style>
 
-!include <C4/C4>
-!include <C4/C4_Context>
-!include <C4/C4_Container>
-!include <C4/C4_Component>
+!include <C4/C4_Sequence>
 
 AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
 AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
@@ -23,33 +19,13 @@ AddElementTag("Component", $bgColor="#85bbf0", $borderColor="#5d82a8", $fontColo
 
 AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
 
-AddBoundaryTag("Container,Infrastructure", $bgColor="#ffffff", $borderColor="#ffffff", $fontColor="#ffffff", $shadowing="", $borderStyle="solid")
-AddBoundaryTag("Container,Database", $bgColor="#ffffff", $borderColor="#134481", $fontColor="#134481", $shadowing="", $borderStyle="solid")
-AddBoundaryTag("Container", $bgColor="#ffffff", $borderColor="#0b4884", $fontColor="#0b4884", $shadowing="", $borderStyle="solid")
-
 Person(Partneruser, "Partner user", $descr="Сотрудник таксопарка-партнера", $tags="Element", $link="")
-
-System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
-  Container_Boundary("GoFuturePlatform.ProdMicroservices_boundary", "Prod Microservices", $tags="Container") {
-    Component(GoFuturePlatform.ProdMicroservices.DynamicDataSourceRouter, "Dynamic DataSource Router", $techn="", $descr="Задает схему как контекст последующих SQL запросов", $tags="Component", $link="")
-    Component(GoFuturePlatform.ProdMicroservices.EventPublisher, "Event Publisher", $techn="", $descr="Передает в событиях tenant_id", $tags="Component", $link="")
-  }
-
-  Container_Boundary("GoFuturePlatform.БДМикросервисов_boundary", "БД Микросервисов", $tags="Container,Database") {
-    Component(GoFuturePlatform.БДМикросервисов.Partnerdatabaseschema, "Partner database schema", $techn="PostgreSQL", $descr="Хранение данных партнеров в изолированных схемах (Schema-per-tenant)", $tags="Component", $link="")
-  }
-
-  Container_Boundary("GoFuturePlatform.APIGateway_boundary", "API Gateway", $tags="Container,Infrastructure") {
-    Component(GoFuturePlatform.APIGateway.TenantIdизJWT, "Tenant Id из JWT", $techn="", $descr="Извлекает tenant_id из JWT и помещение его в заголовок", $tags="Component", $link="")
-  }
-
-  ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
-  Container(GoFuturePlatform.IdentityService, "Identity Service", $techn="Keycloak", $descr="Выпускает JWT для микросервисов", $tags="Container,Infrastructure", $link="")
-}
-
-ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
 Container(GoFuturePlatform.IdentityService, "Identity Service", $techn="Keycloak", $descr="Выпускает JWT для микросервисов", $tags="Container,Infrastructure", $link="")
-Person(Partneruser, "Partner user", $descr="Сотрудник таксопарка-партнера", $tags="Element", $link="")
+Component(GoFuturePlatform.APIGateway.TenantIdизJWT, "Tenant Id из JWT", $techn="", $descr="Извлекает tenant_id из JWT и помещение его в заголовок", $tags="Component", $link="")
+Component(GoFuturePlatform.ProdMicroservices.DynamicDataSourceRouter, "Dynamic DataSource Router", $techn="", $descr="Задает схему как контекст последующих SQL запросов", $tags="Component", $link="")
+Component(GoFuturePlatform.БДМикросервисов.Partnerdatabaseschema, "Partner database schema", $techn="PostgreSQL", $descr="Хранение данных партнеров в изолированных схемах (Schema-per-tenant)", $tags="Component", $link="")
+Component(GoFuturePlatform.ProdMicroservices.EventPublisher, "Event Publisher", $techn="", $descr="Передает в событиях tenant_id", $tags="Component", $link="")
+ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
 
 Rel(Partneruser, GoFuturePlatform.IdentityService, "1: Логинится в Realm тенанта (SSO) и получает свой JWT", $techn="", $tags="Relationship", $link="")
 Rel(GoFuturePlatform.IdentityService, Partneruser, "2: Выдает JWT токен с tenant_id", $techn="", $tags="Relationship", $link="")

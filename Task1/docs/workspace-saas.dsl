@@ -71,6 +71,10 @@ workspace extends workspace-global.dsl {
         // Создание окружения для нового партнера
         dynamic goFuture.apiGateway "0502_Onboarding" {
             title "Создание окружения для нового партнера"
+            properties {
+                "plantuml.sequenceDiagram" "true"
+            }
+                        
             globalAdmin -> goFuture.tenants
             globalAdmin -> goFuture.onboarding
             goFuture.onboarding -> goFuture.idService.tenantRealm
@@ -80,6 +84,9 @@ workspace extends workspace-global.dsl {
         // Обработка запроса для партнера
         dynamic goFuture.apiGateway "0503_Tenant-login" {
             title "Обработка запроса для партнера"
+            properties {
+                "plantuml.sequenceDiagram" "true"
+            }
             partnerUser -> goFuture.idService
             goFuture.idService -> partnerUser
             partnerUser -> goFuture.apiGateway.tenantId

@@ -10,6 +10,9 @@
         // Успешная маршрутизация на основной регион
         dynamic globalInfra "0303_GeoRoutingSuccess" "Геомаршрутизация: успех" {
             title "Успешное маршрутизирование в основной регион"
+            properties {
+                "plantuml.sequenceDiagram" "true"
+            }
 
             user -> globalInfra.geoDns "DNS-запрос: api.gofuture.com"
             globalInfra.geoDns -> globalInfra.healthChecker "проверяет доступность основного региона"
@@ -25,7 +28,10 @@
         // Маршрутизация на резервный регион в случае отказа основного региона
         dynamic globalInfra "0304_GeoRoutingFailover" "Геомаршрутизация: отказ основного региона" {
             title "Маршрутизирование при отказе основного региона"
-            
+            properties {
+                "plantuml.sequenceDiagram" "true"
+            }
+                        
             user -> globalInfra.geoDns "DNS-запрос: api.gofuture.com"
             globalInfra.geoDns -> globalInfra.healthChecker "проверяет доступность основного региона"
             globalInfra.healthChecker -> globalInfra.geoDns "Основной регион НЕ ДОСТУПЕН"

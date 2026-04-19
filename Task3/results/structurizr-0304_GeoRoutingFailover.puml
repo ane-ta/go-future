@@ -2,7 +2,6 @@
 title <size:24>Маршрутизирование при отказе основного региона</size>\n<size:24>Геомаршрутизация: отказ основного региона</size>
 
 set separator none
-left to right direction
 
 <style>
   root {
@@ -11,9 +10,7 @@ left to right direction
   }
 </style>
 
-!include <C4/C4>
-!include <C4/C4_Context>
-!include <C4/C4_Container>
+!include <C4/C4_Sequence>
 
 AddElementTag("Container,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
 AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
@@ -23,21 +20,12 @@ AddElementTag("Container,Infrastructure,GeoRouting", $bgColor="#23313f", $border
 
 AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
 
-AddBoundaryTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $shadowing="", $borderStyle="solid")
-AddBoundaryTag("Infrastructure", $bgColor="#ffffff", $borderColor="#ffffff", $fontColor="#ffffff", $shadowing="", $borderStyle="solid")
-
-System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
-  Container(GoFuturePlatform.RegionalFirewall, "Regional Firewall", $techn="", $descr="Фильтрует трафик", $tags="Container,Infrastructure,Safety", $link="")
-  Container(GoFuturePlatform.APIGateway, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure", $link="")
-}
-
-System_Boundary("GlobalInfrastructure_boundary", "Global Infrastructure", $tags="Infrastructure") {
-  Container(GlobalInfrastructure.GeoDNSRoute53, "GeoDNS (Route 53)", $techn="AWS Route 53", $descr="DNS-маршрутизация на основе геолокации и задержки", $tags="Container,Infrastructure,GeoRouting", $link="")
-  Container(GlobalInfrastructure.HealthChecker, "Health Checker", $techn="AWS Route 53 Health Checks", $descr="Мониторинг доступности регионов. Может быть частью Route 53\nПроверяет каждые 30 сек, 3 неудачи = unhealthy.", $tags="Container,Infrastructure", $link="")
-  Container(GlobalInfrastructure.WAFDDoSProtectionedgenode, "WAF & DDoS Protection edge node", $techn="", $descr="Фильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации).", $tags="Container,Safety", $link="")
-}
-
 Person(Пользователь, "Пользователь", $descr="", $tags="Element", $link="")
+Container(GlobalInfrastructure.GeoDNSRoute53, "GeoDNS (Route 53)", $techn="AWS Route 53", $descr="DNS-маршрутизация на основе геолокации и задержки", $tags="Container,Infrastructure,GeoRouting", $link="")
+Container(GlobalInfrastructure.HealthChecker, "Health Checker", $techn="AWS Route 53 Health Checks", $descr="Мониторинг доступности регионов. Может быть частью Route 53\nПроверяет каждые 30 сек, 3 неудачи = unhealthy.", $tags="Container,Infrastructure", $link="")
+Container(GlobalInfrastructure.WAFDDoSProtectionedgenode, "WAF & DDoS Protection edge node", $techn="", $descr="Фильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации).", $tags="Container,Safety", $link="")
+Container(GoFuturePlatform.RegionalFirewall, "Regional Firewall", $techn="", $descr="Фильтрует трафик", $tags="Container,Infrastructure,Safety", $link="")
+Container(GoFuturePlatform.APIGateway, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure", $link="")
 
 Rel(Пользователь, GlobalInfrastructure.GeoDNSRoute53, "1: DNS-запрос: api.gofuture.com", $techn="", $tags="Relationship", $link="")
 Rel(GlobalInfrastructure.GeoDNSRoute53, GlobalInfrastructure.HealthChecker, "2: проверяет доступность основного региона", $techn="", $tags="Relationship", $link="")

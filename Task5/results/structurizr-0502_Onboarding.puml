@@ -2,7 +2,6 @@
 title <size:24>Создание окружения для нового партнера</size>
 
 set separator none
-top to bottom direction
 
 <style>
   root {
@@ -11,10 +10,7 @@ top to bottom direction
   }
 </style>
 
-!include <C4/C4>
-!include <C4/C4_Context>
-!include <C4/C4_Container>
-!include <C4/C4_Component>
+!include <C4/C4_Sequence>
 
 AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
 AddElementTag("Component", $bgColor="#85bbf0", $borderColor="#5d82a8", $fontColor="#000000", $sprite="", $shadowing="", $borderStyle="solid")
@@ -22,27 +18,11 @@ AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColo
 
 AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
 
-AddBoundaryTag("Container,Infrastructure", $bgColor="#ffffff", $borderColor="#ffffff", $fontColor="#ffffff", $shadowing="", $borderStyle="solid")
-AddBoundaryTag("Container,Database", $bgColor="#ffffff", $borderColor="#134481", $fontColor="#134481", $shadowing="", $borderStyle="solid")
-
-Person(GoFutureAdmin, "GoFuture Admin", $descr="Сотрудник платформы, управляющий партнерами", $tags="Element", $link="")
-
-System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
-  Container_Boundary("GoFuturePlatform.БДМикросервисов_boundary", "БД Микросервисов", $tags="Container,Database") {
-    Component(GoFuturePlatform.БДМикросервисов.Partnerdatabaseschema, "Partner database schema", $techn="PostgreSQL", $descr="Хранение данных партнеров в изолированных схемах (Schema-per-tenant)", $tags="Component", $link="")
-  }
-
-  Container_Boundary("GoFuturePlatform.IdentityService_boundary", "Identity Service", $tags="Container,Infrastructure") {
-    Component(GoFuturePlatform.IdentityService.Tenantrealm, "Tenant realm", $techn="", $descr="", $tags="Component", $link="")
-  }
-
-  Container(GoFuturePlatform.PartnerManagementService, "Partner Management Service", $techn="", $descr="", $tags="Container", $link="")
-  Container(GoFuturePlatform.PartnerOnboardingService, "Partner Onboarding Service", $techn="Go / Python", $descr="Автоматизация создания новых тенантов", $tags="Container", $link="")
-}
-
 Person(GoFutureAdmin, "GoFuture Admin", $descr="Сотрудник платформы, управляющий партнерами", $tags="Element", $link="")
 Container(GoFuturePlatform.PartnerManagementService, "Partner Management Service", $techn="", $descr="", $tags="Container", $link="")
 Container(GoFuturePlatform.PartnerOnboardingService, "Partner Onboarding Service", $techn="Go / Python", $descr="Автоматизация создания новых тенантов", $tags="Container", $link="")
+Component(GoFuturePlatform.IdentityService.Tenantrealm, "Tenant realm", $techn="", $descr="", $tags="Component", $link="")
+Component(GoFuturePlatform.БДМикросервисов.Partnerdatabaseschema, "Partner database schema", $techn="PostgreSQL", $descr="Хранение данных партнеров в изолированных схемах (Schema-per-tenant)", $tags="Component", $link="")
 
 Rel(GoFutureAdmin, GoFuturePlatform.PartnerManagementService, "1: Создает запись для нового партнера", $techn="", $tags="Relationship", $link="")
 Rel(GoFutureAdmin, GoFuturePlatform.PartnerOnboardingService, "2: Инициирует создание нового партнера", $techn="", $tags="Relationship", $link="")
