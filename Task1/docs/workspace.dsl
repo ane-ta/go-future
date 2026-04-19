@@ -1,4 +1,4 @@
-workspace extends workspace-global.dsl {
+workspace extends workspace-saas.dsl {
 
     model {
     }

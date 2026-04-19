@@ -38,16 +38,10 @@ workspace extends ws-parent.dsl {
         }
     }
     views {
-        // миграция
-        component goFuture.monolith "Migration" { 
-            include "->element.tag==Entrance"
-            include "->element.tag==Migration->"
-            include "relationship.tag==Migration"
-            autolayout lr
-        }
 
         // микросервисы и репликация CDC
-        container goFuture "ProdServices_Data_Interaction" { 
+        container goFuture "0101_MS_Data_Interaction" { 
+            title "Микросервисы и репликации данных между ними"
             include "element.tag==Prod && element.tag==Service"
             include "element.tag==Prod && element.tag==Worker"
             exclude "relationship==*"
@@ -58,8 +52,18 @@ workspace extends ws-parent.dsl {
             autolayout lr
         }
 
+        // миграция
+        component goFuture.monolith "0102_Migration_to_MS" {
+            title "Миграция на микросервисы" 
+            include "->element.tag==Entrance"
+            include "->element.tag==Migration->"
+            include "relationship.tag==Migration"
+            autolayout lr
+        }
+
         // EDA
-        container goFuture "ProdServices_Logic_Interaction" { 
+        container goFuture "0201_ProdServices_Logic_Interaction" { 
+            title "EDA взаимодействие микросервисов"
             include "element.tag==Prod && element.tag==Service"
             include "element.tag==Prod && element.tag==Worker"
             include goFuture.mqEDA
@@ -72,28 +76,12 @@ workspace extends ws-parent.dsl {
             autolayout lr
         }
 
-        // Observability
-        container goFuture "Obervability" {
-            include "->element.tag==Observability->"
-        }
-        // Surge
-        dynamic goFuture Surge " Surge" {
-            properties {
-                    "plantuml.sequenceDiagram" "true"
-                }
-            
-            // goFuture.mqEDA -> goFuture.analyticsEngine "События для динамического ценообразования"
-            // goFuture.analyticsEngine -> goFuture.mqEDA "SurgeFactorUpdated"
-            goFuture.mqEDA -> goFuture.pricing "SurgeFactorUpdated"
-            goFuture.pricing -> goFuture.cachePricing "Surge factor upsert"
-        }
-
         // Orchestrator booking happy path
-        dynamic goFuture booking_happy_path "Happy path при создании заказа"{
-
+        dynamic goFuture 0202_booking_happy_path "Happy path при создании заказа"{
             properties {
                     "plantuml.sequenceDiagram" "true"
                 }
+            title "EDA Оркестрация заказа - Happy path при создании заказ"
         
             !include "${VIEWS_PATH3}/Orchestration/booking-created.srz"
             
@@ -103,22 +91,13 @@ workspace extends ws-parent.dsl {
             
             autolayout lr
         }
-        // Driver payouts after booking
-        dynamic goFuture driver_payout "Выплата водителю"{
-            properties {
-                    "plantuml.sequenceDiagram" "true"
-                }
-        
-            goFuture.mqEDA -> goFuture.payouts "subscribe: BookingCompleted"
-            goFuture.payouts -> goFuture.mqEDA "publish: PayoutCompleted"
-        }
 
         // Orchestrator booking when driver not found
-        dynamic goFuture booking_driver_not_found "Водитель не найден при создании заказа"{
-
+        dynamic goFuture 0203_booking_driver_not_found "Водитель не найден при создании заказа"{
             properties {
                     "plantuml.sequenceDiagram" "true"
                 }
+            title "EDA Оркестрация заказа - Водитель не найден"
         
             !include "${VIEWS_PATH3}/Orchestration/booking-created.srz"
             
@@ -127,13 +106,44 @@ workspace extends ws-parent.dsl {
             autolayout lr
         }
 
-        // аналитика
-        container goFuture "Analytics" { 
-            title "Аналитика"
+        // Observability
+        container goFuture "0204_Obervability" {
+            title "Система обеспечения наблюдаемости"
+            include "->element.tag==Observability->"
+        }
+
+            // // Driver payouts after booking
+            // dynamic goFuture driver_payout "Выплата водителю" {
+            //     properties {
+            //             "plantuml.sequenceDiagram" "true"
+            //         }
+            
+            //     goFuture.mqEDA -> goFuture.payouts "subscribe: BookingCompleted"
+            //     goFuture.payouts -> goFuture.mqEDA "publish: PayoutCompleted"
+            // }
+
+        // Аналитика BI & ML
+        container goFuture "0401_Analytics" { 
+            title "Аналитика BI и ML"
             include "->element.tag==AnalyticsPipe->"
             include "element.tag==Analytics"
             autolayout lr
         }
+
+        // Surge
+        dynamic goFuture "0402_SurgeFactor_Update" "Surge" {
+            title "Пересчет динамического ценообразования"
+            properties {
+                    "plantuml.sequenceDiagram" "true"
+                }
+            
+            goFuture.mqEDA -> goFuture.mlPlatform "События для динамического ценообразования"            
+            goFuture.mlPlatform -> goFuture.mqEDA "SurgeFactorUpdated"
+            goFuture.mqEDA -> goFuture.pricing "SurgeFactorUpdated"
+            goFuture.pricing -> goFuture.cachePricing "Surge factor upsert"
+            goFuture.mqEDA -> goFuture.analyticsEngine "События для переобучения ML"
+        }
+
         styles {
 
         }

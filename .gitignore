@@ -2,3 +2,4 @@
 .vorg.db
 workspace.json
 *.md
+results/*.md

@@ -1,13 +1,16 @@
-        deployment * globalDeployment {
-            title "Глобальная инфраструктура (GeoDNS)"
+        // Глобальная маршрутизация и безопасность
+        deployment * globalDeployment "0302_Global_Routing_Security"{
+            title "Глобальная инфраструктура (Routing + Security)"
             description "Схема геомаршрутизации и глобального балансирования"
             
             include *
             autolayout lr
         }
 
-        dynamic globalInfra "GeoRoutingSuccess" "Геомаршрутизация: успех" {
-            
+        // Успешная маршрутизация на основной регион
+        dynamic globalInfra "0303_GeoRoutingSuccess" "Геомаршрутизация: успех" {
+            title "Успешное маршрутизирование в основной регион"
+
             user -> globalInfra.geoDns "DNS-запрос: api.gofuture.com"
             globalInfra.geoDns -> globalInfra.healthChecker "проверяет доступность основного региона"
             globalInfra.healthChecker -> globalInfra.geoDns "Основной регион доступен"
@@ -19,7 +22,9 @@
             autolayout lr
         }
 
-        dynamic globalInfra "GeoRoutingFailover" "Геомаршрутизация: отказ основного региона" {
+        // Маршрутизация на резервный регион в случае отказа основного региона
+        dynamic globalInfra "0304_GeoRoutingFailover" "Геомаршрутизация: отказ основного региона" {
+            title "Маршрутизирование при отказе основного региона"
             
             user -> globalInfra.geoDns "DNS-запрос: api.gofuture.com"
             globalInfra.geoDns -> globalInfra.healthChecker "проверяет доступность основного региона"
