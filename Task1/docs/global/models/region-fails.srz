@@ -90,7 +90,7 @@
                 }
             }
             jakartaDeployment  = deploymentNode "Reserve Region" {
-                deploymentNode "Main region private network" {
+                deploymentNode "Reserve region private network" {
                     containerInstance goFuture.regionFirewall jakartaDG
                     deploymentNode "Kubernetes Cluster" {
                         deploymentNode "In standby mode" {

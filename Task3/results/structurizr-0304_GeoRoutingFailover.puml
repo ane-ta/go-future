@@ -3,132 +3,53 @@ title <size:24>Маршрутизирование при отказе основ
 
 set separator none
 left to right direction
-skinparam ranksep 20
-skinparam nodesep 5
-hide stereotype
 
 <style>
   root {
-    BackgroundColor: #ffffff;
-    FontColor: #444444;
-  }
-  // Element,Infrastructure
-  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ== {
-    BackgroundColor: #555555;
-    LineColor: #3b3b3b;
-    LineStyle: 0;
-    LineThickness: 2;
-    RoundCorner: 20;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Infrastructure,GeoRouting
-  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxHZW9Sb3V0aW5n {
-    BackgroundColor: #2c3e50;
-    LineColor: #1e2b38;
-    LineStyle: 0;
-    LineThickness: 2;
-    RoundCorner: 20;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Infrastructure,Safety
-  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxTYWZldHk= {
-    BackgroundColor: #c0392b;
-    LineColor: #86271e;
-    LineStyle: 0;
-    LineThickness: 2;
-    RoundCorner: 20;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Person
-  .Element-RWxlbWVudCxQZXJzb24= {
-    BackgroundColor: #08427b;
-    LineColor: #052e56;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Safety
-  .Element-RWxlbWVudCxTYWZldHk= {
-    BackgroundColor: #c0392b;
-    LineColor: #86271e;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Relationship
-  .Relationship-UmVsYXRpb25zaGlw {
-    LineThickness: 2;
-    LineStyle: 10-10;
-    LineColor: #444444;
-    FontColor: #444444;
-    FontSize: 24;
-  }
-  // Global Infrastructure
-  .Boundary-R2xvYmFsIEluZnJhc3RydWN0dXJl {
-    BackgroundColor: #ffffff;
-    LineColor: #3b3b3b;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-  }
-  // GoFuture Platform
-  .Boundary-R29GdXR1cmUgUGxhdGZvcm0= {
-    BackgroundColor: #ffffff;
-    LineColor: #000000;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
+    BackgroundColor: #ffffff
+    FontColor: #444444
   }
 </style>
 
-rectangle "GoFuture Platform\n<size:16>[Software System]</size>" <<Boundary-R29GdXR1cmUgUGxhdGZvcm0=>> {
-  rectangle "==Regional Firewall\n<size:16>[Container]</size>\n\nФильтрует трафик" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxTYWZldHk=>> as GoFuturePlatform.RegionalFirewall
-  rectangle "==API Gateway\n<size:16>[Container: ???]</size>\n\nЕдиная точка входа, Auth, Rate Limiting" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ==>> as GoFuturePlatform.APIGateway
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+AddElementTag("Container,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure,GeoRouting", $bgColor="#23313f", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+
+AddBoundaryTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $shadowing="", $borderStyle="solid")
+AddBoundaryTag("Infrastructure", $bgColor="#ffffff", $borderColor="#ffffff", $fontColor="#ffffff", $shadowing="", $borderStyle="solid")
+
+System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
+  Container(GoFuturePlatform.RegionalFirewall, "Regional Firewall", $techn="", $descr="Фильтрует трафик", $tags="Container,Infrastructure,Safety", $link="")
+  Container(GoFuturePlatform.APIGateway, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure", $link="")
 }
 
-rectangle "Global Infrastructure\n<size:16>[Software System]</size>" <<Boundary-R2xvYmFsIEluZnJhc3RydWN0dXJl>> {
-  rectangle "==GeoDNS (Route 53)\n<size:16>[Container: AWS Route 53]</size>\n\nDNS-маршрутизация на основе геолокации и задержки" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZSxHZW9Sb3V0aW5n>> as GlobalInfrastructure.GeoDNSRoute53
-  rectangle "==Health Checker\n<size:16>[Container: AWS Route 53 Health Checks]</size>\n\nМониторинг доступности регионов. Может быть частью Route 53\nПроверяет каждые 30 сек, 3 неудачи = unhealthy." <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ==>> as GlobalInfrastructure.HealthChecker
-  rectangle "==WAF & DDoS Protection edge node\n<size:16>[Container]</size>\n\nФильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации)." <<Element-RWxlbWVudCxTYWZldHk=>> as GlobalInfrastructure.WAFDDoSProtectionedgenode
+System_Boundary("GlobalInfrastructure_boundary", "Global Infrastructure", $tags="Infrastructure") {
+  Container(GlobalInfrastructure.GeoDNSRoute53, "GeoDNS (Route 53)", $techn="AWS Route 53", $descr="DNS-маршрутизация на основе геолокации и задержки", $tags="Container,Infrastructure,GeoRouting", $link="")
+  Container(GlobalInfrastructure.HealthChecker, "Health Checker", $techn="AWS Route 53 Health Checks", $descr="Мониторинг доступности регионов. Может быть частью Route 53\nПроверяет каждые 30 сек, 3 неудачи = unhealthy.", $tags="Container,Infrastructure", $link="")
+  Container(GlobalInfrastructure.WAFDDoSProtectionedgenode, "WAF & DDoS Protection edge node", $techn="", $descr="Фильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации).", $tags="Container,Safety", $link="")
 }
 
-rectangle "==Пользователь\n<size:16>[Person]</size>" <<Element-RWxlbWVudCxQZXJzb24=>> as Пользователь
+Person(Пользователь, "Пользователь", $descr="", $tags="Element", $link="")
 
-Пользователь --> GlobalInfrastructure.GeoDNSRoute53 <<Relationship-UmVsYXRpb25zaGlw>> : "1: DNS-запрос: api.gofuture.com"
-GlobalInfrastructure.GeoDNSRoute53 --> GlobalInfrastructure.HealthChecker <<Relationship-UmVsYXRpb25zaGlw>> : "2: проверяет доступность основного региона"
-GlobalInfrastructure.GeoDNSRoute53 <-- GlobalInfrastructure.HealthChecker <<Relationship-UmVsYXRpb25zaGlw>> : "3: Основной регион НЕ ДОСТУПЕН"
-Пользователь <-- GlobalInfrastructure.GeoDNSRoute53 <<Relationship-UmVsYXRpb25zaGlw>> : "4: IP резервного региона"
-Пользователь --> GlobalInfrastructure.WAFDDoSProtectionedgenode <<Relationship-UmVsYXRpb25zaGlw>> : "5: HTTP-запрос в резервный регион"
-GlobalInfrastructure.WAFDDoSProtectionedgenode --> GoFuturePlatform.RegionalFirewall <<Relationship-UmVsYXRpb25zaGlw>> : "6: HTTP-запрос в резервный регион\n<size:16>[HTTPS]</size>"
-GoFuturePlatform.RegionalFirewall --> GoFuturePlatform.APIGateway <<Relationship-UmVsYXRpb25zaGlw>> : "7: HTTP-запрос в резервный регион\n<size:16>[HTTPS]</size>"
-GoFuturePlatform.RegionalFirewall <-- GoFuturePlatform.APIGateway <<Relationship-UmVsYXRpb25zaGlw>> : "8: Ошибка, пока инженер не переключит микросервисы из standby в active\n<size:16>[HTTPS]</size>"
-GlobalInfrastructure.WAFDDoSProtectionedgenode <-- GoFuturePlatform.RegionalFirewall <<Relationship-UmVsYXRpb25zaGlw>> : "9: Ошибка, пока инженер не переключит микросервисы из standby в active\n<size:16>[HTTPS]</size>"
-Пользователь <-- GlobalInfrastructure.WAFDDoSProtectionedgenode <<Relationship-UmVsYXRpb25zaGlw>> : "10: Ошибка, пока инженер не переключит микросервисы из standby в active"
+Rel(Пользователь, GlobalInfrastructure.GeoDNSRoute53, "1: DNS-запрос: api.gofuture.com", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.GeoDNSRoute53, GlobalInfrastructure.HealthChecker, "2: проверяет доступность основного региона", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.HealthChecker, GlobalInfrastructure.GeoDNSRoute53, "3: Основной регион НЕ ДОСТУПЕН", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.GeoDNSRoute53, Пользователь, "4: IP резервного региона", $techn="", $tags="Relationship", $link="")
+Rel(Пользователь, GlobalInfrastructure.WAFDDoSProtectionedgenode, "5: HTTP-запрос в резервный регион", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.WAFDDoSProtectionedgenode, GoFuturePlatform.RegionalFirewall, "6: HTTP-запрос в резервный регион", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.RegionalFirewall, GoFuturePlatform.APIGateway, "7: HTTP-запрос в резервный регион", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.APIGateway, GoFuturePlatform.RegionalFirewall, "8: Ошибка, пока инженер не переключит микросервисы из standby в active", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.RegionalFirewall, GlobalInfrastructure.WAFDDoSProtectionedgenode, "9: Ошибка, пока инженер не переключит микросервисы из standby в active", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.WAFDDoSProtectionedgenode, Пользователь, "10: Ошибка, пока инженер не переключит микросервисы из standby в active", $techn="", $tags="Relationship", $link="")
 
+SHOW_LEGEND(true)
+hide stereotypes
 @enduml

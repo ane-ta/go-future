@@ -3,34 +3,27 @@ workspace extends workspace-saas.dsl {
     model {
     }
     views {
-        styles {
-            # БАЗОВЫЕ ЭЛЕМЕНТЫ
-            element "Element" {
-                background #000000
-                color #fffffe
-            }
-            element "Person" {
-                background #08427b
-            }
-            element "External" { 
-                background #999999 
-            }
 
-            # ИНФРАСТРУКТУРА И СЛОИ
-            element "Infrastructure" {
-                background #555555
-                shape RoundedBox
+        properties {
+            "c4plantuml.tags" "true"    
+        }   
+          
+        styles {
+            element "Container" {
+                background #1168bd
+                color #ffffff
             }
-            element "CiCd" {
-                background #444444 
+            // element "Person" {
+            //     shape Person
+            //     background #08427b
+            // }
+            element "Infrastructure" {
+                background #2c3e50
+                stroke #ffffff
             }
             element "GeoRouting" {
-                background #2c3e50
-            }
-
-            # ПРОДАКШЕН И БИЗНЕС-ЛОГИКА
-            element "Prod" { 
-                background #1168bd 
+                background #23313f
+                stroke #ffffff
             }
             element "Component" {
                 background #85bbf0
@@ -40,58 +33,37 @@ workspace extends workspace-saas.dsl {
                 background #e0e0e0
                 color #888888
             }
-
-            # ХРАНИЛИЩА (Берем оттенки синего и бирюзового)
             element "Database" { 
                 shape Cylinder 
                 background #1c62b9 
             }
-            element "Cache" { 
-                background #3498db
-                shape Cylinder
-            }
-
-            # СПЕЦИАЛЬНЫЕ ЗОНЫ (Акценты)
             element "Broker" { 
                 shape Pipe 
                 background #4b7bec 
             }
             element "Safety" {
                 background #c0392b 
-                // Приглушенный красный
-            }
-            element "MultiTenant" {
-                background #2980b9
-                shape RoundedBox
-            }
-
-            # DATA / ANALYTICS / MONITORING
-            element "AnalyticsPipe" {
-                background #218c74 
-                //# Глубокий изумрудный вместо болотного
+                stroke #ffffff
             }
             element "Observability"{
                 background #8e44ad 
-                //# Приглушенный фиолетовый вместо фуксии
+            }
+            element "AnalyticsPipe" {
+                background #218c74 
             }
 
-            # СВЯЗИ (Убираем "ядерные" цвета, делаем их спокойнее)
             relationship "Relationship" {
-                dashed false
-                thickness 2
+                color #424242
+                routing Orthogonal
             }
             relationship "Publish" {
                 color #e67e22 
-                //# Спокойный оранжевый
             }
             relationship "Subscribe" {
                 color #f1c40f 
-                //# Приглушенный золотой
-            }
-            relationship "LogicApi" {
-                color #ADBEBF 
-                //# Серый для логики
             }
         }
+
+
     }
 }

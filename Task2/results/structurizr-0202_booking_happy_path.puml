@@ -2,147 +2,66 @@
 title <size:24>EDA Оркестрация заказа - Happy path при создании заказ</size>\n<size:24>Happy path при создании заказа</size>
 
 set separator none
-hide stereotype
 
 <style>
   root {
-    BackgroundColor: #ffffff;
-    FontColor: #444444;
-  }
-  // Element
-  .Element-RWxlbWVudA== {
-    BackgroundColor: #000000;
-    LineColor: #000000;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Broker
-  .Element-RWxlbWVudCxCcm9rZXI= {
-    BackgroundColor: #4b7bec;
-    LineColor: #3456a5;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Infrastructure
-  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ== {
-    BackgroundColor: #555555;
-    LineColor: #3b3b3b;
-    LineStyle: 0;
-    LineThickness: 2;
-    RoundCorner: 20;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Person
-  .Element-RWxlbWVudCxQZXJzb24= {
-    BackgroundColor: #08427b;
-    LineColor: #052e56;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Prod
-  .Element-RWxlbWVudCxQcm9k {
-    BackgroundColor: #1168bd;
-    LineColor: #0b4884;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Relationship
-  .Relationship-UmVsYXRpb25zaGlw {
-    LineThickness: 2;
-    LineStyle: 10-10;
-    LineColor: #444444;
-    FontColor: #444444;
-    FontSize: 24;
-  }
-  // Relationship,LogicApi
-  .Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp {
-    LineThickness: 2;
-    LineStyle: 10-10;
-    LineColor: #adbebf;
-    FontColor: #adbebf;
-    FontSize: 24;
-  }
-  // Relationship,Publish
-  .Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g= {
-    LineThickness: 2;
-    LineStyle: 10-10;
-    LineColor: #e67e22;
-    FontColor: #e67e22;
-    FontSize: 24;
-  }
-  // Relationship,Subscribe
-  .Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ== {
-    LineThickness: 2;
-    LineStyle: 10-10;
-    LineColor: #f1c40f;
-    FontColor: #f1c40f;
-    FontSize: 24;
+    BackgroundColor: #ffffff
+    FontColor: #444444
   }
 </style>
 
-participant "Пассажир\n<size:16>[Person]</size>" as Пассажир <<Element-RWxlbWVudCxQZXJzb24=>>
-participant "Пассажирское приложение\n<size:16>[Container: Native]</size>" as GoFuturePlatform.Пассажирскоеприложение <<Element-RWxlbWVudA==>>
-participant "API Gateway\n<size:16>[Container: ???]</size>" as GoFuturePlatform.APIGateway <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ==>>
-participant "BFF Приложение пассажира\n<size:16>[Container: ToBe, Frontend]</size>" as GoFuturePlatform.BFFПриложениепассажира <<Element-RWxlbWVudA==>>
-participant "Booking Service\n<size:16>[Container: Python/Faust Streaming]</size>" as GoFuturePlatform.BookingService <<Element-RWxlbWVudCxQcm9k>>
-participant "Брокер сообщений EDA\n<size:16>[Container: Kafka]</size>" as GoFuturePlatform.БрокерсообщенийEDA <<Element-RWxlbWVudCxCcm9rZXI=>>
-participant "Orchestration\n<size:16>[Container: Temporal Python SDK]</size>" as GoFuturePlatform.Orchestration <<Element-RWxlbWVudCxQcm9k>>
-participant "Fraud Service\n<size:16>[Container: Python/Faust Streaming]</size>" as GoFuturePlatform.FraudService <<Element-RWxlbWVudCxQcm9k>>
-participant "Payments Service\n<size:16>[Container: Python/Faust Streaming]</size>" as GoFuturePlatform.PaymentsService <<Element-RWxlbWVudCxQcm9k>>
-participant "Driver Service\n<size:16>[Container: Python/Faust Streaming]</size>" as GoFuturePlatform.DriverService <<Element-RWxlbWVudCxQcm9k>>
-participant "Geography Service\n<size:16>[Container: Python/Faust Streaming]</size>" as GoFuturePlatform.GeographyService <<Element-RWxlbWVudCxQcm9k>>
+!include <C4/C4_Sequence>
 
-Пассажир -> GoFuturePlatform.Пассажирскоеприложение <<Relationship-UmVsYXRpb25zaGlw>> : 1: Создает заказ
-GoFuturePlatform.Пассажирскоеприложение -> GoFuturePlatform.APIGateway <<Relationship-UmVsYXRpb25zaGlw>> : 2: POST /order\n<size:16>[HTTPS/REST API]</size>
-GoFuturePlatform.APIGateway -> GoFuturePlatform.BFFПриложениепассажира <<Relationship-UmVsYXRpb25zaGlw>> : 3: Маршрутизирует\n<size:16>[HTTPS/REST API]</size>
-GoFuturePlatform.BFFПриложениепассажира -> GoFuturePlatform.BookingService <<Relationship-UmVsYXRpb25zaGlw>> : 4: Создает заказ\n<size:16>[HTTPS]</size>
-GoFuturePlatform.BookingService -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 5: BookingCreated\n<size:16>[Publish]</size>
-GoFuturePlatform.BookingService -> GoFuturePlatform.Orchestration <<Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp>> : 6: startSaga(booking)\n<size:16>[синхронно]</size>
-GoFuturePlatform.Orchestration -> GoFuturePlatform.FraudService <<Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp>> : 7: checkUserFraud()\n<size:16>[синхронно]</size>
-GoFuturePlatform.Orchestration -> GoFuturePlatform.PaymentsService <<Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp>> : 8: holdPayment()\n<size:16>[синхронно]</size>
-GoFuturePlatform.BookingService <-- GoFuturePlatform.Orchestration <<Relationship-UmVsYXRpb25zaGlwLExvZ2ljQXBp>> : 9: startSaga(booking) result\n<size:16>[синхронно]</size>
-GoFuturePlatform.BFFПриложениепассажира <-- GoFuturePlatform.BookingService <<Relationship-UmVsYXRpb25zaGlw>> : 10: Заказ принят, назначаем водителя\n<size:16>[HTTPS]</size>
-GoFuturePlatform.Orchestration -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 11: Queue: FindDriver()\n<size:16>[Publish]</size>
-GoFuturePlatform.БрокерсообщенийEDA -> GoFuturePlatform.DriverService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : 12: Queue: FindDriver()\n<size:16>[Subscribe]</size>
-GoFuturePlatform.DriverService -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 13: FindDriverRequested\n<size:16>[Publish]</size>
-GoFuturePlatform.DriverService -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 14: DriverProposed\n<size:16>[Publish]</size>
-GoFuturePlatform.DriverService -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 15: DriverAccepted\n<size:16>[Publish]</size>
-GoFuturePlatform.БрокерсообщенийEDA -> GoFuturePlatform.Orchestration <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : 16: DriverAccepted\n<size:16>[Subscribe]</size>
-GoFuturePlatform.Orchestration -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 17: queue: assignDriver()\n<size:16>[Publish]</size>
-GoFuturePlatform.БрокерсообщенийEDA -> GoFuturePlatform.BookingService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : 18: queue: assignDriver()\n<size:16>[Queue]</size>
-GoFuturePlatform.BookingService -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 19: DriverAssigned\n<size:16>[Publish]</size>
-GoFuturePlatform.БрокерсообщенийEDA -> GoFuturePlatform.GeographyService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : 20: DriverAssigned\n<size:16>[Subscribe]</size>
-GoFuturePlatform.DriverService -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 21: publish: RideStarted\n<size:16>[Publish]</size>
-GoFuturePlatform.DriverService -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 22: RideCompleted\n<size:16>[Publish]</size>
-GoFuturePlatform.БрокерсообщенийEDA -> GoFuturePlatform.Orchestration <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : 23: RideCompleted\n<size:16>[Subscribe]</size>
-GoFuturePlatform.Orchestration -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 24: queue: chargePayment\n<size:16>[Publish]</size>
-GoFuturePlatform.БрокерсообщенийEDA -> GoFuturePlatform.PaymentsService <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : 25: queue: chargePayment\n<size:16>[Subscribe]</size>
-GoFuturePlatform.PaymentsService -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 26: PaymentCharged\n<size:16>[Publish]</size>
-GoFuturePlatform.БрокерсообщенийEDA -> GoFuturePlatform.Orchestration <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : 27: PaymentCharged\n<size:16>[Subscribe]</size>
-GoFuturePlatform.Orchestration -> GoFuturePlatform.БрокерсообщенийEDA <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : 28: BookingCompleted\n<size:16>[Publish]</size>
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
 
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+Person(Пассажир, "Пассажир", $descr="Заказывает, отслеживает и оплачивает поездки", $tags="Element", $link="")
+Container(GoFuturePlatform.Пассажирскоеприложение, "Пассажирское приложение", $techn="Native", $descr="iOS/Android/Huawei", $tags="Container", $link="")
+Container(GoFuturePlatform.APIGateway, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure", $link="")
+Container(GoFuturePlatform.BFFПриложениепассажира, "BFF Приложение пассажира", $techn="ToBe, Frontend", $descr="", $tags="Container", $link="")
+Container(GoFuturePlatform.BookingService, "Booking Service", $techn="Python/Faust Streaming", $descr="Управление бронированиями", $tags="Container", $link="")
+ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
+Container(GoFuturePlatform.Orchestration, "Orchestration", $techn="Temporal Python SDK", $descr="Оркестрация", $tags="Container", $link="")
+Container(GoFuturePlatform.FraudService, "Fraud Service", $techn="Python/Faust Streaming", $descr="Обнаружение мошенничества", $tags="Container", $link="")
+Container(GoFuturePlatform.PaymentsService, "Payments Service", $techn="Python/Faust Streaming", $descr="Платежи от пассажиров", $tags="Container", $link="")
+Container(GoFuturePlatform.DriverService, "Driver Service", $techn="Python/Faust Streaming", $descr="Управление водителями", $tags="Container", $link="")
+Container(GoFuturePlatform.GeographyService, "Geography Service", $techn="Python/Faust Streaming", $descr="Геопоиск и маршрутизация", $tags="Container", $link="")
+
+Rel(Пассажир, GoFuturePlatform.Пассажирскоеприложение, "1: Создает заказ", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Пассажирскоеприложение, GoFuturePlatform.APIGateway, "2: POST /order", $techn="HTTPS/REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.APIGateway, GoFuturePlatform.BFFПриложениепассажира, "3: Маршрутизирует", $techn="HTTPS/REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.BFFПриложениепассажира, GoFuturePlatform.BookingService, "4: Создает заказ", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.БрокерсообщенийEDA, "5: BookingCreated", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.Orchestration, "6: startSaga(booking)", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.FraudService, "7: checkUserFraud()", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.PaymentsService, "8: holdPayment()", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.BookingService, "9: startSaga(booking) result", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.BFFПриложениепассажира, "10: Заказ принят, назначаем водителя", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "11: Queue: FindDriver()", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.DriverService, "12: Queue: FindDriver()", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "13: FindDriverRequested", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "14: DriverProposed", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "15: DriverAccepted", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.Orchestration, "16: DriverAccepted", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "17: queue: assignDriver()", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.BookingService, "18: queue: assignDriver()", $techn="Queue", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.БрокерсообщенийEDA, "19: DriverAssigned", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.GeographyService, "20: DriverAssigned", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "21: publish: RideStarted", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "22: RideCompleted", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.Orchestration, "23: RideCompleted", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "24: queue: chargePayment", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.PaymentsService, "25: queue: chargePayment", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.PaymentsService, GoFuturePlatform.БрокерсообщенийEDA, "26: PaymentCharged", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.Orchestration, "27: PaymentCharged", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "28: BookingCompleted", $techn="Publish", $tags="Publish", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
 @enduml

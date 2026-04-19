@@ -21,21 +21,21 @@ workspace extends workspace-to-be.dsl {
             !include ${VIEWS_PATH4}/region-fails-views.srz
 
         styles {
-            element "Standby" {
-                background #cccccc
-                color #666666
-            }
+            // element "Standby" {
+            //     background #cccccc
+            //     color #666666
+            // }
             
-            element "Infrastructure" {
-                background #546B57
-                shape RoundedBox
-            }
-            element "GeoRouting" {
-                background #17561F
-            }
-            element "Safety" {
-                background #B43131
-            }
+            // element "Infrastructure" {
+            //     background #546B57
+            //     shape RoundedBox
+            // }
+            // element "GeoRouting" {
+            //     background #17561F
+            // }
+            // element "Safety" {
+            //     background #B43131
+            // }
         }
     }
 }

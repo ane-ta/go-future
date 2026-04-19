@@ -51,20 +51,20 @@ workspace "GoFuture" "Полная модель текущего состоян�
         // }
 
         styles {
-            # C1
-            !include ${STYLES_PATH}/c1.srz
+            // # C1
+            // !include ${STYLES_PATH}/c1.srz
 
-            # C3
-            !include ${STYLES_PATH}/c3.srz
+            // # C3
+            // !include ${STYLES_PATH}/c3.srz
 
-            # Infrastructure
-            !include ${STYLES_PATH}/infrastructure.srz
+            // # Infrastructure
+            // !include ${STYLES_PATH}/infrastructure.srz
 
-            # prod
-            !include ${STYLES_PATH}/prod.srz
+            // # prod
+            // !include ${STYLES_PATH}/prod.srz
 
-            # async
-            !include ${STYLES_PATH}/async.srz
+            // # async
+            // !include ${STYLES_PATH}/async.srz
         }
     }
 }

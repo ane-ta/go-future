@@ -1,10 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
+call docker run --rm -v "%CD%\Task1\docs:/usr/local/structurizr" structurizr/structurizr export -workspace /usr/local/structurizr/workspace.dsl -format plantuml/c4plantuml -output /usr/local/structurizr/puml/
+call docker run --rm -v "%CD%\Task1\docs:/data" plantuml/plantuml -tsvg /data/puml/*.puml -o /data/images/
 
-call docker run --rm -v "%CD%\Task1\docs:/usr/local/structurizr" structurizr/structurizr export -workspace /usr/local/structurizr/workspace.dsl -format plantuml -output /usr/local/structurizr/puml/
-call docker run --rm -v "%CD%\Task1\docs:/usr/local/structurizr" structurizr/structurizr export -workspace /usr/local/structurizr/workspace.dsl -format themeable-svg -output /usr/local/structurizr/images/
-
-@REM call docker run --rm -v "%CD%\Task1\docs:/data" plantuml/plantuml -tsvg /data/puml/*.puml -o /data/images/
+@REM call docker run --rm -v "%CD%\Task1\docs:/usr/local/structurizr" structurizr/structurizr export -workspace /usr/local/structurizr/workspace.dsl -format themeable-svg -output /usr/local/structurizr/images/
 
 :: Список папок с заданиями
 set numbers=1 2 3 4 5

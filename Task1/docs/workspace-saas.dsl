@@ -91,11 +91,11 @@ workspace extends workspace-global.dsl {
 
         styles {
             # Выделяем мультитенантные компоненты синим цветом (или любым другим для отличия)
-            element "MultiTenant" {
-                background #1168bd
-                color #ffffff
-                shape RoundedBox
-            }
+            // element "MultiTenant" {
+            //     background #1168bd
+            //     color #ffffff
+            //     shape RoundedBox
+            // }
         }
     }
 }

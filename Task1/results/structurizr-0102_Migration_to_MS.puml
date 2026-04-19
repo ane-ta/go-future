@@ -3,206 +3,70 @@ title <size:24>Миграция на микросервисы</size>
 
 set separator none
 left to right direction
-skinparam ranksep 20
-skinparam nodesep 5
-hide stereotype
 
 <style>
   root {
-    BackgroundColor: #ffffff;
-    FontColor: #444444;
-  }
-  // Element
-  .Element-RWxlbWVudA== {
-    BackgroundColor: #000000;
-    LineColor: #000000;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Broker
-  .Element-RWxlbWVudCxCcm9rZXI= {
-    BackgroundColor: #4b7bec;
-    LineColor: #3456a5;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Component
-  .Element-RWxlbWVudCxDb21wb25lbnQ= {
-    BackgroundColor: #85bbf0;
-    LineColor: #5d82a8;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #000000;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Component,Infrastructure
-  .Element-RWxlbWVudCxDb21wb25lbnQsSW5mcmFzdHJ1Y3R1cmU= {
-    BackgroundColor: #555555;
-    LineColor: #3b3b3b;
-    LineStyle: 0;
-    LineThickness: 2;
-    RoundCorner: 20;
-    FontColor: #000000;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Infrastructure
-  .Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ== {
-    BackgroundColor: #555555;
-    LineColor: #3b3b3b;
-    LineStyle: 0;
-    LineThickness: 2;
-    RoundCorner: 20;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Person
-  .Element-RWxlbWVudCxQZXJzb24= {
-    BackgroundColor: #08427b;
-    LineColor: #052e56;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Element,Prod
-  .Element-RWxlbWVudCxQcm9k {
-    BackgroundColor: #1168bd;
-    LineColor: #0b4884;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-    MaximumWidth: 450;
-  }
-  // Relationship
-  .Relationship-UmVsYXRpb25zaGlw {
-    LineThickness: 2;
-    LineStyle: 10-10;
-    LineColor: #444444;
-    FontColor: #444444;
-    FontSize: 24;
-  }
-  // Relationship,Publish
-  .Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g= {
-    LineThickness: 2;
-    LineStyle: 10-10;
-    LineColor: #e67e22;
-    FontColor: #e67e22;
-    FontSize: 24;
-  }
-  // Relationship,Subscribe
-  .Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ== {
-    LineThickness: 2;
-    LineStyle: 10-10;
-    LineColor: #f1c40f;
-    FontColor: #f1c40f;
-    FontSize: 24;
-  }
-  // API Gateway
-  .Boundary-QVBJIEdhdGV3YXk= {
-    BackgroundColor: #ffffff;
-    LineColor: #3b3b3b;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-  }
-  // GoFuture Platform
-  .Boundary-R29GdXR1cmUgUGxhdGZvcm0= {
-    BackgroundColor: #ffffff;
-    LineColor: #000000;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
-  }
-  // Монолит
-  .Boundary-0JzQvtC90L7Qu9C40YI= {
-    BackgroundColor: #ffffff;
-    LineColor: #000000;
-    LineStyle: 0;
-    LineThickness: 2;
-    FontColor: #fffffe;
-    FontSize: 24;
-    HorizontalAlignment: center;
-    Shadowing: 0;
+    BackgroundColor: #ffffff
+    FontColor: #444444
   }
 </style>
 
-rectangle "==Пассажир\n<size:16>[Person]</size>\n\nЗаказывает, отслеживает и оплачивает поездки" <<Element-RWxlbWVudCxQZXJzb24=>> as Пассажир
-rectangle "==Водитель\n<size:16>[Person]</size>\n\nПринимает заказы и получает выплаты" <<Element-RWxlbWVudCxQZXJzb24=>> as Водитель
-rectangle "==Бухгалтер\n<size:16>[Person]</size>\n\nКонтролирует выплаты водителям" <<Element-RWxlbWVudCxQZXJzb24=>> as Бухгалтер
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Component>
 
-rectangle "GoFuture Platform\n<size:16>[Software System]</size>" <<Boundary-R29GdXR1cmUgUGxhdGZvcm0=>> {
-  rectangle "Монолит\n<size:16>[Container: Django App]</size>" <<Boundary-0JzQvtC90L7Qu9C40YI=>> {
-    rectangle "==Legacy Domains\n<size:16>[Component]</size>\n\nДомены бизнес логики до миграции" <<Element-RWxlbWVudCxDb21wb25lbnQ=>> as GoFuturePlatform.Монолит.LegacyDomains
-    rectangle "==Anti-Corruption Component\n<size:16>[Component: ???]</size>\n\nОбеспечивает обратную совместимость внутренних связей при миграции." <<Element-RWxlbWVudCxDb21wb25lbnQ=>> as GoFuturePlatform.Монолит.AntiCorruptionComponent
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Component", $bgColor="#85bbf0", $borderColor="#5d82a8", $fontColor="#000000", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+AddBoundaryTag("Container", $bgColor="#ffffff", $borderColor="#0b4884", $fontColor="#0b4884", $shadowing="", $borderStyle="solid")
+
+Person(Пассажир, "Пассажир", $descr="Заказывает, отслеживает и оплачивает поездки", $tags="Element", $link="")
+Person(Водитель, "Водитель", $descr="Принимает заказы и получает выплаты", $tags="Element", $link="")
+Person(Бухгалтер, "Бухгалтер", $descr="Контролирует выплаты водителям", $tags="Element", $link="")
+
+System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
+  Container_Boundary("GoFuturePlatform.Монолит_boundary", "Монолит", $tags="Container") {
+    Component(GoFuturePlatform.Монолит.LegacyDomains, "Legacy Domains", $techn="", $descr="Домены бизнес логики до миграции", $tags="Component", $link="")
+    Component(GoFuturePlatform.Монолит.AntiCorruptionComponent, "Anti-Corruption Component", $techn="???", $descr="Обеспечивает обратную совместимость внутренних связей при миграции.", $tags="Component", $link="")
   }
 
-  rectangle "API Gateway\n<size:16>[Container: ???]</size>" <<Boundary-QVBJIEdhdGV3YXk=>> {
-    rectangle "==Authorization + Legacy Auth Adapter\n<size:16>[Component]</size>\n\nПринимает старые session_id, выдает JWT" <<Element-RWxlbWVudCxDb21wb25lbnQ=>> as GoFuturePlatform.APIGateway.AuthorizationLegacyAuthAdapter
-    rectangle "==Anti-Corruption Layer\n<size:16>[Component: ???]</size>\n\nТрансформирует v1 → v2\nРоутит на монолит или микросервис по feature flag\nПерехватывает прямые вызовы внутри монолита" <<Element-RWxlbWVudCxDb21wb25lbnQ=>> as GoFuturePlatform.APIGateway.AntiCorruptionLayer
-    rectangle "==Routing\n<size:16>[Component]</size>\n\nМаршрутизация" <<Element-RWxlbWVudCxDb21wb25lbnQsSW5mcmFzdHJ1Y3R1cmU=>> as GoFuturePlatform.APIGateway.Routing
-  }
-
-  rectangle "==Пассажирское приложение\n<size:16>[Container: Native]</size>\n\niOS/Android/Huawei" <<Element-RWxlbWVudA==>> as GoFuturePlatform.Пассажирскоеприложение
-  rectangle "==Водительское приложение\n<size:16>[Container: Native]</size>\n\niOS/Android/Huawei" <<Element-RWxlbWVudA==>> as GoFuturePlatform.Водительскоеприложение
-  rectangle "==Корпоративный веб-портал\n<size:16>[Container: Native, UI, Entrance]</size>\n\nWeb Application" <<Element-RWxlbWVudA==>> as GoFuturePlatform.Корпоративныйвебпортал
-  rectangle "==Админ-панель\n<size:16>[Container: Web Application]</size>\n\nУправление выплатами" <<Element-RWxlbWVudA==>> as GoFuturePlatform.Админпанель
-  queue "==Брокер сообщений обратной совместимости\n<size:16>[Container: RabbitMQ]</size>\n\nОчередь задач" <<Element-RWxlbWVudCxCcm9rZXI=>> as GoFuturePlatform.Брокерсообщенийобратнойсовместимости
-  rectangle "==Prod Microservices\n<size:16>[Container: Python/Faust Streaming]</size>\n\nбизнес логика после миграции" <<Element-RWxlbWVudCxQcm9k>> as GoFuturePlatform.ProdMicroservices
-  queue "==Broker\n<size:16>[Container: Kafka]</size>\n\nсреда для EDA" <<Element-RWxlbWVudCxCcm9rZXI=>> as GoFuturePlatform.Broker
-  rectangle "==Identity Service\n<size:16>[Container: Keycloak]</size>\n\nВыпускает JWT для микросервисов" <<Element-RWxlbWVudCxJbmZyYXN0cnVjdHVyZQ==>> as GoFuturePlatform.IdentityService
+  Container(GoFuturePlatform.Пассажирскоеприложение, "Пассажирское приложение", $techn="Native", $descr="iOS/Android/Huawei", $tags="Container", $link="")
+  Container(GoFuturePlatform.Водительскоеприложение, "Водительское приложение", $techn="Native", $descr="iOS/Android/Huawei", $tags="Container", $link="")
+  Container(GoFuturePlatform.Корпоративныйвебпортал, "Корпоративный веб-портал", $techn="Native, UI, Entrance", $descr="Web Application", $tags="Container", $link="")
+  Container(GoFuturePlatform.Админпанель, "Админ-панель", $techn="Web Application", $descr="Управление выплатами", $tags="Container", $link="")
+  ContainerQueue(GoFuturePlatform.Брокерсообщенийобратнойсовместимости, "Брокер сообщений обратной совместимости", $techn="RabbitMQ", $descr="Очередь задач", $tags="Container,Broker", $link="")
+  Container(GoFuturePlatform.ProdMicroservices, "Prod Microservices", $techn="Python/Faust Streaming", $descr="бизнес логика после миграции", $tags="Container", $link="")
+  ContainerQueue(GoFuturePlatform.Broker, "Broker", $techn="Kafka", $descr="среда для EDA", $tags="Container,Broker", $link="")
+  Container(GoFuturePlatform.IdentityService, "Identity Service", $techn="Keycloak", $descr="Выпускает JWT для микросервисов", $tags="Container,Infrastructure", $link="")
+  Container(GoFuturePlatform.APIGateway, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure", $link="")
 }
 
-Пассажир --> GoFuturePlatform.Пассажирскоеприложение <<Relationship-UmVsYXRpb25zaGlw>> : "Использует"
-Водитель --> GoFuturePlatform.Водительскоеприложение <<Relationship-UmVsYXRpb25zaGlw>> : "Использует"
-Бухгалтер --> GoFuturePlatform.Админпанель <<Relationship-UmVsYXRpb25zaGlw>> : "Использует"
-GoFuturePlatform.Монолит.LegacyDomains --> GoFuturePlatform.Монолит.AntiCorruptionComponent <<Relationship-UmVsYXRpb25zaGlw>> : "Обращаются к мигрировашим доменам\n<size:16>[Django]</size>"
-GoFuturePlatform.Монолит.LegacyDomains --> GoFuturePlatform.Брокерсообщенийобратнойсовместимости <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "Прежние события\n<size:16>[AMQP Publish]</size>"
-GoFuturePlatform.Брокерсообщенийобратнойсовместимости --> GoFuturePlatform.Монолит.LegacyDomains <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "Прежние события\n<size:16>[AMQP Subscribe]</size>"
-GoFuturePlatform.APIGateway.Routing --> GoFuturePlatform.APIGateway.AntiCorruptionLayer <<Relationship-UmVsYXRpb25zaGlw>> : "Маршрутизирует старые связи"
-GoFuturePlatform.APIGateway.AuthorizationLegacyAuthAdapter --> GoFuturePlatform.IdentityService <<Relationship-UmVsYXRpb25zaGlw>> : "Обменивает session_id на JWT\n<size:16>[Migration]</size>"
-GoFuturePlatform.APIGateway.AuthorizationLegacyAuthAdapter --> GoFuturePlatform.Монолит.AntiCorruptionComponent <<Relationship-UmVsYXRpb25zaGlw>> : "Валидирует SessionId\n<size:16>[???]</size>"
-GoFuturePlatform.APIGateway.AntiCorruptionLayer --> GoFuturePlatform.Монолит.LegacyDomains <<Relationship-UmVsYXRpb25zaGlw>> : "Перенаправляет legacy связи\n<size:16>[???]</size>"
-GoFuturePlatform.APIGateway.AntiCorruptionLayer --> GoFuturePlatform.ProdMicroservices <<Relationship-UmVsYXRpb25zaGlw>> : "Трансформирует legacy связи\n<size:16>[???]</size>"
-GoFuturePlatform.Монолит.AntiCorruptionComponent --> GoFuturePlatform.ProdMicroservices <<Relationship-UmVsYXRpb25zaGlw>> : "Трансформирует legacy связи\n<size:16>[???]</size>"
-GoFuturePlatform.ProdMicroservices --> GoFuturePlatform.Broker <<Relationship-UmVsYXRpb25zaGlwLFB1Ymxpc2g=>> : "Publish prod events\n<size:16>[Publish]</size>"
-GoFuturePlatform.Broker --> GoFuturePlatform.ProdMicroservices <<Relationship-UmVsYXRpb25zaGlwLFN1YnNjcmliZQ==>> : "Consume prod events\n<size:16>[Subscribe]</size>"
-GoFuturePlatform.APIGateway.AuthorizationLegacyAuthAdapter --> GoFuturePlatform.IdentityService <<Relationship-UmVsYXRpb25zaGlw>> : "Получает сертификат авторизации"
-GoFuturePlatform.Пассажирскоеприложение --> GoFuturePlatform.APIGateway.Routing <<Relationship-UmVsYXRpb25zaGlw>> : "Создает заказы\n<size:16>[HTTPS/REST API]</size>"
-GoFuturePlatform.Водительскоеприложение --> GoFuturePlatform.APIGateway.Routing <<Relationship-UmVsYXRpb25zaGlw>> : "Обновляет статус\n<size:16>[HTTPS/REST API]</size>"
-GoFuturePlatform.Корпоративныйвебпортал --> GoFuturePlatform.APIGateway.Routing <<Relationship-UmVsYXRpb25zaGlw>> : "Просмотр заказов\n<size:16>[HTTPS/REST API]</size>"
-GoFuturePlatform.Админпанель --> GoFuturePlatform.APIGateway.Routing <<Relationship-UmVsYXRpb25zaGlw>> : "Управление выплатами\n<size:16>[HTTPS/REST API]</size>"
-GoFuturePlatform.APIGateway.Routing --> GoFuturePlatform.APIGateway.AuthorizationLegacyAuthAdapter <<Relationship-UmVsYXRpb25zaGlw>> : "Авторизует"
-GoFuturePlatform.APIGateway.Routing --> GoFuturePlatform.ProdMicroservices <<Relationship-UmVsYXRpb25zaGlw>> : "Маршрутизирует новые связи"
+Rel(Пассажир, GoFuturePlatform.Пассажирскоеприложение, "Использует", $techn="", $tags="Relationship", $link="")
+Rel(Водитель, GoFuturePlatform.Водительскоеприложение, "Использует", $techn="", $tags="Relationship", $link="")
+Rel(Бухгалтер, GoFuturePlatform.Админпанель, "Использует", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Монолит.LegacyDomains, GoFuturePlatform.Монолит.AntiCorruptionComponent, "Обращаются к мигрировашим доменам", $techn="Django", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Монолит.LegacyDomains, GoFuturePlatform.Брокерсообщенийобратнойсовместимости, "Прежние события", $techn="AMQP Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.Брокерсообщенийобратнойсовместимости, GoFuturePlatform.Монолит.LegacyDomains, "Прежние события", $techn="AMQP Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.APIGateway, GoFuturePlatform.Монолит.AntiCorruptionComponent, "Валидирует SessionId", $techn="???", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.APIGateway, GoFuturePlatform.Монолит.LegacyDomains, "Перенаправляет legacy связи", $techn="???", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Монолит.AntiCorruptionComponent, GoFuturePlatform.ProdMicroservices, "Трансформирует legacy связи", $techn="???", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.ProdMicroservices, GoFuturePlatform.Broker, "Publish prod events", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.Broker, GoFuturePlatform.ProdMicroservices, "Consume prod events", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.APIGateway, GoFuturePlatform.IdentityService, "Получает сертификат авторизации", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Пассажирскоеприложение, GoFuturePlatform.APIGateway, "Создает заказы", $techn="HTTPS/REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Водительскоеприложение, GoFuturePlatform.APIGateway, "Обновляет статус", $techn="HTTPS/REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Корпоративныйвебпортал, GoFuturePlatform.APIGateway, "Просмотр заказов", $techn="HTTPS/REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Админпанель, GoFuturePlatform.APIGateway, "Управление выплатами", $techn="HTTPS/REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.APIGateway, GoFuturePlatform.ProdMicroservices, "Маршрутизирует новые связи", $techn="", $tags="Relationship", $link="")
 
+SHOW_LEGEND(true)
+hide stereotypes
 @enduml
