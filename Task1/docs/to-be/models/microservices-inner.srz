@@ -71,42 +71,43 @@
 
 
 # C2 SQL запросы микросервисов 
-    orchestr -> dbSqlOrchestr "Saga state" "SQL" "ToBe, SQL"
+    orchestr -> dbSqlOrchestr "Saga state" "SQL" "ToBe, SQL, DBLink"
 
-    booking -> dbSqlBooking "bookings, drivers" "SQL" "ToBe, SQL"
-    driverDom -> dbSqlDriver "drivers, payouts" "SQL" "ToBe, SQL"
-    pricing -> dbSqlPricing "pricing_rules" "SQL" "ToBe, SQL"
-    payments -> dbSqlPayments "payments" "SQL" "ToBe, SQL"
-    payouts -> dbSqlPayouts "payouts" "SQL" "ToBe, SQL"
-    geo -> dbSqlGeo "drivers, zones" "SQL" "ToBe, SQL"
-    analyticsDom -> dbSqlAnalytics "все таблицы" "SQL" "ToBe, SQL"
-    fraud -> dbSqlFraud "payments, bookings" "SQL" "ToBe, SQL"
+    booking -> dbSqlBooking "bookings, drivers" "SQL" "ToBe, SQL, DBLink"
+    driverDom -> dbSqlDriver "drivers, payouts" "SQL" "ToBe, SQL, DBLink"
+    pricing -> dbSqlPricing "pricing_rules" "SQL" "ToBe, SQL, DBLink"
+    payments -> dbSqlPayments "payments" "SQL" "ToBe, SQL, DBLink"
+    payouts -> dbSqlPayouts "payouts" "SQL" "ToBe, SQL, DBLink"
+    geo -> dbSqlGeo "drivers, zones" "SQL" "ToBe, SQL, DBLink"
+    analyticsDom -> dbSqlAnalytics "???" "SQL" "ToBe, SQL, DBLink"
+    fraud -> dbSqlFraud "payments, bookings" "SQL" "ToBe, SQL, DBLink"
+    notif -> dbSqlNotif "???" "SQL" "ToBe, SQL, DBLink"
 
-    notificationTasks -> dbSqlNotif "данные уведомлений" "ORM" "ToBe, SQL"
-    payoutTasks -> dbSqlPayouts "выплаты и балансы" "ORM" "ToBe, SQL"
-    analyticsTasks -> dbSqlAnalytics "аналитические данные" "ORM" "ToBe, SQL"
+    notificationTasks -> dbSqlNotif "данные уведомлений" "ORM" "ToBe, SQL, DBLink"
+    payoutTasks -> dbSqlPayouts "выплаты и балансы" "ORM" "ToBe, SQL, DBLink"
+    analyticsTasks -> dbSqlAnalytics "???" "ORM" "ToBe, SQL, DBLink"
 
 # C2 Репликация
-    booking -> mqBg "bookings" "???CDC" "ToBe, ReplicaLink, Publish"
-    mqBg -> fraud "bookings" "???CDC" "ToBe, ReplicaLink, Subscribe"
+    dbSqlBooking -> replicaAgent.debezium "bookings" "Transaction Log" "ToBe, ReplicaLink, Publish"
+    replicaAgent.jdbc -> dbSqlFraud "bookings" "SQL" "ToBe, ReplicaLink, Subscribe"
     
-    payments -> mqBg "payments" "???CDC" "ToBe, ReplicaLink, Publish"
-    mqBg -> fraud "payments" "???CDC" "ToBe, ReplicaLink, Subscribe"
+    dbSqlPayments -> replicaAgent.debezium "payments" "Transaction Log" "ToBe, ReplicaLink, Publish"
+    replicaAgent.jdbc -> dbSqlFraud "payments" "SQL" "ToBe, ReplicaLink, Subscribe"
 
-    driverDom -> mqBg "drivers" "???CDC" "ToBe, ReplicaLink, Publish"
-    mqBg -> payouts "данные водителя" "???CDC" "ToBe, ReplicaLink, Subscribe"
-    mqBg -> booking "drivers" "???CDC" "ToBe, ReplicaLink, Subscribe"
-    mqBg -> geo "drivers" "???CDC" "ToBe, ReplicaLink, Subscribe"
+    dbSqlDriver -> replicaAgent.debezium "drivers" "Transaction Log" "ToBe, ReplicaLink, Publish"
+    replicaAgent.jdbc -> dbSqlPayouts "данные водителя" "SQL" "ToBe, ReplicaLink, Subscribe"
+    replicaAgent.jdbc -> dbSqlBooking "drivers" "SQL" "ToBe, ReplicaLink, Subscribe"
+    replicaAgent.jdbc -> dbSqlGeo "drivers" "SQL" "ToBe, ReplicaLink, Subscribe"
     
-    payouts -> mqBg "payouts" "???CDC" "ToBe, ReplicaLink, Publish"
-    mqBg -> driverDom "payouts" "???CDC" "ToBe, ReplicaLink"
+    dbSqlPayouts -> replicaAgent.debezium "payouts" "Transaction Log" "ToBe, ReplicaLink, Publish"
+    replicaAgent.jdbc -> dbSqlDriver "payouts" "SQL" "ToBe, ReplicaLink"
 
 # C2 Поиск 
-    geo -> dbGeo "поиск водителей" "Elasticsearch API" "ToBe, Elastic"
+    geo -> dbGeo "поиск водителей" "Elasticsearch API" "ToBe, Elastic, DBLink"
     
 # C2 Кеширование
-    pricing -> cachePricing "кеш ценовых правил" "Redis" "ToBe, Cache"
-    pricing -> cachePricing "Surge factor upsert" "Redis" "ToBe, Cache" 
+    pricing -> cachePricing "кеш ценовых правил" "Redis" "ToBe, Cache, DBLink"
+    pricing -> cachePricing "Surge factor upsert" "Redis" "ToBe, Cache, DBLink" 
 
-    notif -> cacheNotif "кеш устройств" "Redis" "ToBe, Cache"
-    geo -> cacheGeo "кеш геоданных" "Redis" "ToBe, Cache"
+    notif -> cacheNotif "кеш устройств" "Redis" "ToBe, Cache, DBLink"
+    geo -> cacheGeo "кеш геоданных" "Redis" "ToBe, Cache, DBLink"

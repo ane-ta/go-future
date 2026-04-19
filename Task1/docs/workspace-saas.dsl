@@ -3,9 +3,9 @@ workspace extends workspace-global.dsl {
 !const VIEWS_PATH5 "./saas/views"
 
     model {
-        globalAdmin = person "GoFuture Admin" "Сотрудник платформы, управляющий партнерами" "MultiTenant"
-        partnerAdmin = person "Partner Admin" "Администратор таксопарка-партнера" "MultiTenant"
-        partnerUser = person "Partner user" "Сотрудник таксопарка-партнера" "MultiTenant"
+        globalAdmin = person "GoFuture Admin" "Сотрудник платформы, управляющий партнерами" 
+        partnerAdmin = person "Partner Admin" "Администратор таксопарка-партнера" 
+        partnerUser = person "Partner user" "Сотрудник таксопарка-партнера" 
 
         !element goFuture {
             group MultiTenancy {
@@ -49,25 +49,25 @@ workspace extends workspace-global.dsl {
     }
     views {
         // Мультитенантность???
-        container goFuture "0501_MultitenancyView" {
-            title "Мультитенантность"
+//         container goFuture "0501_MultitenancyView" {
+//             title "Мультитенантность"
 
-//            include "->element.tag==Entrance"
-            include "element.tag==Generalization"
-            exclude goFuture.msDatabases
-            exclude "element.tag==Safety"
-            exclude "element.tag==Migration"
+// //            include "->element.tag==Entrance"
+//             include "element.tag==Generalization"
+//             exclude goFuture.msDatabases
+//             exclude "element.tag==Safety"
+//             exclude "element.tag==Migration"
 
-            include goFuture.apiGateway
-            include goFuture.alloy
-            include "element.tag==MultiTenant"
+//             include goFuture.apiGateway
+//             include goFuture.alloy
+//             include "element.tag==MultiTenant"
 
-            exclude "relationship==*"
+//             exclude "relationship==*"
 
-            include "relationship.tag==MultiTenant"
+//             include "relationship.tag==MultiTenant"
 
-            autolayout lr
-        }
+//             autolayout lr
+//         }
         // Создание окружения для нового партнера
         dynamic goFuture.apiGateway "0502_Onboarding" {
             title "Создание окружения для нового партнера"

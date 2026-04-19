@@ -7,15 +7,15 @@
 
 # C2 ASYNC-связи
     # domains
-    booking -> mq "уведомления и аналитика" "AMQP" "Publish"
-    payouts -> mq "выплаты" "AMQP" "Publish"
-    payments -> mq "отчеты" "AMQP" "Publish"
-    analyticsDom -> mq "события аналитики" "AMQP" "Publish"
+    booking -> mqEDA "уведомления и аналитика" "Publish" "Publish"
+    payouts -> mqEDA "выплаты" "Publish" "Publish"
+    payments -> mqEDA "отчеты" "Publish" "Publish"
+    analyticsDom -> mqEDA "события аналитики" "Publish" "Publish"
 
     # workers
-    mq -> payoutTasks "Задачи выплат" "AMQP" "Subscribe"
-    mq -> notificationTasks "Задачи уведомлений" "AMQP" "Subscribe"
-    mq -> analyticsTasks "Задачи аналитики" "AMQP" "Subscribe"
+    mqEDA -> payoutTasks "Задачи выплат" "Subscribe" "Subscribe"
+    mqEDA -> notificationTasks "Задачи уведомлений" "Subscribe" "Subscribe"
+    mqEDA -> analyticsTasks "Задачи аналитики" "Subscribe" "Subscribe"
 
     mqEDA -> pricing "SurgeFactorUpdated - актуальный коэффициент для конкретного района" "Subscribe" "ToBe, Subscribe"
     analyticsTasks -> analyticsEngine "обработка данных" "Spark Jobs" "Analytics"

@@ -3,10 +3,8 @@
         mlEngine = component "Пайплайн признаков для ML"
     }
     # C2  
-    mq -> analyticsEngine.reportEngine "События аналитики" "AMQP Subscribe" "Analytics, Subscribe"
     
     //analyticsEngine -> mqEDA "SurgeFactorUpdated - актуальный коэффициент для конкретного района" "Publish" "ToBe, Publish, EDA"
-    validateContract = container "Data Contract / Schema Validation" "Проверяет соответствие схеме (Schema Registry), наличие обязательных полей." "Confluent Schema Registry" "DataQuality"
     
     group "Analytics pipe" {
         validateLogic = container "Data Quality / Business Rules Validation" "Проверяет смысл данных, на которых будет учиться ML." "Great Expectations / Python" "AnalyticsPipe, DataQuality" {
@@ -30,7 +28,7 @@
     dbAnalytics.featureDb -> mlPlatform "Выборка исторических данных и признаков" "SQL"
 
     //Пайплайн Аналитики
-    mqEDA -> analyticsEngine.reportEngine "Транслирует корректные данные"
+    mqEDA -> analyticsEngine.reportEngine "События для аналитики" "Subscribe" "Analytics, Subscribe"
     analyticsEngine.reportEngine -> validateContract "Metadata/Schema fetch" "gRPC / HTTP"
     analyticsEngine.reportEngine -> validateLogic.validateBI "Транслирует обработанные и вычисленные данные"
     validateLogic.validateBI -> dbAnalytics.reportDb "Записывает высококачественные данные" "ETL"

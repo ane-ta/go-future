@@ -5,6 +5,10 @@
 
         legacy -> aclComponent "Обращаются к мигрировашим доменам" "Django" "Migration, Generalization" 
     }
+    mq = container "Брокер сообщений обратной совместимости" "Очередь задач" "RabbitMQ" "Broker, Migration"
+
+    monolith.legacy -> mq "Прежние события" "AMQP Publish" "Publish, Migration"
+    mq -> monolith.legacy "Прежние события" "AMQP Subscribe" "Subscribe, Migration"
 
     # Миграция
     apiGateway.cRouting -> apiGateway.aclService "Маршрутизирует старые связи"

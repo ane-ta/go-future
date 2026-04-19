@@ -5,19 +5,27 @@ workspace extends ws-parent.dsl {
 
     model {
     # СИСТЕМА                        
+
         !element goFuture {
 
-            # Обобщение
-                !include ${MODELS_PATH3}/generalization.srz
+            # Очереди и асинхронщина
+                mqEDA = container "Брокер сообщений EDA" "Доменные события, CDC события, события аналитики" "Kafka" "ToBe, Broker"
+        }
 
+        # Обобщение
+            !include ${MODELS_PATH3}/generalization.srz
+
+        !element goFuture {
+            
+            # EDA инфраструктура
+                validateContract = container "Data Contract / Schema Validation" "Проверяет соответствие схеме (Schema Registry), наличие обязательных полей." "Confluent Schema Registry" "DataQuality"
+                msProd -> validateContract "Validate event schema" "gRPC" "Generalization, EDA"
+            
             # Точка входа
                 !include ${MODELS_PATH3}/entrance.srz
-
-            # Очереди и асинхронщина
-                mqEDA = container "Брокер сообщений EDA" "Доменные события" "Kafka" "ToBe, Broker"
-                mqBg = container "Брокер сообщений репликации" "CDC события" "Kafka" "ToBe, Broker"
-                mq = container "Брокер сообщений" "Очередь задач" "RabbitMQ" "Broker"
-
+        
+            # CDC
+                !include ${MODELS_PATH3}/cdc.srz
 
             # Микросервисы
                 !include ${MODELS_PATH3}/microservices.srz
@@ -42,13 +50,18 @@ workspace extends ws-parent.dsl {
         // микросервисы и репликация CDC
         container goFuture "0101_MS_Data_Interaction" { 
             title "Микросервисы и репликации данных между ними"
+            
             include "element.tag==Prod && element.tag==Service"
             include "element.tag==Prod && element.tag==Worker"
+            include "element.tag==Prod && element.tag==Database"
+            exclude "element.tag==Generalization"
+            include goFuture.replicaAgent
+            include goFuture.mqEDA
+
             exclude "relationship==*"
             include "relationship.tag==ReplicaLink"
+            include "relationship.tag==DBLink"
 
-            include "element.tag==Prod && element.tag==Database"
-            include goFuture.mqBg
             autolayout lr
         }
 
@@ -58,16 +71,20 @@ workspace extends ws-parent.dsl {
             include "->element.tag==Entrance"
             include "->element.tag==Migration->"
             include "relationship.tag==Migration"
+            include goFuture.msBroker
             autolayout lr
         }
 
         // EDA
         container goFuture "0201_ProdServices_Logic_Interaction" { 
             title "EDA взаимодействие микросервисов"
+
             include "element.tag==Prod && element.tag==Service"
             include "element.tag==Prod && element.tag==Worker"
             include goFuture.mqEDA
             include "element.tag==External"
+            exclude "element.tag==Generalization"
+            
             exclude "relationship==*"
             include "relationship.tag==EDA"
             include "relationship.tag==LogicApi"

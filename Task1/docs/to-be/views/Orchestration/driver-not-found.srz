@@ -1,6 +1,8 @@
     goFuture.driverDom -> goFuture.mqEDA "DriverSearchTimeout"
     goFuture.mqEDA -> goFuture.orchestr "DriverSearchTimeout"
     
+    goFuture.mqEDA -> goFuture.booking "BookingCancelled"
+    goFuture.booking -> goFuture.bffPassenger "Заказ отменен"
     goFuture.orchestr -> goFuture.mqEDA "Queue: releasePayment()"
     goFuture.mqEDA -> goFuture.payments "Queue: releasePayment()"
     goFuture.payments -> goFuture.mqEDA "PaymentReleased"

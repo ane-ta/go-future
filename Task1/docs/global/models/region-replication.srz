@@ -1,18 +1,3 @@
-        !element goFuture {
-            # Резервирование
-
-                replicaAgent = container "Kafka Connect" "Кластер коннекторов к базам для CDC" "Kafka Connect" "Duplication" {
-                    debezium = component "CDC output" "CDC коннектор для PostgreSQL" "Duplication"
-                    jdbc = component "CDC input" "CDC коннектор-приемник для PostgreSQL" "Debezium" "Duplication"
-                }
-
-                msACIDDatabases -> replicaAgent.debezium "Provide CDC events" "Transaction Log" "Duplication, Publish"
-                replicaAgent.debezium -> msBroker "CDC events" "Publish" "Duplication, Publish"
-
-                msBroker -> replicaAgent.jdbc "CDC events" "Subscribe" "Subscribe, Duplication"
-                replicaAgent.jdbc -> msACIDDatabases "Apply CDC updates" "SQL" "Subscribe, Duplication"
-        }
-
         // Развертывание в регионе
         depRegion = deploymentEnvironment "Active-Passive Region Deployment" {
             

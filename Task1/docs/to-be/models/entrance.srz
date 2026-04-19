@@ -1,5 +1,5 @@
 # --- ИНФРАСТРУКТУРА ---
-    idService = container "Identity Service" "Выпускает JWT для микросервисов" "???" "ToBe, Critical, Infrastructure, Entrance"
+    idService = container "Identity Service" "Выпускает JWT для микросервисов" "Keycloak" "ToBe, Critical, Infrastructure, Entrance"
 
     apiGateway = container "API Gateway" "Единая точка входа, Auth, Rate Limiting" "???" "ToBe, Critical, Infrastructure, Entrance" {
         legacyAuthAdapter = component "Authorization + Legacy Auth Adapter" "Принимает старые session_id, выдает JWT" "" "Entrance, Migration"

@@ -1,8 +1,14 @@
-    group "Prod" {
-        msProd = container "Prod Microservices" "бизнес логика после миграции" "${MS_TECHNOLOGY}" "Generalization, Prod, Service"
-        msBroker = container "Broker" "среда для EDA" "Kafka" "Generalization, Broker"
-        msDatabases = container "Databases" "Хранилища" "PostgreSQL/Redis/Clickhouse" "Generalization, Database"
-    }
-    msProd -> msBroker "Publish prod events" "Publish" "Publish"
-    msBroker -> msProd "Consume prod events" "Subscribe" "Subscribe"
+    user = person "Пользователь"
 
+    !element goFuture {
+        group "Prod area" {
+            msProd = container "Prod Microservices" "бизнес логика после миграции" "${MS_TECHNOLOGY}" "Generalization, Prod, Service"
+            msBroker = container "Broker" "среда для EDA" "Kafka" "Generalization, Broker"
+            msDatabases = container "Databases" "Хранилища" "PostgreSQL/Redis/Clickhouse" "Generalization, Database"
+            msACIDDatabases = container "БД Микросервисов" "Источники правды для микросервисов" "PostgreSQL" "Generalization, Prod, Database"
+        }
+
+        msProd -> msBroker "Publish prod events" "Publish" "Publish, Generalization"
+        msBroker -> msProd "Consume prod events" "Subscribe" "Subscribe, Generalization"
+        msProd -> msACIDDatabases "Read Write" "SQL" "Prod, Generalization"
+    }
