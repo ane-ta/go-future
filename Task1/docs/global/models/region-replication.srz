@@ -24,7 +24,7 @@
                 }
 
                 //containerInstance goFuture.regionFirewall activeGroup
-                regionFirewall = infrastructureNode "Regional Firewall" activeGroup, passiveGroup "Safety"
+                regionFirewall = infrastructureNode "Regional Firewall" activeGroup,passiveGroup "Safety"
 
                 rak.brokerActive -> regionFirewall "CDC, EDA events, consumer offsets to mirror" "Subscribe" "Duplication, Subscribe"
             }
@@ -54,7 +54,7 @@
                 }
 
                 //containerInstance goFuture.regionFirewall activeGroup
-                regionFirewall = infrastructureNode "Regional Firewall" passiveGroup, activeGroup "Safety"
+                regionFirewall = infrastructureNode "Regional Firewall"  passiveGroup, activeGroup "Safety"
 
                 regionFirewall -> rpk.mirror "CDC, EDA events, consumer offsets to mirror" "Subscribe" "Duplication, Subscribe"
             }

@@ -2,7 +2,7 @@
 title <size:24>Миграция на микросервисы</size>
 
 set separator none
-left to right direction
+top to bottom direction
 
 <style>
   root {

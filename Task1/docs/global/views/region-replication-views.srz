@@ -4,5 +4,5 @@ deployment * depRegion "0301_Region_Replication" {
     title "Репликация основного региона"
     include *
     exclude "element.tag==Migration"
-    autoLayout lr
+    autoLayout tb
 }

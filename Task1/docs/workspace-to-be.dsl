@@ -62,7 +62,7 @@ workspace extends ws-parent.dsl {
             include "relationship.tag==ReplicaLink"
             include "relationship.tag==DBLink"
 
-            autolayout lr
+            autolayout tb
         }
 
         // миграция
@@ -72,7 +72,7 @@ workspace extends ws-parent.dsl {
             include "->element.tag==Migration->"
             include "relationship.tag==Migration"
             include goFuture.msBroker
-            autolayout lr
+            autolayout tb
         }
 
         // EDA
@@ -90,7 +90,7 @@ workspace extends ws-parent.dsl {
             include "relationship.tag==LogicApi"
             include "relationship.tag==ExternalApi"
 
-            autolayout lr
+            autolayout tb
         }
 
         // Orchestrator booking happy path
@@ -106,7 +106,7 @@ workspace extends ws-parent.dsl {
 
             !include "${VIEWS_PATH3}/Orchestration/ride-completed.srz"
             
-            autolayout lr
+            autolayout tb
         }
 
         // Orchestrator booking when driver not found
@@ -120,7 +120,7 @@ workspace extends ws-parent.dsl {
             
             !include "${VIEWS_PATH3}/Orchestration/driver-not-found.srz"
             
-            autolayout lr
+            autolayout tb
         }
 
         // Observability
@@ -144,7 +144,7 @@ workspace extends ws-parent.dsl {
             title "Аналитика BI и ML"
             include "->element.tag==AnalyticsPipe->"
             include "element.tag==Analytics"
-            autolayout lr
+            autolayout tb
         }
 
         // Surge

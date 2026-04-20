@@ -22,7 +22,7 @@
             globalInfra.globalWaf -> goFuture.regionFirewall "HTTP-запрос в основной регион"
             goFuture.regionFirewall -> goFuture.apiGateway "HTTP-запрос в основной регион"
             
-            autolayout lr
+            autolayout tb
         }
 
         // Маршрутизация на резервный регион в случае отказа основного региона
@@ -45,5 +45,5 @@
             goFuture.regionFirewall -> globalInfra.globalWaf "Ошибка, пока инженер не переключит микросервисы из standby в active"
             globalInfra.globalWaf -> user "Ошибка, пока инженер не переключит микросервисы из standby в active"
             
-            autolayout lr
+            autolayout tb
         }
