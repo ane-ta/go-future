@@ -1,4 +1,4 @@
-workspace extends ws-parent.dsl {
+workspace extends workspace-parent.dsl {
 !const MODELS_PATH3 "./to-be/models"
 !const VIEWS_PATH3 "./to-be/views"
 !const MS_TECHNOLOGY "Python/Faust Streaming"

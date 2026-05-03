@@ -1,4 +1,4 @@
-workspace extends ws-parent.dsl {
+workspace extends workspace-parent.dsl {
     !const MODELS_PATH2 "./as-is/models"
 
     model {

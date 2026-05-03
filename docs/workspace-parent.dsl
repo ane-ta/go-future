@@ -1,6 +1,6 @@
 workspace "GoFuture" "Полная модель текущего состояния (As-Is)" {
-    !const MODELS_PATH "project/models"
-    !const STYLES_PATH "project/styles"
+    !const MODELS_PATH "parent/models"
+    !const STYLES_PATH "parent/styles"
 
     model {
         !ImpliedRelationships true
