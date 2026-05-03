@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
-call docker run --rm -v "%CD%\Task1\docs:/usr/local/structurizr" structurizr/structurizr export -workspace /usr/local/structurizr/workspace.dsl -format plantuml/c4plantuml -output /usr/local/structurizr/puml/
-call docker run --rm -v "%CD%\Task1\docs:/data" plantuml/plantuml -tsvg /data/puml/*.puml -o /data/images/
+call docker run --rm -v "%CD%\docs:/usr/local/structurizr" structurizr/structurizr export -workspace /usr/local/structurizr/workspace.dsl -format plantuml/c4plantuml -output /usr/local/structurizr/puml/
+call docker run --rm -v "%CD%\docs:/data" plantuml/plantuml -tsvg /data/puml/*.puml -o /data/images/
 
 @REM call docker run --rm -v "%CD%\Task1\docs:/usr/local/structurizr" structurizr/structurizr export -workspace /usr/local/structurizr/workspace.dsl -format themeable-svg -output /usr/local/structurizr/images/
 
@@ -20,8 +20,8 @@ for %%t in (%numbers%) do (
             del /q /s ".\results\*.svg"
             call export.bat
         popd
-        xcopy /y ".\Task1\docs\puml\structurizr-0%%t*.puml" ".\!task!\results\"
-        xcopy /y ".\Task1\docs\images\structurizr-0%%t*.svg" ".\!task!\results\"
+        xcopy /y ".\docs\puml\structurizr-0%%t*.puml" ".\!task!\results\"
+        xcopy /y ".\docs\images\structurizr-0%%t*.svg" ".\!task!\results\"
 
     ) else (
         echo Error: export.bat not found in !task!
