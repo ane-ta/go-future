@@ -24,12 +24,11 @@ workspace extends ws-parent.dsl {
             !include ${MODELS_PATH2}/analytics.srz
             !include ${MODELS_PATH2}/observability.srz
             !include ${MODELS_PATH2}/cicd.srz
-    
         }
     }
     views {
     // домены внешние взаимодействия
-        component monolith "Monolith-Outer-Interactions" { 
+        component goFuture.monolith "Monolith-Outer-Interactions" { 
             include * 
             exclude "element.tag==Database"
 
@@ -39,7 +38,7 @@ workspace extends ws-parent.dsl {
         }
 
     // домены внутренние взаимодействия
-        component monolith "Monolith-Inner-Interactions" { 
+        component goFuture.monolith "Monolith-Inner-Interactions" { 
             include *
             exclude "element.tag==External"
             exclude "element.tag==Broker"
@@ -51,7 +50,7 @@ workspace extends ws-parent.dsl {
         }
 
     // воркеры
-        component workers "Workers" { 
+        component goFuture.workers "Workers" { 
             include * 
             autolayout lr
         }
@@ -61,16 +60,16 @@ workspace extends ws-parent.dsl {
             include "->element.tag==Observability->"
             autolayout lr
         }
-        dynamic monolith "Observability_Components" {
-            booking -> loki
-            payments -> loki
-            notificationTasks -> loki
-            payoutTasks -> loki
+        dynamic goFuture.monolith "Observability_Components" {
+            goFuture.monolith.booking -> goFuture.loki
+            goFuture.monolith.payments -> goFuture.loki
+            goFuture.workers.notificationTasks -> goFuture.loki
+            goFuture.workers.payoutTasks -> goFuture.loki
 
-            booking -> prometheus
-            payments -> prometheus
-            notificationTasks -> prometheus
-            payoutTasks -> prometheus
+            goFuture.monolith.booking -> goFuture.prometheus
+            goFuture.monolith.payments -> goFuture.prometheus
+            goFuture.workers.notificationTasks -> goFuture.prometheus
+            goFuture.workers.payoutTasks -> goFuture.prometheus
 
             autolayout lr
         }
@@ -99,11 +98,11 @@ workspace extends ws-parent.dsl {
         }
 
     // эксперимент
-        dynamic monolith "OrderProcess" "Сквозной процесс заказа" {
-            booking -> geo "1. Ищет маршрут"
-            booking -> mq "2. Публикует событие"
-            mq -> notificationTasks "3. Забирает задачу"
-            notificationTasks -> fcm "4. Отправляет Push"
+        dynamic goFuture.monolith "OrderProcess" "Сквозной процесс заказа" {
+            goFuture.monolith.booking -> goFuture.monolith.geo "1. Ищет маршрут"
+            goFuture.monolith.booking -> goFuture.mq "2. Публикует событие"
+            goFuture.mq -> goFuture.workers.notificationTasks "3. Забирает задачу"
+            goFuture.workers.notificationTasks -> fcm "4. Отправляет Push"
 
             autolayout lr
         }

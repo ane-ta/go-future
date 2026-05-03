@@ -8,16 +8,16 @@
     workers -> apns "Push" "REST API"
     workers -> huaweiPush "Push" "REST API"
     # C3
-    payoutTasks -> bankApi "Банковские выплаты" "REST API"
-    notificationTasks -> fcm "Уведомления Android" "REST API"
-    notificationTasks -> huaweiPush "Уведомления Huawei" "REST API"
-    notificationTasks -> apns "Уведомления iOS" "REST API"
+    workers.payoutTasks -> bankApi "Банковские выплаты" "REST API"
+    workers.notificationTasks -> fcm "Уведомления Android" "REST API"
+    workers.notificationTasks -> huaweiPush "Уведомления Huawei" "REST API"
+    workers.notificationTasks -> apns "Уведомления iOS" "REST API"
 
 # Асинхронные задачи
     # C2
     mq -> workers "Передает задачи" "AMQP"
 
     # C3
-    mq -> payoutTasks "Задачи выплат" "AMQP"
-    mq -> notificationTasks "Задачи уведомлений" "AMQP"
-    mq -> analyticsTasks "Задачи аналитики" "AMQP"  
+    mq -> workers.payoutTasks "Задачи выплат" "AMQP"
+    mq -> workers.notificationTasks "Задачи уведомлений" "AMQP"
+    mq -> workers.analyticsTasks "Задачи аналитики" "AMQP"  

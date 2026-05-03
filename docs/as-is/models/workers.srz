@@ -10,6 +10,6 @@
         workers -> dbMain "Записывает результаты" "SQL"
 
         # C3
-        notificationTasks -> dbMain "данные уведомлений" "ORM"
-        payoutTasks -> dbMain "выплаты и балансы" "ORM"
-        analyticsTasks -> dbMain "аналитические данные" "ORM"
+        workers.notificationTasks -> dbMain "данные уведомлений" "ORM"
+        workers.payoutTasks -> dbMain "выплаты и балансы" "ORM"
+        workers.analyticsTasks -> dbMain "аналитические данные" "ORM"

@@ -1,34 +1,34 @@
 # Внутренние вызовы монолита
     # C3
-    booking -> driverDom "назначает водителя" "синхронно"
-    booking -> pricing "запрашивает цену" "синхронно"
-    booking -> payments "инициирует оплату" "синхронно"
-    booking -> geo "ищет маршрут" "синхронно"
-    booking -> fraud "проверяет на мошенничество" "синхронно"
-    booking -> notif "отправляет уведомления" "синхронно"
+    monolith.booking -> monolith.driverDom "назначает водителя" "синхронно"
+    monolith.booking -> monolith.pricing "запрашивает цену" "синхронно"
+    monolith.booking -> monolith.payments "инициирует оплату" "синхронно"
+    monolith.booking -> monolith.geo "ищет маршрут" "синхронно"
+    monolith.booking -> monolith.fraud "проверяет на мошенничество" "синхронно"
+    monolith.booking -> monolith.notif "отправляет уведомления" "синхронно"
 
-    driverDom -> pricing "расчет заработка" "синхронно"
-    payments -> fraud "проверка транзакций" "синхронно"
-    payouts -> driverDom "данные водителя" "синхронно"
-    geo -> analyticsDom "метрики геопоиска" "синхронно"
+    monolith.driverDom -> monolith.pricing "расчет заработка" "синхронно"
+    monolith.payments -> monolith.fraud "проверка транзакций" "синхронно"
+    monolith.payouts -> monolith.driverDom "данные водителя" "синхронно"
+    monolith.geo -> monolith.analyticsDom "метрики геопоиска" "синхронно"
 
 # Прямые SQL запросы доменов 
     # C3 
-    booking -> dbMain "bookings, drivers" "SQL"
-    driverDom -> dbMain "drivers, payouts" "SQL"
-    pricing -> dbMain "pricing_rules" "SQL"
-    payments -> dbMain "payments" "SQL"
-    payouts -> dbMain "payouts" "SQL"
-    geo -> dbMain "drivers, zones" "SQL"
-    analyticsDom -> dbMain "все таблицы" "SQL"
-    fraud -> dbMain "payments, bookings" "SQL"
+    monolith.booking -> dbMain "bookings, drivers" "SQL"
+    monolith.driverDom -> dbMain "drivers, payouts" "SQL"
+    monolith.pricing -> dbMain "pricing_rules" "SQL"
+    monolith.payments -> dbMain "payments" "SQL"
+    monolith.payouts -> dbMain "payouts" "SQL"
+    monolith.geo -> dbMain "drivers, zones" "SQL"
+    monolith.analyticsDom -> dbMain "все таблицы" "SQL"
+    monolith.fraud -> dbMain "payments, bookings" "SQL"
 
 # FullTextSearch
     # C3
-    geo -> dbGeo "поиск водителей" "Elasticsearch API"
+    monolith.geo -> dbGeo "поиск водителей" "Elasticsearch API"
             
 # Кеширование
     # C3
-    pricing -> cache "кеш ценовых правил" "Redis"
-    notif -> cache "кеш устройств" "Redis"
-    geo -> cache "кеш геоданных" "Redis"
+    monolith.pricing -> cache "кеш ценовых правил" "Redis"
+    monolith.notif -> cache "кеш устройств" "Redis"
+    monolith.geo -> cache "кеш геоданных" "Redis"

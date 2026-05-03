@@ -2,15 +2,15 @@
 
     # Интеграции
         # C3 
-        geo -> yandexMaps "геоданные" "Yandex Maps API"
-        payments -> yandexPay "платежи" "Yandex Pay API"
+        monolith.geo -> yandexMaps "геоданные" "Yandex Maps API"
+        monolith.payments -> yandexPay "платежи" "Yandex Pay API"
 
     # ASYNC-связи
         # C3 
-        booking -> mq "уведомления и аналитика" "AMQP" "Analytics"
-        payouts -> mq "выплаты" "AMQP"
-        payments -> mq "отчеты" "AMQP"
-        analyticsDom -> mq "события аналитики" "AMQP" "Analytics"
+        monolith.booking -> mq "уведомления и аналитика" "AMQP" "Analytics"
+        monolith.payouts -> mq "выплаты" "AMQP"
+        monolith.payments -> mq "отчеты" "AMQP"
+        monolith.analyticsDom -> mq "события аналитики" "AMQP" "Analytics"
 
     # Клиенты -> Монолит
         # C2
@@ -20,7 +20,7 @@
         adminPortal -> monolith "REST API" "HTTPS"
         
         #C3
-        webPassenger -> booking "Создает заказы" "HTTPS REST API"
-        webDriver -> driverDom "Обновляет статус" "HTTPS REST API"
-        webPortal -> booking "Просмотр заказов" "HTTPS REST API"
-        adminPortal -> payouts "Управление выплатами" "HTTPS REST API"
+        webPassenger -> monolith.booking "Создает заказы" "HTTPS REST API"
+        webDriver -> monolith.driverDom "Обновляет статус" "HTTPS REST API"
+        webPortal -> monolith.booking "Просмотр заказов" "HTTPS REST API"
+        adminPortal -> monolith.payouts "Управление выплатами" "HTTPS REST API"

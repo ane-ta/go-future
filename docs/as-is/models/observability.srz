@@ -4,19 +4,19 @@
         mq -> prometheus "Метрики очередей" "RabbitMQ Exporter"
 
         # C3 monolith
-        booking -> prometheus "метрики бронирований" "Prometheus"
-        payments -> prometheus "метрики платежей" "Prometheus"
+        monolith.booking -> prometheus "метрики бронирований" "Prometheus"
+        monolith.payments -> prometheus "метрики платежей" "Prometheus"
 
         # C3 workers
-        notificationTasks -> prometheus "метрики уведомлений" "Prometheus"
-        payoutTasks -> prometheus "метрики выплат" "Prometheus"
+        workers.notificationTasks -> prometheus "метрики уведомлений" "Prometheus"
+        workers.payoutTasks -> prometheus "метрики выплат" "Prometheus"
 
     # Логи
         # C3 monolith
-        booking -> loki "логи бронирований" "Loki Logs"
-        payments -> loki "логи платежей" "Loki Logs"
+        monolith.booking -> loki "логи бронирований" "Loki Logs"
+        monolith.payments -> loki "логи платежей" "Loki Logs"
 
         # C3 workers
-        notificationTasks -> loki "Логи уведомлений" "Loki Logs"
-        payoutTasks -> loki "Логи выплат" "Loki Logs"
+        workers.notificationTasks -> loki "Логи уведомлений" "Loki Logs"
+        workers.payoutTasks -> loki "Логи выплат" "Loki Logs"
         # ? analyticsTasks -> loki "Логи аналитики" "Loki Logs"
