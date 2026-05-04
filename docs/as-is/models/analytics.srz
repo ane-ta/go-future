@@ -1,0 +1,6 @@
+
+    # C2
+    mq -> analyticsEngine "События аналитики" "AMPQ" "AnalyticsPipe"
+    workers.analyticsTasks -> analyticsEngine "обработка данных" "Spark Jobs" "AnalyticsPipe"
+
+    analyticsEngine -> dbAnalytics "Записывает данные" "ETL" "AnalyticsPipe"

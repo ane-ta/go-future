@@ -1,0 +1,40 @@
+@startuml
+title <size:24>Обработка запроса для партнера</size>
+
+set separator none
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4_Sequence>
+
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Component", $bgColor="#85bbf0", $borderColor="#5d82a8", $fontColor="#000000", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+
+Person(Partneruser, "Partner user", $descr="Сотрудник таксопарка-партнера", $tags="Element", $link="")
+Container(GoFuturePlatform.IdentityService, "Identity Service", $techn="Keycloak", $descr="Выпускает JWT для микросервисов", $tags="Container,Infrastructure", $link="")
+Component(GoFuturePlatform.APIGateway.TenantIdизJWT, "Tenant Id из JWT", $techn="", $descr="Извлекает tenant_id из JWT и помещение его в заголовок", $tags="Component", $link="")
+Component(GoFuturePlatform.ProdMicroservices.DynamicDataSourceRouter, "Dynamic DataSource Router", $techn="", $descr="Задает схему как контекст последующих SQL запросов", $tags="Component", $link="")
+Component(GoFuturePlatform.БДМикросервисов.Partnerdatabaseschema, "Partner database schema", $techn="PostgreSQL", $descr="Хранение данных партнеров в изолированных схемах (Schema-per-tenant)", $tags="Component", $link="")
+Component(GoFuturePlatform.ProdMicroservices.EventPublisher, "Event Publisher", $techn="", $descr="Передает в событиях tenant_id", $tags="Component", $link="")
+ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
+
+Rel(Partneruser, GoFuturePlatform.IdentityService, "1: Логинится в Realm тенанта (SSO) и получает свой JWT", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.IdentityService, Partneruser, "2: Выдает JWT токен с tenant_id", $techn="", $tags="Relationship", $link="")
+Rel(Partneruser, GoFuturePlatform.APIGateway.TenantIdизJWT, "3: Запросы к платформе (с JWT)", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.APIGateway.TenantIdизJWT, GoFuturePlatform.ProdMicroservices.DynamicDataSourceRouter, "4: Запросы с tenant_id в заголовках", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.ProdMicroservices.DynamicDataSourceRouter, GoFuturePlatform.БДМикросервисов.Partnerdatabaseschema, "5: SET search_path TO tenant_schema", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.APIGateway.TenantIdизJWT, GoFuturePlatform.ProdMicroservices.EventPublisher, "6: Запросы с tenant_id в заголовках", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.ProdMicroservices.EventPublisher, GoFuturePlatform.БрокерсообщенийEDA, "7: Публикует все события с tenant_id", $techn="Publish", $tags="Relationship", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

@@ -1,0 +1,15 @@
+    workers = container "Воркеры фоновых задач" "Обработка асинхронных задач" "Celery" "Analytics" {
+        payoutTasks = component "Payout Tasks" "Асинхронные задачи выплат" "Celery Task"
+        notificationTasks = component "Notification Tasks" "Асинхронные задачи уведомлений" "Celery Task"
+        analyticsTasks = component "Analytics Tasks" "Асинхронная аналитика" "Celery Task" "Analytics"
+    }
+
+# Внутренние связи
+    # Хранилища
+        # C2
+        workers -> dbMain "Записывает результаты" "SQL"
+
+        # C3
+        workers.notificationTasks -> dbMain "данные уведомлений" "ORM"
+        workers.payoutTasks -> dbMain "выплаты и балансы" "ORM"
+        workers.analyticsTasks -> dbMain "аналитические данные" "ORM"

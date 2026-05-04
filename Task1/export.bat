@@ -1,4 +1,7 @@
-call ./../export-org.bat ./docs/classification.org ./results/
-call ./../export-org.bat ./docs/requirements.org ./results/
-call ./../export-org.bat ./docs/adr-001-migration.org ./results/
-@REM xcopy /y ".\docs\С2-to-be.puml" ".\results\"
+pushd "%~dp0"
+
+call ./../export-org.bat ./docs/01-requirements.org ./results/
+call ./../export-org.bat ./docs/02-migration.org ./results/
+call ./../export-org.bat ./docs/03-migration-plan.org ./results/
+
+popd

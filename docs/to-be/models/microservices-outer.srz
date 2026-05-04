@@ -1,0 +1,33 @@
+#C2 маршрутизация
+# Frontend
+    apiGateway.cRouting -> bffPassenger "Создает заказы" "HTTPS/REST API"
+    apiGateway.cRouting -> bffDriver "Обновляет статус" "HTTPS/REST API"
+    apiGateway.cRouting -> bffCorp "Просмотр заказов" "HTTPS/REST API"
+    apiGateway.cRouting -> bffAccountant "Управление выплатами" "HTTPS/REST API"
+
+# C2 ASYNC-связи
+    # domains
+    booking -> mqEDA "уведомления и аналитика" "Publish" "Publish"
+    payouts -> mqEDA "выплаты" "Publish" "Publish"
+    payments -> mqEDA "отчеты" "Publish" "Publish"
+    analyticsDom -> mqEDA "события аналитики" "Publish" "Publish"
+
+    # workers
+    mqEDA -> payoutTasks "Задачи выплат" "Subscribe" "Subscribe"
+    mqEDA -> notificationTasks "Задачи уведомлений" "Subscribe" "Subscribe"
+    mqEDA -> analyticsTasks "Задачи аналитики" "Subscribe" "Subscribe"
+
+    mqEDA -> pricing "SurgeFactorUpdated - актуальный коэффициент для конкретного района" "Subscribe" "ToBe, Subscribe"
+    analyticsTasks -> analyticsEngine "обработка данных" "Spark Jobs" "Analytics"
+
+# C2 Внешние интеграции
+    # domains
+    
+    geo -> yandexMaps "геоданные" "Yandex Maps API" "ExternalApi"
+    payments -> yandexPay "платежи" "Yandex Pay API" "ExternalApi"
+
+    # workers
+    payoutTasks -> bankApi "Банковские выплаты" "REST API" "ExternalApi"
+    notificationTasks -> fcm "Уведомления Android" "REST API" "ExternalApi"
+    notificationTasks -> huaweiPush "Уведомления Huawei" "REST API" "ExternalApi"
+    notificationTasks -> apns "Уведомления iOS" "REST API" "ExternalApi"

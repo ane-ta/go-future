@@ -1,0 +1,84 @@
+@startuml
+title <size:24>Репликация основного региона</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Deployment>
+
+AddElementTag("Container,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Standby", $bgColor="#e0e0e0", $borderColor="#9c9c9c", $fontColor="#888888", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Database", $bgColor="#1c62b9", $borderColor="#134481", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+Deployment_Node(ActivePassiveRegionDeployment.Activeregionprivatenetwork, "Active region private network", $type="", $descr="", $tags="Element", $link="") {
+  Deployment_Node(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster, "K8 cluster", $type="", $descr="", $tags="Element", $link="") {
+    Deployment_Node(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Inactivemode, "In active mode", $type="", $descr="Write to Db, Publish to Broker, Listen to Events", $tags="Element", $link="") {
+      Container(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Inactivemode.ProdMicroservices_1, "Prod Microservices", $techn="Python/Faust Streaming", $descr="бизнес логика после миграции", $tags="Container", $link="")
+    }
+
+    ContainerDb(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.БДМикросервисов_1, "БД Микросервисов", $techn="PostgreSQL", $descr="Источники правды для микросервисов", $tags="Container,Database", $link="")
+    ContainerQueue(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Broker_1, "Broker", $techn="Kafka", $descr="среда для EDA", $tags="Container,Broker", $link="")
+    Deployment_Node(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.KafkaConnectInemitmode, "Kafka Connect In emit-mode", $type="", $descr="Use Debezium Connector to listen transaction logs", $tags="Element", $link="") {
+      Deployment_Node(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.KafkaConnectInemitmode.DebeziumSourceConnector, "Debezium Source Connector", $type="", $descr="Читает WAL PostgreSQL → публикует в Kafka", $tags="Element", $link="")
+    }
+
+  }
+
+  Deployment_Node(ActivePassiveRegionDeployment.Activeregionprivatenetwork.RegionalFirewall, "Regional Firewall", $type="Safety", $descr="activeGroup,passiveGroup", $tags="Element", $link="")
+}
+
+Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork, "Passive region private network", $type="", $descr="", $tags="Element", $link="") {
+  Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster, "k8 cluster", $type="", $descr="", $tags="Element", $link="") {
+    Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.Instandbymode, "In standby mode", $type="", $descr="No writing to Db, no events publishing, no events consuming", $tags="Element", $link="") {
+      Container(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.Instandbymode.ProdMicroservices_1, "Prod Microservices", $techn="Python/Faust Streaming", $descr="бизнес логика после миграции", $tags="Container,Standby", $link="")
+    }
+
+    ContainerDb(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.БДМикросервисов_1, "БД Микросервисов", $techn="PostgreSQL", $descr="Источники правды для микросервисов", $tags="Container,Database", $link="")
+    ContainerQueue(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.Broker_1, "Broker", $techn="Kafka", $descr="среда для EDA", $tags="Container,Broker", $link="")
+    Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.MirrorMaker2, "Mirror Maker 2", $type="Duplication", $descr="Дупликация потока событий", $tags="Element", $link="")
+    Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.KafkaConnectInconsumemode, "Kafka Connect In consume-mode", $type="", $descr="applies data changes", $tags="Element", $link="") {
+      Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.KafkaConnectInconsumemode.JDBCSinkConnector, "JDBC Sink Connector", $type="", $descr="Читает из Kafka → пишет в PostgreSQL", $tags="Element", $link="")
+    }
+
+  }
+
+  Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.RegionalFirewall, "Regional Firewall", $type="Safety", $descr="passiveGroup,activeGroup", $tags="Element", $link="")
+}
+
+Deployment_Node(ActivePassiveRegionDeployment.Globalinfrastructure, "Global infrastructure", $type="", $descr="", $tags="Element", $link="") {
+  Container(ActivePassiveRegionDeployment.Globalinfrastructure.TransitFirewall_1, "Transit Firewall", $techn="", $descr="Гарантирует, что через этот канал идет только поток Kafka/CDC и ничего больше", $tags="Container,Safety", $link="")
+}
+
+Rel(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Inactivemode.ProdMicroservices_1, ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.БДМикросервисов_1, "Read Write", $techn="SQL", $tags="Relationship", $link="")
+Rel(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Broker_1, ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Inactivemode.ProdMicroservices_1, "Consume prod events", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Inactivemode.ProdMicroservices_1, ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Broker_1, "Publish prod events", $techn="Publish", $tags="Publish", $link="")
+Rel(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.KafkaConnectInemitmode.DebeziumSourceConnector, ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Broker_1, "CDC events", $techn="Publish", $tags="Publish", $link="")
+Rel(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.БДМикросервисов_1, ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.KafkaConnectInemitmode.DebeziumSourceConnector, "Transaction logs (WAL)", $techn="PostgreSQL logical replication", $tags="Relationship", $link="")
+Rel(ActivePassiveRegionDeployment.Activeregionprivatenetwork.K8cluster.Broker_1, ActivePassiveRegionDeployment.Activeregionprivatenetwork.RegionalFirewall, "CDC, EDA events, consumer offsets to mirror", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.MirrorMaker2, ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.Broker_1, "CDC, EDA events, consumer offsets", $techn="Publish", $tags="Publish", $link="")
+Rel(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.Broker_1, ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.KafkaConnectInconsumemode.JDBCSinkConnector, "CDC events", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.KafkaConnectInconsumemode.JDBCSinkConnector, ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.БДМикросервисов_1, "apply db changes", $techn="SQL", $tags="Relationship", $link="")
+Rel(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.RegionalFirewall, ActivePassiveRegionDeployment.Passiveregionprivatenetwork.k8cluster.MirrorMaker2, "CDC, EDA events, consumer offsets to mirror", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(ActivePassiveRegionDeployment.Activeregionprivatenetwork.RegionalFirewall, ActivePassiveRegionDeployment.Globalinfrastructure.TransitFirewall_1, "CDC, EDA events, consumer offsets to mirror (encrypted)", $techn="mTLS/VPN", $tags="Subscribe", $link="")
+Rel(ActivePassiveRegionDeployment.Globalinfrastructure.TransitFirewall_1, ActivePassiveRegionDeployment.Passiveregionprivatenetwork.RegionalFirewall, "CDC, EDA events, consumer offsets to mirror (encrypted)", $techn="mTLS/VPN", $tags="Subscribe", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

@@ -1,0 +1,113 @@
+# C2 FE to BE
+    bffPassenger -> booking "Маршрутизирует webPassenger" "HTTPS"
+    bffPassenger -> geo "ищет маршрут" "синхронно" "LogicApi"
+    bffPassenger -> pricing "запрашивает цену" "синхронно" "LogicApi"
+
+    bffDriver -> driverDom "Маршрутизирует webDriver" "HTTPS"
+    bffDriver -> pricing "расчет заработка" "синхронно" "ToBe, LogicApi"
+
+    bffCorp -> booking "Маршрутизирует webPortal" "HTTPS"
+
+    bffAccountant -> payouts "Маршрутизирует adminPortal" "HTTPS"
+
+# C2 Оркестрация Взаимодействие микросервисов EDA
+    booking -> orchestr "инициирует SAGA" "синхронно" "LogicApi"
+
+    orchestr -> fraud "проверяет транзакцию на мошенничество" "синхронно" "LogicApi"
+    orchestr -> payments "бронирует оплату на счете" "синхронно" "LogicApi"
+
+    orchestr -> mqEDA "BookingCreated" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> driverDom "BookingCreated" "Subscribe" "ToBe, EDA, Subscribe"
+
+    driverDom -> mqEDA "FindDriverRequested" "Publish" "ToBe, EDA, Publish"
+
+    driverDom -> mqEDA "SendNotification - Новый заказ" "Queue" "ToBe, EDA, Publish, Notification"
+
+    driverDom -> mqEDA "DriverProposed" "Publish" "ToBe, EDA, Publish"
+    driverDom -> mqEDA "DriverAccepted\nDriverRejected" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> orchestr "DriverAccepted\nDriverRejected" "Subscribe" "ToBe, EDA, Subscribe"
+    
+    orchestr -> mqEDA "Назначить водителя" "Queue" "ToBe, EDA, Publish"
+    mqEDA -> booking "Назначить водителя" "Queue" "ToBe, EDA, Subscribe"
+    booking -> mqEDA "DriverAssigned" "Publish" "ToBe, EDA, Publish"
+    booking -> mqEDA "SendNotification - Водитель назначен" "Queue" "ToBe, EDA, Publish, Notification"
+
+    mqEDA -> geo "DriverAssigned" "Subscribe" "ToBe, EDA, Subscribe"
+
+    driverDom -> mqEDA "DriverSearchTimeout" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> orchestr "DriverSearchTimeout" "Subscribe" "ToBe, EDA, Subscribe"
+
+    booking -> mqEDA "BookingCancelled" "Publish" "ToBe, EDA, Publish"
+    booking -> mqEDA "SendNotification - Заказ отменен" "Queue" "ToBe, EDA, Publish, Notification"
+    mqEDA -> driverDom "BookingCancelled" "Subscribe" "ToBe, EDA, Subscribe"
+    
+    driverDom -> mqEDA "RideStarted" "Publish" "ToBe, EDA, Publish"
+    driverDom -> mqEDA "SendNotification - Поездка начата" "Queue" "ToBe, EDA, Publish, Notification"
+    
+    driverDom -> mqEDA "RideCompleted" "Publish" "ToBe, EDA, Publish"
+    driverDom -> mqEDA "SendNotification - Поездка закончена" "Queue" "ToBe, EDA, Publish, Notification"
+    mqEDA -> payments "RideCompleted" "Subscribe" "ToBe, EDA, Subscribe"
+    mqEDA -> payouts "RideCompleted" "Subscribe" "ToBe, EDA, Subscribe"
+    
+    pricing -> mqEDA "SurgeFactorUpdated" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> geo "SurgeFactorUpdated" "Subscribe" "ToBe, EDA, Subscribe"
+
+    fraud -> mqEDA "FraudAlert" "Publish" "ToBe, EDA, Publish"
+
+    payments -> mqEDA "PaymentHeld" "Publish" "ToBe, EDA, Publish"
+    payments -> mqEDA "PaymentReleased" "Publish" "ToBe, EDA, Publish"
+    payments -> mqEDA "PaymentCharged" "Publish" "ToBe, EDA, Publish"
+
+    payouts -> mqEDA "PayoutCompleted" "Publish" "ToBe, EDA, Publish"
+    payouts -> mqEDA "SendNotification - Выплата проведена" "Queue" "ToBe, EDA, Publish, Notification"
+
+    driverDom -> mqEDA "LocationUpdated" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> geo "LocationUpdated" "Subscribe" "ToBe, EDA, Subscribe"
+
+    notif -> mqEDA "NotificationSent" "Publish" "ToBe, EDA, Publish"
+
+    geo -> mqEDA "Метрики геопоиска" "Publish" "ToBe, EDA, Publish"
+    mqEDA -> notif "SendNotification" "[Queue]" "ToBe, EDA, Subscribe, Notification"
+
+
+# C2 SQL запросы микросервисов 
+    orchestr -> dbSqlOrchestr "Saga state" "SQL" "ToBe, SQL, DBLink"
+
+    booking -> dbSqlBooking "bookings, drivers" "SQL" "ToBe, SQL, DBLink"
+    driverDom -> dbSqlDriver "drivers, payouts" "SQL" "ToBe, SQL, DBLink"
+    pricing -> dbSqlPricing "pricing_rules" "SQL" "ToBe, SQL, DBLink"
+    payments -> dbSqlPayments "payments" "SQL" "ToBe, SQL, DBLink"
+    payouts -> dbSqlPayouts "payouts" "SQL" "ToBe, SQL, DBLink"
+    geo -> dbSqlGeo "drivers, zones" "SQL" "ToBe, SQL, DBLink"
+    analyticsDom -> dbSqlAnalytics "???" "SQL" "ToBe, SQL, DBLink"
+    fraud -> dbSqlFraud "payments, bookings" "SQL" "ToBe, SQL, DBLink"
+    notif -> dbSqlNotif "???" "SQL" "ToBe, SQL, DBLink"
+
+    notificationTasks -> dbSqlNotif "данные уведомлений" "ORM" "ToBe, SQL, DBLink"
+    payoutTasks -> dbSqlPayouts "выплаты и балансы" "ORM" "ToBe, SQL, DBLink"
+    analyticsTasks -> dbSqlAnalytics "???" "ORM" "ToBe, SQL, DBLink"
+
+# C2 Репликация
+    dbSqlBooking -> replicaAgent.debezium "bookings" "Transaction Log" "ToBe, ReplicaLink, Publish"
+    replicaAgent.jdbc -> dbSqlFraud "bookings" "SQL" "ToBe, ReplicaLink, Subscribe"
+    
+    dbSqlPayments -> replicaAgent.debezium "payments" "Transaction Log" "ToBe, ReplicaLink, Publish"
+    replicaAgent.jdbc -> dbSqlFraud "payments" "SQL" "ToBe, ReplicaLink, Subscribe"
+
+    dbSqlDriver -> replicaAgent.debezium "drivers" "Transaction Log" "ToBe, ReplicaLink, Publish"
+    replicaAgent.jdbc -> dbSqlPayouts "данные водителя" "SQL" "ToBe, ReplicaLink, Subscribe"
+    replicaAgent.jdbc -> dbSqlBooking "drivers" "SQL" "ToBe, ReplicaLink, Subscribe"
+    replicaAgent.jdbc -> dbSqlGeo "drivers" "SQL" "ToBe, ReplicaLink, Subscribe"
+    
+    dbSqlPayouts -> replicaAgent.debezium "payouts" "Transaction Log" "ToBe, ReplicaLink, Publish"
+    replicaAgent.jdbc -> dbSqlDriver "payouts" "SQL" "ToBe, ReplicaLink"
+
+# C2 Поиск 
+    geo -> dbGeo "поиск водителей" "Elasticsearch API" "ToBe, Elastic, DBLink"
+    
+# C2 Кеширование
+    pricing -> cachePricing "кеш ценовых правил" "Redis" "ToBe, Cache, DBLink"
+    pricing -> cachePricing "Surge factor upsert" "Redis" "ToBe, Cache, DBLink" 
+
+    notif -> cacheNotif "кеш устройств" "Redis" "ToBe, Cache, DBLink"
+    geo -> cacheGeo "кеш геоданных" "Redis" "ToBe, Cache, DBLink"

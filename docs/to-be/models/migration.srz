@@ -1,0 +1,23 @@
+    # Migration
+    monolith = container "Монолит" "Legacy бизнес логика" "Django App" "Migration, Generalization" {
+        legacy = component "Legacy Domains" "Домены бизнес логики до миграции" "" "Migration, Generalization"
+        aclComponent = component "Anti-Corruption Component" "Обеспечивает обратную совместимость внутренних связей при миграции." "???" "Migration, Generalization"
+
+        legacy -> aclComponent "Обращаются к мигрировашим доменам" "Django" "Migration, Generalization" 
+    }
+    mq = container "Брокер сообщений обратной совместимости" "Очередь задач" "RabbitMQ" "Broker, Migration"
+
+    monolith.legacy -> mq "Прежние события" "AMQP Publish" "Publish, Migration"
+    mq -> monolith.legacy "Прежние события" "AMQP Subscribe" "Subscribe, Migration"
+
+    # Миграция
+    apiGateway.cRouting -> apiGateway.aclService "Маршрутизирует старые связи"
+    
+    apiGateway.legacyAuthAdapter -> idService "Обменивает session_id на JWT" "Migration"
+    apiGateway.legacyAuthAdapter -> monolith.aclComponent "Валидирует SessionId" "???" "Migration, Generalization"
+    
+//    aclService -> monolith "Перенаправляет legacy связи" "???" "Migration, Generalization" 
+    apiGateway.aclService -> monolith.legacy "Перенаправляет legacy связи" "???" "Migration, Generalization" 
+    apiGateway.aclService -> msProd "Трансформирует legacy связи" "???" "Migration, Generalization"
+    
+    monolith.aclComponent -> msProd "Трансформирует legacy связи" "???" "Migration, Generalization"

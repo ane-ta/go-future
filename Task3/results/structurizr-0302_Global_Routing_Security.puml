@@ -1,0 +1,108 @@
+@startuml
+title <size:24>Глобальная инфраструктура (Routing + Security)</size>\n<size:24>Схема геомаршрутизации и глобального балансирования</size>
+
+set separator none
+left to right direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Deployment>
+
+AddElementTag("Container,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Standby", $bgColor="#e0e0e0", $borderColor="#9c9c9c", $fontColor="#888888", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure,Standby", $bgColor="#e0e0e0", $borderColor="#ffffff", $fontColor="#888888", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Database", $bgColor="#1c62b9", $borderColor="#134481", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure,GeoRouting", $bgColor="#23313f", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+Deployment_Node(GlobalInfrastructure.Глобальнаяинфраструктура, "Глобальная инфраструктура", $type="", $descr="", $tags="Element", $link="") {
+  Container(GlobalInfrastructure.Глобальнаяинфраструктура.GeoDNSRoute53_1, "GeoDNS (Route 53)", $techn="AWS Route 53", $descr="DNS-маршрутизация на основе геолокации и задержки", $tags="Container,Infrastructure,GeoRouting", $link="")
+  Container(GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_1, "WAF & DDoS Protection edge node", $techn="", $descr="Фильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации).", $tags="Container,Safety", $link="")
+  Container(GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_2, "WAF & DDoS Protection edge node", $techn="", $descr="Фильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации).", $tags="Container,Safety", $link="")
+  Container(GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1, "Health Checker", $techn="AWS Route 53 Health Checks", $descr="Мониторинг доступности регионов. Может быть частью Route 53\nПроверяет каждые 30 сек, 3 неудачи = unhealthy.", $tags="Container,Infrastructure", $link="")
+  Container(GlobalInfrastructure.Глобальнаяинфраструктура.Cloudmonitor_1, "Cloud monitor", $techn="", $descr="метрики", $tags="Container", $link="")
+  Container(GlobalInfrastructure.Глобальнаяинфраструктура.NotificationService_1, "Notification Service", $techn="", $descr="(SNS / Pub/Sub / etc)", $tags="Container", $link="")
+}
+
+Deployment_Node(GlobalInfrastructure.CentralRegion, "Central Region", $type="", $descr="", $tags="Element", $link="") {
+  Container(GlobalInfrastructure.CentralRegion.AlertManager_1, "Alert Manager", $techn="", $descr="", $tags="Container", $link="")
+}
+
+Deployment_Node(GlobalInfrastructure.MainRegion, "Main Region", $type="", $descr="", $tags="Element", $link="") {
+  Deployment_Node(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork, "Main region private network", $type="", $descr="", $tags="Element", $link="") {
+    Container(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.RegionalFirewall_1, "Regional Firewall", $techn="", $descr="Фильтрует трафик", $tags="Container,Infrastructure,Safety", $link="")
+    Deployment_Node(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster, "Kubernetes Cluster", $type="", $descr="", $tags="Element", $link="") {
+      Deployment_Node(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode, "In active mode", $type="", $descr="", $tags="Element", $link="") {
+        Container(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure", $link="")
+        Container(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1, "Prod Microservices", $techn="Python/Faust Streaming", $descr="бизнес логика после миграции", $tags="Container", $link="")
+      }
+
+      ContainerQueue(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1, "Broker", $techn="Kafka", $descr="среда для EDA", $tags="Container,Broker", $link="")
+      ContainerDb(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1, "БД Микросервисов", $techn="PostgreSQL", $descr="Источники правды для микросервисов", $tags="Container,Database", $link="")
+    }
+
+  }
+
+}
+
+Deployment_Node(GlobalInfrastructure.ReserveRegion, "Reserve Region", $type="", $descr="", $tags="Element", $link="") {
+  Deployment_Node(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork, "Reserve region private network", $type="", $descr="", $tags="Element", $link="") {
+    Container(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.RegionalFirewall_1, "Regional Firewall", $techn="", $descr="Фильтрует трафик", $tags="Container,Infrastructure,Safety", $link="")
+    Deployment_Node(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster, "Kubernetes Cluster", $type="", $descr="", $tags="Element", $link="") {
+      Deployment_Node(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode, "In standby mode", $type="", $descr="", $tags="Element", $link="") {
+        Container(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure,Standby", $link="")
+        Container(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1, "Prod Microservices", $techn="Python/Faust Streaming", $descr="бизнес логика после миграции", $tags="Container,Standby", $link="")
+      }
+
+      ContainerQueue(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Broker_1, "Broker", $techn="Kafka", $descr="среда для EDA", $tags="Container,Broker", $link="")
+      ContainerDb(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.БДМикросервисов_1, "БД Микросервисов", $techn="PostgreSQL", $descr="Источники правды для микросервисов", $tags="Container,Database", $link="")
+    }
+
+  }
+
+}
+
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.GeoDNSRoute53_1, GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_1, "направляет трафик в развертывание", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.GeoDNSRoute53_1, GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_2, "направляет трафик в развертывание", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.GeoDNSRoute53_1, GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1, "использует для определения доступности основного региона", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1, GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_1, "GET /health", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1, GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_2, "GET /health", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.HealthChecker_1, GlobalInfrastructure.Глобальнаяинфраструктура.Cloudmonitor_1, "region is unhealthy", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.Cloudmonitor_1, GlobalInfrastructure.Глобальнаяинфраструктура.NotificationService_1, "Alert: Region is unhealthy", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.NotificationService_1, GlobalInfrastructure.CentralRegion.AlertManager_1, "Alert: Region is unhealthy", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_1, GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.RegionalFirewall_1, "Фильтрует трафик", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.RegionalFirewall_1, GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1, "Реализует правило «Пускать только от WAF»", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1, GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1, "Маршрутизирует новые связи", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1, GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1, "health check: metadata fetch", $techn="Safety", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1, GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1, "Consume prod events", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1, GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Broker_1, "Publish prod events", $techn="Publish", $tags="Publish", $link="")
+Rel(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.APIGateway_1, GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1, "health check: SELECT 1", $techn="Safety", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.Inactivemode.ProdMicroservices_1, GlobalInfrastructure.MainRegion.Mainregionprivatenetwork.KubernetesCluster.БДМикросервисов_1, "Read Write", $techn="SQL", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.Глобальнаяинфраструктура.WAFDDoSProtectionedgenode_2, GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.RegionalFirewall_1, "Фильтрует трафик", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.RegionalFirewall_1, GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1, "Реализует правило «Пускать только от WAF»", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1, GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1, "Маршрутизирует новые связи", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1, GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Broker_1, "health check: metadata fetch", $techn="Safety", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Broker_1, GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1, "Consume prod events", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1, GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Broker_1, "Publish prod events", $techn="Publish", $tags="Publish", $link="")
+Rel(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.APIGateway_1, GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.БДМикросервисов_1, "health check: SELECT 1", $techn="Safety", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.Instandbymode.ProdMicroservices_1, GlobalInfrastructure.ReserveRegion.Reserveregionprivatenetwork.KubernetesCluster.БДМикросервисов_1, "Read Write", $techn="SQL", $tags="Relationship", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

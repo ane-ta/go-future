@@ -1,0 +1,8 @@
+    group "Analytics pipe" {
+        analyticsEngine = container "Analytics Engine" "Обработка аналитических данных" "Spark/Flink" "AnalyticsPipe"
+        dbAnalytics = container "Analytics Db" "Хранение аналитических данных" "ClickHouse" "AnalyticsPipe"
+        dataLens = container "DataLens" "Визуализация бизнес метрик" "BI Tool" "AnalyticsPipe"
+    }
+
+    dbAnalytics -> dataLens "Предоставляет данные" "SQL" "AnalyticsPipe"
+    dataLens -> corpManager "Смотрит отчеты" "" "AnalyticsPipe"

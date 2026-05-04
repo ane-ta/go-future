@@ -1,0 +1,23 @@
+# Внешние связи
+
+# Внешние сервисы
+    # C2
+    workers -> yandexPay "Платежи" "REST API"
+    workers -> bankApi "Выплаты" "REST API"
+    workers -> fcm "Push" "REST API"
+    workers -> apns "Push" "REST API"
+    workers -> huaweiPush "Push" "REST API"
+    # C3
+    workers.payoutTasks -> bankApi "Банковские выплаты" "REST API"
+    workers.notificationTasks -> fcm "Уведомления Android" "REST API"
+    workers.notificationTasks -> huaweiPush "Уведомления Huawei" "REST API"
+    workers.notificationTasks -> apns "Уведомления iOS" "REST API"
+
+# Асинхронные задачи
+    # C2
+    mq -> workers "Передает задачи" "AMQP"
+
+    # C3
+    mq -> workers.payoutTasks "Задачи выплат" "AMQP"
+    mq -> workers.notificationTasks "Задачи уведомлений" "AMQP"
+    mq -> workers.analyticsTasks "Задачи аналитики" "AMQP"  

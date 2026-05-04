@@ -1,0 +1,140 @@
+@startuml
+title <size:24>EDA взаимодействие микросервисов</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+AddBoundaryTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $shadowing="", $borderStyle="solid")
+
+System(ЯндексПэй, "Яндекс Пэй", $descr="Платежный шлюз", $tags="Element", $link="")
+System(ЯндексКарты, "Яндекс Карты", $descr="Геоданные и маршруты", $tags="Element", $link="")
+System(APIБанка, "API Банка", $descr="Банковские выплаты", $tags="Element", $link="")
+System(FirebaseCloudMessaging, "Firebase Cloud Messaging", $descr="Push iOS/Android", $tags="Element", $link="")
+System(ApplePushNotification, "Apple Push Notification", $descr="Push iOS", $tags="Element", $link="")
+System(HuaweiPushKit, "Huawei Push Kit", $descr="Push Huawei", $tags="Element", $link="")
+
+System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
+  AddBoundaryTag("Analytics", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_1, "Analytics", $tags="Analytics") {
+    Container(GoFuturePlatform.AnalyticsService, "Analytics Service", $techn="Python/Faust Streaming", $descr="Сбор аналитики", $tags="Container", $link="")
+    Container(GoFuturePlatform.AnalyticsServiceTasks, "Analytics Service Tasks", $techn="Celery Task", $descr="Асинхронная аналитика", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Booking", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_2, "Booking", $tags="Booking") {
+    Container(GoFuturePlatform.BookingService, "Booking Service", $techn="Python/Faust Streaming", $descr="Управление бронированиями", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Drivers", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_3, "Drivers", $tags="Drivers") {
+    Container(GoFuturePlatform.DriverService, "Driver Service", $techn="Python/Faust Streaming", $descr="Управление водителями", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Fraud", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_4, "Fraud", $tags="Fraud") {
+    Container(GoFuturePlatform.FraudService, "Fraud Service", $techn="Python/Faust Streaming", $descr="Обнаружение мошенничества", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Geo", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_5, "Geo", $tags="Geo") {
+    Container(GoFuturePlatform.GeographyService, "Geography Service", $techn="Python/Faust Streaming", $descr="Геопоиск и маршрутизация", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Notification", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_6, "Notification", $tags="Notification") {
+    Container(GoFuturePlatform.NotificationService, "Notification Service", $techn="Python/Faust Streaming", $descr="Управление уведомлениями", $tags="Container", $link="")
+    Container(GoFuturePlatform.NotificationServiceTasks, "Notification Service Tasks", $techn="Celery Task", $descr="Асинхронные задачи уведомлений", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Orchestration", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_7, "Orchestration", $tags="Orchestration") {
+    Container(GoFuturePlatform.Orchestration, "Orchestration", $techn="Temporal Python SDK", $descr="Оркестрация", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Payments", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_8, "Payments", $tags="Payments") {
+    Container(GoFuturePlatform.PaymentsService, "Payments Service", $techn="Python/Faust Streaming", $descr="Платежи от пассажиров", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Payouts", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_9, "Payouts", $tags="Payouts") {
+    Container(GoFuturePlatform.PayoutsService, "Payouts Service", $techn="Python/Faust Streaming", $descr="Выплаты водителям", $tags="Container", $link="")
+    Container(GoFuturePlatform.PayoutServiceTasks, "Payout Service Tasks", $techn="Celery Task", $descr="Асинхронные задачи выплат", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Pricing", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_10, "Pricing", $tags="Pricing") {
+    Container(GoFuturePlatform.PricingService, "Pricing Service", $techn="Python/Faust Streaming", $descr="Ценообразование", $tags="Container", $link="")
+  }
+
+  ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
+}
+
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.Orchestration, "инициирует SAGA", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.FraudService, "проверяет транзакцию на мошенничество", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.PaymentsService, "бронирует оплату на счете", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "BookingCreated", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.DriverService, "BookingCreated", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "FindDriverRequested", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "SendNotification - Новый заказ", $techn="Queue", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "DriverProposed", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "DriverAccepted\nDriverRejected", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.Orchestration, "DriverAccepted\nDriverRejected", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "Назначить водителя", $techn="Queue", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.BookingService, "Назначить водителя", $techn="Queue", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.БрокерсообщенийEDA, "DriverAssigned", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.БрокерсообщенийEDA, "SendNotification - Водитель назначен", $techn="Queue", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.GeographyService, "DriverAssigned", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "DriverSearchTimeout", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.Orchestration, "DriverSearchTimeout", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.БрокерсообщенийEDA, "BookingCancelled", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.БрокерсообщенийEDA, "SendNotification - Заказ отменен", $techn="Queue", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.DriverService, "BookingCancelled", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "RideStarted", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "SendNotification - Поездка начата", $techn="Queue", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "RideCompleted", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "SendNotification - Поездка закончена", $techn="Queue", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.PaymentsService, "RideCompleted", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.PayoutsService, "RideCompleted", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.PricingService, GoFuturePlatform.БрокерсообщенийEDA, "SurgeFactorUpdated", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.GeographyService, "SurgeFactorUpdated", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.FraudService, GoFuturePlatform.БрокерсообщенийEDA, "FraudAlert", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.PaymentsService, GoFuturePlatform.БрокерсообщенийEDA, "PaymentHeld", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.PaymentsService, GoFuturePlatform.БрокерсообщенийEDA, "PaymentReleased", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.PaymentsService, GoFuturePlatform.БрокерсообщенийEDA, "PaymentCharged", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.PayoutsService, GoFuturePlatform.БрокерсообщенийEDA, "PayoutCompleted", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.PayoutsService, GoFuturePlatform.БрокерсообщенийEDA, "SendNotification - Выплата проведена", $techn="Queue", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "LocationUpdated", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.GeographyService, "LocationUpdated", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.NotificationService, GoFuturePlatform.БрокерсообщенийEDA, "NotificationSent", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.GeographyService, GoFuturePlatform.БрокерсообщенийEDA, "Метрики геопоиска", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.NotificationService, "SendNotification", $techn="[Queue]", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.GeographyService, ЯндексКарты, "геоданные", $techn="Yandex Maps API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PaymentsService, ЯндексПэй, "платежи", $techn="Yandex Pay API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PayoutServiceTasks, APIБанка, "Банковские выплаты", $techn="REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.NotificationServiceTasks, FirebaseCloudMessaging, "Уведомления Android", $techn="REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.NotificationServiceTasks, HuaweiPushKit, "Уведомления Huawei", $techn="REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.NotificationServiceTasks, ApplePushNotification, "Уведомления iOS", $techn="REST API", $tags="Relationship", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

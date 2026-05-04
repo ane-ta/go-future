@@ -1,0 +1,132 @@
+@startuml
+title <size:24>Микросервисы и репликации данных между ними</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Database", $bgColor="#1c62b9", $borderColor="#134481", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+AddBoundaryTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $shadowing="", $borderStyle="solid")
+
+System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
+  AddBoundaryTag("Analytics", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_1, "Analytics", $tags="Analytics") {
+    Container(GoFuturePlatform.AnalyticsService, "Analytics Service", $techn="Python/Faust Streaming", $descr="Сбор аналитики", $tags="Container", $link="")
+    Container(GoFuturePlatform.AnalyticsServiceTasks, "Analytics Service Tasks", $techn="Celery Task", $descr="Асинхронная аналитика", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДAnalytics, "БД Analytics", $techn="PostgreSQL RDS", $descr="???", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Booking", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_2, "Booking", $tags="Booking") {
+    Container(GoFuturePlatform.BookingService, "Booking Service", $techn="Python/Faust Streaming", $descr="Управление бронированиями", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДBookings, "БД Bookings", $techn="PostgreSQL RDS", $descr="Операционные данные заказов", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Drivers", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_3, "Drivers", $tags="Drivers") {
+    Container(GoFuturePlatform.DriverService, "Driver Service", $techn="Python/Faust Streaming", $descr="Управление водителями", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДDrivers, "БД Drivers", $techn="PostgreSQL RDS", $descr="Данные водителей и смен", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Fraud", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_4, "Fraud", $tags="Fraud") {
+    Container(GoFuturePlatform.FraudService, "Fraud Service", $techn="Python/Faust Streaming", $descr="Обнаружение мошенничества", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДFraud, "БД Fraud", $techn="PostgreSQL RDS", $descr="Fraud", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Geo", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_5, "Geo", $tags="Geo") {
+    Container(GoFuturePlatform.GeographyService, "Geography Service", $techn="Python/Faust Streaming", $descr="Геопоиск и маршрутизация", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДGeo, "БД Geo", $techn="PostgreSQL RDS", $descr="Geo", $tags="Container,Database", $link="")
+    ContainerDb(GoFuturePlatform.CacheGeo, "Cache Geo", $techn="Redis", $descr="кеш геоданных", $tags="Container,Database", $link="")
+    ContainerDb(GoFuturePlatform.GEODriverssearchDB, "GEO Drivers search DB", $techn="Elasticsearch", $descr="Поисковый индекс", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Notification", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_6, "Notification", $tags="Notification") {
+    Container(GoFuturePlatform.NotificationService, "Notification Service", $techn="Python/Faust Streaming", $descr="Управление уведомлениями", $tags="Container", $link="")
+    Container(GoFuturePlatform.NotificationServiceTasks, "Notification Service Tasks", $techn="Celery Task", $descr="Асинхронные задачи уведомлений", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДNotification, "БД Notification", $techn="PostgreSQL RDS", $descr="Данные уведомлений", $tags="Container,Database", $link="")
+    ContainerDb(GoFuturePlatform.CacheNotifications, "Cache Notifications", $techn="Redis", $descr="кеш устройств", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Orchestration", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_7, "Orchestration", $tags="Orchestration") {
+    Container(GoFuturePlatform.Orchestration, "Orchestration", $techn="Temporal Python SDK", $descr="Оркестрация", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДOrchestration, "БД Orchestration", $techn="PostgreSQL RDS", $descr="Оркестрация", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Payments", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_8, "Payments", $tags="Payments") {
+    Container(GoFuturePlatform.PaymentsService, "Payments Service", $techn="Python/Faust Streaming", $descr="Платежи от пассажиров", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДPayments, "БД Payments", $techn="PostgreSQL RDS", $descr="Транзакции и логи эквайринга", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Payouts", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_9, "Payouts", $tags="Payouts") {
+    Container(GoFuturePlatform.PayoutsService, "Payouts Service", $techn="Python/Faust Streaming", $descr="Выплаты водителям", $tags="Container", $link="")
+    Container(GoFuturePlatform.PayoutServiceTasks, "Payout Service Tasks", $techn="Celery Task", $descr="Асинхронные задачи выплат", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДPayouts, "БД Payouts", $techn="PostgreSQL RDS", $descr="Реестры выплат", $tags="Container,Database", $link="")
+  }
+
+  AddBoundaryTag("Pricing", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_10, "Pricing", $tags="Pricing") {
+    Container(GoFuturePlatform.PricingService, "Pricing Service", $techn="Python/Faust Streaming", $descr="Ценообразование", $tags="Container", $link="")
+    ContainerDb(GoFuturePlatform.БДPricing, "БД Pricing", $techn="PostgreSQL RDS", $descr="Тарифные сетки", $tags="Container,Database", $link="")
+    ContainerDb(GoFuturePlatform.CachePricing, "Cache Pricing", $techn="Redis", $descr="кеш ценовых правил", $tags="Container,Database", $link="")
+  }
+
+  ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
+  Container(GoFuturePlatform.KafkaConnect, "Kafka Connect", $techn="Kafka Connect", $descr="Кластер коннекторов к базам для CDC", $tags="Container", $link="")
+}
+
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БДOrchestration, "Saga state", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.БДBookings, "bookings, drivers", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БДDrivers, "drivers, payouts", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PricingService, GoFuturePlatform.БДPricing, "pricing_rules", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PaymentsService, GoFuturePlatform.БДPayments, "payments", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PayoutsService, GoFuturePlatform.БДPayouts, "payouts", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.GeographyService, GoFuturePlatform.БДGeo, "drivers, zones", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.AnalyticsService, GoFuturePlatform.БДAnalytics, "???", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.FraudService, GoFuturePlatform.БДFraud, "payments, bookings", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.NotificationService, GoFuturePlatform.БДNotification, "???", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.NotificationServiceTasks, GoFuturePlatform.БДNotification, "данные уведомлений", $techn="ORM", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PayoutServiceTasks, GoFuturePlatform.БДPayouts, "выплаты и балансы", $techn="ORM", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.AnalyticsServiceTasks, GoFuturePlatform.БДAnalytics, "???", $techn="ORM", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.БДBookings, GoFuturePlatform.KafkaConnect, "bookings", $techn="Transaction Log", $tags="Publish", $link="")
+Rel(GoFuturePlatform.KafkaConnect, GoFuturePlatform.БДFraud, "bookings", $techn="SQL", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.БДPayments, GoFuturePlatform.KafkaConnect, "payments", $techn="Transaction Log", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БДDrivers, GoFuturePlatform.KafkaConnect, "drivers", $techn="Transaction Log", $tags="Publish", $link="")
+Rel(GoFuturePlatform.KafkaConnect, GoFuturePlatform.БДPayouts, "данные водителя", $techn="SQL", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.KafkaConnect, GoFuturePlatform.БДBookings, "drivers", $techn="SQL", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.KafkaConnect, GoFuturePlatform.БДGeo, "drivers", $techn="SQL", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.БДPayouts, GoFuturePlatform.KafkaConnect, "payouts", $techn="Transaction Log", $tags="Publish", $link="")
+Rel(GoFuturePlatform.KafkaConnect, GoFuturePlatform.БДDrivers, "payouts", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.GeographyService, GoFuturePlatform.GEODriverssearchDB, "поиск водителей", $techn="Elasticsearch API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PricingService, GoFuturePlatform.CachePricing, "кеш ценовых правил", $techn="Redis", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PricingService, GoFuturePlatform.CachePricing, "Surge factor upsert", $techn="Redis", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.NotificationService, GoFuturePlatform.CacheNotifications, "кеш устройств", $techn="Redis", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.GeographyService, GoFuturePlatform.CacheGeo, "кеш геоданных", $techn="Redis", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.KafkaConnect, GoFuturePlatform.БрокерсообщенийEDA, "CDC events", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.KafkaConnect, "CDC events", $techn="Subscribe", $tags="Subscribe", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

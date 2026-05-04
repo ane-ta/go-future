@@ -1,4 +1,6 @@
 .structurizr/
 .vorg.db
 workspace.json
-*.md
+results/*.md
+/docs/puml/
+/docs/images/

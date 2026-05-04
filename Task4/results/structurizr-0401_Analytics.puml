@@ -1,0 +1,72 @@
+@startuml
+title <size:24>Аналитика BI и ML</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+AddElementTag("Container,Observability", $bgColor="#8e44ad", $borderColor="#632f79", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,AnalyticsPipe", $bgColor="#218c74", $borderColor="#176251", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+AddBoundaryTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $shadowing="", $borderStyle="solid")
+
+Person(Корпоративныйменеджер, "Корпоративный менеджер", $descr="Управляет счетами и поездками", $tags="Element", $link="")
+
+System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
+  AddBoundaryTag("Analytics", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_1, "Analytics", $tags="Analytics") {
+    Container(GoFuturePlatform.AnalyticsServiceTasks, "Analytics Service Tasks", $techn="Celery Task", $descr="Асинхронная аналитика", $tags="Container", $link="")
+  }
+
+  AddBoundaryTag("Analytics pipe", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_2, "Analytics pipe", $tags="Analytics pipe") {
+    Container(GoFuturePlatform.DataQualityBusinessRulesValidation, "Data Quality / Business Rules Validation", $techn="Great Expectations / Python", $descr="Проверяет смысл данных, на которых будет учиться ML.", $tags="Container,AnalyticsPipe", $link="")
+    Container(GoFuturePlatform.MLPlatform, "ML Platform", $techn="Kubeflow / MLflow", $descr="Обучение и Serving моделей (Pricing, Fraud, Demand)", $tags="Container,AnalyticsPipe", $link="")
+    Container(GoFuturePlatform.AnalyticsEngine, "Analytics Engine", $techn="Spark/Flink", $descr="Обработка аналитических данных", $tags="Container,AnalyticsPipe", $link="")
+    Container(GoFuturePlatform.AnalyticsDb, "Analytics Db", $techn="ClickHouse", $descr="Хранение аналитических данных", $tags="Container,AnalyticsPipe", $link="")
+    Container(GoFuturePlatform.DataLens, "DataLens", $techn="BI Tool", $descr="Визуализация бизнес метрик", $tags="Container,AnalyticsPipe", $link="")
+  }
+
+  AddBoundaryTag("Observability", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_3, "Observability", $tags="Observability") {
+    Container(GoFuturePlatform.Grafana, "Grafana", $techn="Grafana", $descr="Визуализация метрик. Дашборды", $tags="Container,Observability", $link="")
+  }
+
+  ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
+  Container(GoFuturePlatform.DataContractSchemaValidation, "Data Contract / Schema Validation", $techn="Confluent Schema Registry", $descr="Проверяет соответствие схеме (Schema Registry), наличие обязательных полей.", $tags="Container", $link="")
+}
+
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.AnalyticsServiceTasks, "Задачи аналитики", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.AnalyticsServiceTasks, GoFuturePlatform.AnalyticsEngine, "обработка данных", $techn="Spark Jobs", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.AnalyticsEngine, "Поток событий для аналитики", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.AnalyticsEngine, GoFuturePlatform.DataContractSchemaValidation, "Metadata/Schema fetch", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.AnalyticsEngine, GoFuturePlatform.DataQualityBusinessRulesValidation, "Транслирует обработанные и вычисленные данные", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.DataQualityBusinessRulesValidation, GoFuturePlatform.AnalyticsDb, "Записывает высококачественные данные", $techn="ETL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.AnalyticsDb, GoFuturePlatform.MLPlatform, "Выборка исторических данных и признаков", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.MLPlatform, "Поток событий для предсказания в реальном времени", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.MLPlatform, GoFuturePlatform.БрокерсообщенийEDA, "Результаты расчета в реальном времени\nSurgeFactor / FraudAlert", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.MLPlatform, GoFuturePlatform.AnalyticsDb, "Метрики точности моделей", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.AnalyticsDb, GoFuturePlatform.DataLens, "Предоставляет данные", $techn="SQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Grafana, GoFuturePlatform.AnalyticsDb, "Бизнесовые метрики", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.DataLens, Корпоративныйменеджер, "Смотрит отчеты", $techn="", $tags="Relationship", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

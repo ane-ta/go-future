@@ -1,0 +1,61 @@
+@startuml
+title <size:24>EDA Оркестрация заказа - Водитель не найден</size>\n<size:24>Водитель не найден при создании заказа</size>
+
+set separator none
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4_Sequence>
+
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+Person(Пассажир, "Пассажир", $descr="Заказывает, отслеживает и оплачивает поездки", $tags="Element", $link="")
+Container(GoFuturePlatform.Пассажирскоеприложение, "Пассажирское приложение", $techn="Native", $descr="iOS/Android/Huawei", $tags="Container", $link="")
+Container(GoFuturePlatform.APIGateway, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure", $link="")
+Container(GoFuturePlatform.BFFПриложениепассажира, "BFF Приложение пассажира", $techn="ToBe, Frontend", $descr="", $tags="Container", $link="")
+Container(GoFuturePlatform.BookingService, "Booking Service", $techn="Python/Faust Streaming", $descr="Управление бронированиями", $tags="Container", $link="")
+ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
+Container(GoFuturePlatform.Orchestration, "Orchestration", $techn="Temporal Python SDK", $descr="Оркестрация", $tags="Container", $link="")
+Container(GoFuturePlatform.FraudService, "Fraud Service", $techn="Python/Faust Streaming", $descr="Обнаружение мошенничества", $tags="Container", $link="")
+Container(GoFuturePlatform.PaymentsService, "Payments Service", $techn="Python/Faust Streaming", $descr="Платежи от пассажиров", $tags="Container", $link="")
+Container(GoFuturePlatform.DriverService, "Driver Service", $techn="Python/Faust Streaming", $descr="Управление водителями", $tags="Container", $link="")
+
+Rel(Пассажир, GoFuturePlatform.Пассажирскоеприложение, "1: Создает заказ", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Пассажирскоеприложение, GoFuturePlatform.APIGateway, "2: POST /order", $techn="HTTPS/REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.APIGateway, GoFuturePlatform.BFFПриложениепассажира, "3: Маршрутизирует", $techn="HTTPS/REST API", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.BFFПриложениепассажира, GoFuturePlatform.BookingService, "4: Создает заказ", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.БрокерсообщенийEDA, "5: BookingCreated", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.Orchestration, "6: startSaga(booking)", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.FraudService, "7: checkUserFraud()", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.PaymentsService, "8: holdPayment()", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.BookingService, "9: startSaga(booking) result", $techn="синхронно", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.BFFПриложениепассажира, "10: Заказ принят, назначаем водителя", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "11: Queue: FindDriver()", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.DriverService, "12: Queue: FindDriver()", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "13: FindDriverRequested", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.DriverService, GoFuturePlatform.БрокерсообщенийEDA, "14: DriverSearchTimeout", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.Orchestration, "15: DriverSearchTimeout", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.BookingService, "16: BookingCancelled", $techn="Queue", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.BookingService, GoFuturePlatform.BFFПриложениепассажира, "17: Заказ отменен", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "18: Queue: releasePayment()", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.PaymentsService, "19: Queue: releasePayment()", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.PaymentsService, GoFuturePlatform.БрокерсообщенийEDA, "20: PaymentReleased", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.Orchestration, "21: PaymentReleased", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.Orchestration, GoFuturePlatform.БрокерсообщенийEDA, "22: BookingCancelled", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.DriverService, "23: BookingCancelled", $techn="Subscribe", $tags="Subscribe", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

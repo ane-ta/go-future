@@ -1,0 +1,12 @@
+    goFuture.driverDom -> goFuture.mqEDA "publish: RideStarted"
+    goFuture.driverDom -> goFuture.mqEDA "RideCompleted"
+    
+    goFuture.mqEDA -> goFuture.orchestr "RideCompleted"
+
+    goFuture.orchestr -> goFuture.mqEDA "queue: chargePayment"
+    goFuture.mqEDA -> goFuture.payments "queue: chargePayment"
+    goFuture.payments -> goFuture.mqEDA "PaymentCharged"
+    goFuture.mqEDA -> goFuture.orchestr "PaymentCharged"
+    
+    goFuture.orchestr -> goFuture.mqEDA "BookingCompleted"
+    

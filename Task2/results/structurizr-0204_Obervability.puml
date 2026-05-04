@@ -1,0 +1,81 @@
+@startuml
+title <size:24>Система обеспечения наблюдаемости</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+AddElementTag("Container,Observability", $bgColor="#8e44ad", $borderColor="#632f79", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,AnalyticsPipe", $bgColor="#218c74", $borderColor="#176251", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Database", $bgColor="#1c62b9", $borderColor="#134481", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+AddBoundaryTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $shadowing="", $borderStyle="solid")
+
+Person(SREинженер, "SRE инженер", $descr="Мониторинг и поддержка", $tags="Element", $link="")
+
+System_Boundary("GoFuturePlatform_boundary", "GoFuture Platform", $tags="Element") {
+  AddBoundaryTag("Analytics pipe", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_1, "Analytics pipe", $tags="Analytics pipe") {
+    Container(GoFuturePlatform.AnalyticsDb, "Analytics Db", $techn="ClickHouse", $descr="Хранение аналитических данных", $tags="Container,AnalyticsPipe", $link="")
+  }
+
+  AddBoundaryTag("Observability", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_2, "Observability", $tags="Observability") {
+    Container(GoFuturePlatform.Хранилищетрейсов, "Хранилище трейсов", $techn="Grafana Tempo", $descr="Трейсинг", $tags="Container,Observability", $link="")
+    Container(GoFuturePlatform.Prometheus, "Prometheus", $techn="Monitoring system", $descr="Сбор метрик и мониторинг", $tags="Container,Observability", $link="")
+    Container(GoFuturePlatform.Grafana, "Grafana", $techn="Grafana", $descr="Визуализация метрик. Дашборды", $tags="Container,Observability", $link="")
+    Container(GoFuturePlatform.Alertmanager, "Alertmanager", $techn="Alertmanager", $descr="Алертинг", $tags="Container,Observability", $link="")
+    Container(GoFuturePlatform.Loki, "Loki", $techn="Loki", $descr="Сбор логов", $tags="Container,Observability", $link="")
+  }
+
+  AddBoundaryTag("Prod area", $borderColor="#cccccc", $fontColor="#cccccc", $borderStyle="dashed")
+  Boundary(group_3, "Prod area", $tags="Prod area") {
+    Container(GoFuturePlatform.ProdMicroservices, "Prod Microservices", $techn="Python/Faust Streaming", $descr="бизнес логика после миграции", $tags="Container", $link="")
+    ContainerQueue(GoFuturePlatform.Broker, "Broker", $techn="Kafka", $descr="среда для EDA", $tags="Container,Broker", $link="")
+    ContainerDb(GoFuturePlatform.Databases, "Databases", $techn="PostgreSQL/Redis/Clickhouse", $descr="Хранилища", $tags="Container,Database", $link="")
+  }
+
+  Container(GoFuturePlatform.Агенттелеметрии, "Агент телеметрии", $techn="Grafana Alloy Agent", $descr="Сбор и обработка телеметрии: метрики, логи, трейсы", $tags="Container,Observability", $link="")
+}
+
+Rel(GoFuturePlatform.ProdMicroservices, GoFuturePlatform.Агенттелеметрии, "Метрики", $techn="prometheus_client lib", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Broker, GoFuturePlatform.Агенттелеметрии, "Метрики очередей", $techn="???", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Databases, GoFuturePlatform.Агенттелеметрии, "Метрики БД", $techn="???", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Агенттелеметрии, GoFuturePlatform.Prometheus, "технические и бизнес метрики", $techn="Metrics, Observability", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Grafana, GoFuturePlatform.AnalyticsDb, "Бизнесовые метрики", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.ProdMicroservices, GoFuturePlatform.Агенттелеметрии, "структурированные логи", $techn="stdout", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Broker, GoFuturePlatform.Агенттелеметрии, "структурированные логи", $techn="stdout", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Databases, GoFuturePlatform.Агенттелеметрии, "структурированные логи", $techn="stdout", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Агенттелеметрии, GoFuturePlatform.Loki, "Logs", $techn="Metrics, Observability", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.ProdMicroservices, GoFuturePlatform.Агенттелеметрии, "Трейсы", $techn="Otel SDK", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Агенттелеметрии, GoFuturePlatform.Хранилищетрейсов, "Трейсы", $techn="OTLP", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Grafana, GoFuturePlatform.Хранилищетрейсов, "Трейсы", $techn="TraceQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Grafana, GoFuturePlatform.Loki, "Логи", $techn="LogQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Grafana, GoFuturePlatform.Prometheus, "Метрики", $techn="PromQL", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Prometheus, GoFuturePlatform.Alertmanager, "Алерты", $techn="Metrics, Observability", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.Alertmanager, SREинженер, "Приходят алерты", $techn="Email/Slack/Pager", $tags="Relationship", $link="")
+Rel(SREинженер, GoFuturePlatform.Alertmanager, "Настраивает алерты", $techn="Metrics, Observability", $tags="Relationship", $link="")
+Rel(SREинженер, GoFuturePlatform.Grafana, "Мониторит систему", $techn="Metrics, Logs, Observability", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.ProdMicroservices, GoFuturePlatform.Broker, "Publish prod events", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.Broker, GoFuturePlatform.ProdMicroservices, "Consume prod events", $techn="Subscribe", $tags="Subscribe", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

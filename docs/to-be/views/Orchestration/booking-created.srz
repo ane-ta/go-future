@@ -1,0 +1,20 @@
+    passenger -> goFuture.webPassenger "Создает заказ"
+    goFuture.webPassenger -> goFuture.apiGateway "POST /order"
+    goFuture.apiGateway -> goFuture.bffPassenger "Маршрутизирует"
+    
+    goFuture.bffPassenger -> goFuture.booking "Создает заказ"
+    
+    goFuture.booking -> goFuture.mqEDA "BookingCreated"
+    goFuture.booking -> goFuture.orchestr "startSaga(booking)"
+    
+    goFuture.orchestr -> goFuture.fraud "checkUserFraud()"
+        
+    goFuture.orchestr -> goFuture.Payments "holdPayment()"
+
+    goFuture.orchestr -> goFuture.booking "startSaga(booking) result"
+    goFuture.booking -> goFuture.bffPassenger "Заказ принят, назначаем водителя"
+
+    goFuture.orchestr -> goFuture.mqEDA "Queue: FindDriver()"
+    goFuture.mqEDA -> goFuture.driverDom "Queue: FindDriver()"
+    
+    goFuture.driverDom -> goFuture.mqEDA "FindDriverRequested"

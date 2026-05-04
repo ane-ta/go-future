@@ -1,0 +1,38 @@
+    !element analyticsEngine {
+        reportEngine = component "Пайплайн отчетов"
+        mlEngine = component "Пайплайн признаков для ML"
+    }
+    # C2  
+    
+    //analyticsEngine -> mqEDA "SurgeFactorUpdated - актуальный коэффициент для конкретного района" "Publish" "ToBe, Publish, EDA"
+    
+    group "Analytics pipe" {
+        validateLogic = container "Data Quality / Business Rules Validation" "Проверяет смысл данных, на которых будет учиться ML." "Great Expectations / Python" "AnalyticsPipe, DataQuality" {
+            validateBI = component "Валидация на техническую целостность"
+            validateML = component "Валидация на смысловую пригодность (Data Quality)"
+        }
+
+        mlPlatform = container "ML Platform" "Обучение и Serving моделей (Pricing, Fraud, Demand)" "Kubeflow / MLflow" "ML, AnalyticsPipe" 
+    }
+
+    !element dbAnalytics {
+        reportDb = component "DWH (Data Warehouse)" "для BI и отчетов"
+        featureDb = component "Feature Store" "для ML-признаков"
+    }
+
+    //Пайплайн ML
+    mqEDA -> analyticsEngine.mlEngine "Поток событий для аналитики" "Subscribe" "Subscribe"
+    analyticsEngine.mlEngine -> validateContract "Metadata/Schema fetch"
+    analyticsEngine.mlEngine -> validateLogic.validateML "Транслирует обработанные и вычисленные данные"
+    validateLogic.validateML -> dbAnalytics.featureDb "Записывает высококачественные данные" "ETL"
+    dbAnalytics.featureDb -> mlPlatform "Выборка исторических данных и признаков" "SQL"
+
+    //Пайплайн Аналитики
+    mqEDA -> analyticsEngine.reportEngine "События для аналитики" "Subscribe" "Analytics, Subscribe"
+    analyticsEngine.reportEngine -> validateContract "Metadata/Schema fetch" "gRPC / HTTP"
+    analyticsEngine.reportEngine -> validateLogic.validateBI "Транслирует обработанные и вычисленные данные"
+    validateLogic.validateBI -> dbAnalytics.reportDb "Записывает высококачественные данные" "ETL"
+
+    mqEDA -> mlPlatform "Поток событий для предсказания в реальном времени" "Subscribe" "Subscribe"
+    mlPlatform -> mqEDA "Результаты расчета в реальном времени\nSurgeFactor / FraudAlert" "Publish" "Publish, ML"
+    mlPlatform -> dbAnalytics "Метрики точности моделей"

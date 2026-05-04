@@ -1,0 +1,40 @@
+@startuml
+title <size:24>Успешное маршрутизирование в основной регион</size>\n<size:24>Геомаршрутизация: успех</size>
+
+set separator none
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4_Sequence>
+
+AddElementTag("Container,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure", $bgColor="#2c3e50", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Infrastructure,GeoRouting", $bgColor="#23313f", $borderColor="#ffffff", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+
+Person(Пользователь, "Пользователь", $descr="", $tags="Element", $link="")
+Container(GlobalInfrastructure.GeoDNSRoute53, "GeoDNS (Route 53)", $techn="AWS Route 53", $descr="DNS-маршрутизация на основе геолокации и задержки", $tags="Container,Infrastructure,GeoRouting", $link="")
+Container(GlobalInfrastructure.HealthChecker, "Health Checker", $techn="AWS Route 53 Health Checks", $descr="Мониторинг доступности регионов. Может быть частью Route 53\nПроверяет каждые 30 сек, 3 неудачи = unhealthy.", $tags="Container,Infrastructure", $link="")
+Container(GlobalInfrastructure.WAFDDoSProtectionedgenode, "WAF & DDoS Protection edge node", $techn="", $descr="Фильтрует атаки (DDoS, SQL-инъекции, XSS, попытки взлома авторизации).", $tags="Container,Safety", $link="")
+Container(GoFuturePlatform.RegionalFirewall, "Regional Firewall", $techn="", $descr="Фильтрует трафик", $tags="Container,Infrastructure,Safety", $link="")
+Container(GoFuturePlatform.APIGateway, "API Gateway", $techn="???", $descr="Единая точка входа, Auth, Rate Limiting", $tags="Container,Infrastructure", $link="")
+
+Rel(Пользователь, GlobalInfrastructure.GeoDNSRoute53, "1: DNS-запрос: api.gofuture.com", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.GeoDNSRoute53, GlobalInfrastructure.HealthChecker, "2: проверяет доступность основного региона", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.HealthChecker, GlobalInfrastructure.GeoDNSRoute53, "3: Основной регион доступен", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.GeoDNSRoute53, Пользователь, "4: IP основного региона", $techn="", $tags="Relationship", $link="")
+Rel(Пользователь, GlobalInfrastructure.WAFDDoSProtectionedgenode, "5: HTTP-запрос в основной регион", $techn="", $tags="Relationship", $link="")
+Rel(GlobalInfrastructure.WAFDDoSProtectionedgenode, GoFuturePlatform.RegionalFirewall, "6: HTTP-запрос в основной регион", $techn="HTTPS", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.RegionalFirewall, GoFuturePlatform.APIGateway, "7: HTTP-запрос в основной регион", $techn="HTTPS", $tags="Relationship", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

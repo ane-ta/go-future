@@ -1,0 +1,38 @@
+@startuml
+title <size:24>Пересчет динамического ценообразования</size>\n<size:24>Surge</size>
+
+set separator none
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4_Sequence>
+
+AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,AnalyticsPipe", $bgColor="#218c74", $borderColor="#176251", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container,Database", $bgColor="#1c62b9", $borderColor="#134481", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+AddRelTag("Publish", $textColor="#e67e22", $lineColor="#e67e22", $lineStyle = DashedLine())
+AddRelTag("Subscribe", $textColor="#f1c40f", $lineColor="#f1c40f", $lineStyle = DashedLine())
+
+ContainerQueue(GoFuturePlatform.БрокерсообщенийEDA, "Брокер сообщений EDA", $techn="Kafka", $descr="Доменные события, CDC события, события аналитики", $tags="Container,Broker", $link="")
+Container(GoFuturePlatform.MLPlatform, "ML Platform", $techn="Kubeflow / MLflow", $descr="Обучение и Serving моделей (Pricing, Fraud, Demand)", $tags="Container,AnalyticsPipe", $link="")
+Container(GoFuturePlatform.PricingService, "Pricing Service", $techn="Python/Faust Streaming", $descr="Ценообразование", $tags="Container", $link="")
+ContainerDb(GoFuturePlatform.CachePricing, "Cache Pricing", $techn="Redis", $descr="кеш ценовых правил", $tags="Container,Database", $link="")
+Container(GoFuturePlatform.AnalyticsEngine, "Analytics Engine", $techn="Spark/Flink", $descr="Обработка аналитических данных", $tags="Container,AnalyticsPipe", $link="")
+
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.MLPlatform, "1: События для динамического ценообразования", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.MLPlatform, GoFuturePlatform.БрокерсообщенийEDA, "2: SurgeFactorUpdated", $techn="Publish", $tags="Publish", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.PricingService, "3: SurgeFactorUpdated", $techn="Subscribe", $tags="Subscribe", $link="")
+Rel(GoFuturePlatform.PricingService, GoFuturePlatform.CachePricing, "4: Surge factor upsert", $techn="Redis", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.БрокерсообщенийEDA, GoFuturePlatform.AnalyticsEngine, "5: События для переобучения ML", $techn="Subscribe", $tags="Subscribe", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

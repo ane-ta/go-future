@@ -1,0 +1,34 @@
+@startuml
+title <size:24>Создание окружения для нового партнера</size>
+
+set separator none
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4_Sequence>
+
+AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Component", $bgColor="#85bbf0", $borderColor="#5d82a8", $fontColor="#000000", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
+
+AddRelTag("Relationship", $textColor="#424242", $lineColor="#424242", $lineStyle = DashedLine())
+
+Person(GoFutureAdmin, "GoFuture Admin", $descr="Сотрудник платформы, управляющий партнерами", $tags="Element", $link="")
+Container(GoFuturePlatform.PartnerManagementService, "Partner Management Service", $techn="", $descr="", $tags="Container", $link="")
+Container(GoFuturePlatform.PartnerOnboardingService, "Partner Onboarding Service", $techn="Go / Python", $descr="Автоматизация создания новых тенантов", $tags="Container", $link="")
+Component(GoFuturePlatform.IdentityService.Tenantrealm, "Tenant realm", $techn="", $descr="", $tags="Component", $link="")
+Component(GoFuturePlatform.БДМикросервисов.Partnerdatabaseschema, "Partner database schema", $techn="PostgreSQL", $descr="Хранение данных партнеров в изолированных схемах (Schema-per-tenant)", $tags="Component", $link="")
+
+Rel(GoFutureAdmin, GoFuturePlatform.PartnerManagementService, "1: Создает запись для нового партнера", $techn="", $tags="Relationship", $link="")
+Rel(GoFutureAdmin, GoFuturePlatform.PartnerOnboardingService, "2: Инициирует создание нового партнера", $techn="", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PartnerOnboardingService, GoFuturePlatform.IdentityService.Tenantrealm, "3: Создает Realm и Admin учетку для партнера\nКонфигурирует SSO для партнера", $techn="gRPC", $tags="Relationship", $link="")
+Rel(GoFuturePlatform.PartnerOnboardingService, GoFuturePlatform.БДМикросервисов.Partnerdatabaseschema, "4: Создает изолированную SQL Schema (CREATE SCHEMA)", $techn="SQL", $tags="Relationship", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

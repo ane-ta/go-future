@@ -1,0 +1,9 @@
+    goFuture.driverDom -> goFuture.mqEDA "DriverProposed"
+    goFuture.driverDom -> goFuture.mqEDA "DriverAccepted"
+    goFuture.mqEDA -> goFuture.orchestr "DriverAccepted"
+    
+    goFuture.orchestr -> goFuture.mqEDA "queue: assignDriver()"
+    goFuture.mqEDA -> goFuture.booking "queue: assignDriver()"
+    goFuture.booking -> goFuture.mqEDA "DriverAssigned"
+    
+    goFuture.mqEDA -> goFuture.geo "DriverAssigned"
