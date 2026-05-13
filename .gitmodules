@@ -1,0 +1,3 @@
+[submodule "arch-tooling"]
+	path = arch-tooling
+	url = https://github.com/ane-ta/arch-tooling.git
