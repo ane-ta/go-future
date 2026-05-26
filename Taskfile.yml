@@ -1,0 +1,74 @@
+version: '3'
+
+includes:
+ 
+  arh:
+    taskfile: ./arch-tooling/scripts/Taskfile.yml
+    flatten: true
+
+
+tasks:
+  gofuture:export:all:
+    cmds: 
+      - task: gofuture:export:dsl
+      - task: gofuture:export:org
+
+  gofuture:export:dsl:
+    desc: "GoFuture - Export DSL to PUML and SVG"
+    vars:
+      TASKS: [1, 2, 3, 4, 5]
+      WORKSPACE_PATH: '{{joinPath .ROOT_DIR "./docs/workspace.dsl" | toSlash}}' 
+      PUML_DIR: '{{joinPath .ROOT_DIR "./docs/puml" | toSlash}}'
+      SVG_DIR: '{{joinPath .ROOT_DIR "./docs/images" | toSlash}}'
+      RESULT_DIR: '{{.ROOT_DIR}}'
+    cmds:
+      # export dsl
+      - task: dsl:docker:export
+        vars:
+          WORKSPACE_PATH: '{{.WORKSPACE_PATH}}'
+          PUML_DIR: '{{.PUML_DIR}}'
+          SVG_DIR: '{{.SVG_DIR}}' 
+
+      # arrange export results to every Task result
+      - for: { var: TASKS, as: TASK }
+        task: gofuture:export:dsl:arrange_task_results
+        vars:
+          TASK_INDEX: '{{.TASK}}'
+          PUML_DIR: '{{.PUML_DIR}}'
+          SVG_DIR: '{{.SVG_DIR}}'
+          RESULT_DIR: '{{.RESULT_DIR}}'
+
+  gofuture:export:dsl:arrange_task_results:
+    internal: true
+    requires:
+      vars:
+        [TASK_INDEX, PUML_DIR, SVG_DIR, RESULT_DIR]
+    vars:
+      TASK_RESULT_DIR: '{{.RESULT_DIR}}./Task{{.TASK_INDEX}}/results'
+      TASK_FILE_BASE_MASK: 'structurizr-0{{.TASK_INDEX}}*'
+      PUML_MASK:  '{{joinPath .PUML_DIR (printf "%s.puml" .TASK_FILE_BASE_MASK) | toSlash}}'
+      SVG_MASK:   '{{joinPath .SVG_DIR  (printf "%s.svg"  .TASK_FILE_BASE_MASK) | toSlash}}'
+    sources:
+      - '{{.PUML_MASK}}'
+      - '{{.SVG_MASK}}'
+    generates:
+      - '{{.TASK_RESULT_DIR}}/{{.TASK_FILE_BASE_MASK}}.puml'
+      - '{{.TASK_RESULT_DIR}}/{{.TASK_FILE_BASE_MASK}}.svg'
+    cmds:
+      - rm -f "{{.TASK_RESULT_DIR}}/{{.TASK_FILE_BASE_MASK}}.puml"
+      - rm -f "{{.TASK_RESULT_DIR}}/{{.TASK_FILE_BASE_MASK}}.svg"
+
+      - for: sources
+        cmd: cp "{{.ITEM}}" "{{.TASK_RESULT_DIR}}/"
+
+  gofuture:export:org:
+    desc: "GoFuture - Export ORG to MD"
+    vars:
+      DIRS: [Task1, Task2, Task3, Task4, Task5]
+    cmds:
+      # export org to md for every Task
+      - for: { var: DIRS, as: DIR }
+        task: org-to-md:docker:render_tree
+        vars:
+          SOURCE_DIR: '{{joinPath .ROOT_DIR (joinPath .DIR "docs")}}'
+          DEST_DIR:   '{{joinPath .ROOT_DIR (joinPath .DIR "results")}}'

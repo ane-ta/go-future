@@ -1,4 +1,4 @@
-workspace "GoFuture" "Полная модель текущего состояния (As-Is)" {
+workspace "GoFuture" "Модель Gofuture" {
     !const MODELS_PATH "parent/models"
     !const STYLES_PATH "parent/styles"
 

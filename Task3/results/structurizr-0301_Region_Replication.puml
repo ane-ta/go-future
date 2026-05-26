@@ -20,6 +20,7 @@ AddElementTag("Container,Safety", $bgColor="#c0392b", $borderColor="#ffffff", $f
 AddElementTag("Container,Broker", $bgColor="#4b7bec", $borderColor="#3456a5", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
 AddElementTag("Container,Standby", $bgColor="#e0e0e0", $borderColor="#9c9c9c", $fontColor="#888888", $sprite="", $shadowing="", $borderStyle="solid")
 AddElementTag("Element", $bgColor="#ffffff", $borderColor="#444444", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
+AddElementTag("Safety", $bgColor="#c0392b", $borderColor="#ffffff", $fontColor="#444444", $sprite="", $shadowing="", $borderStyle="solid")
 AddElementTag("Container,Database", $bgColor="#1c62b9", $borderColor="#134481", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
 AddElementTag("Container", $bgColor="#1168bd", $borderColor="#0b4884", $fontColor="#ffffff", $sprite="", $shadowing="", $borderStyle="solid")
 
@@ -59,7 +60,7 @@ Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork, "Pass
 
   }
 
-  Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.RegionalFirewall, "Regional Firewall", $type="Safety", $descr="passiveGroup,activeGroup", $tags="Element", $link="")
+  Deployment_Node(ActivePassiveRegionDeployment.Passiveregionprivatenetwork.RegionalFirewall, "Regional Firewall", $type="activeGroup", $descr="passiveGroup,", $tags="Safety", $link="")
 }
 
 Deployment_Node(ActivePassiveRegionDeployment.Globalinfrastructure, "Global infrastructure", $type="", $descr="", $tags="Element", $link="") {

@@ -4,3 +4,4 @@ workspace.json
 results/*.md
 /docs/puml/
 /docs/images/
+.task/
